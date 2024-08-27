@@ -1,0 +1,11 @@
+services:
+  go:
+    env_file:
+      - .env
+    build:
+      context: .
+    container_name: go
+    ports:
+      - "9990:9990"
+    volumes:
+      - .:/usr/src/app:rw
