@@ -46,6 +46,8 @@
   "dependencies": {
     "@types/lodash": "^4.14.194",
     "axios": "^1.4.0",
+    "bootstrap": "5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "http-status-codes": "^2.2.0",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",

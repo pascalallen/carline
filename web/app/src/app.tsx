@@ -1,5 +1,9 @@
 import React, { ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import routes from '@routes/routes';
+import { storesInstance, StoresProvider } from '@stores/Stores';
 import '@assets/scss/app.scss';
 
 const container: HTMLElement | null = document.getElementById('root');
@@ -8,7 +12,21 @@ if (container === null) {
 }
 
 const App = (): ReactElement => {
-  return <React.StrictMode>Hello, World!</React.StrictMode>;
+  return (
+    <React.StrictMode>
+      <StoresProvider value={storesInstance}>
+        <HelmetProvider>
+          <Helmet>
+            <title>Carline</title>
+            <meta name="description" content="Carline app" />
+            <meta name="robots" content="index, follow" />
+            <link rel="canonical" href="https://carline.com/" />
+          </Helmet>
+          <RouterProvider router={createBrowserRouter(routes)} />
+        </HelmetProvider>
+      </StoresProvider>
+    </React.StrictMode>
+  );
 };
 
 const root = createRoot(container);

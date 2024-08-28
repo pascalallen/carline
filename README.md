@@ -16,6 +16,7 @@ Carline app
 ├── bin/       # Executable CLI commands
 ├── cmd/       # Go commands
 ├── internal/  # Supporting packages
+├── scripts/   # Application-specific scripts
 └── web/       # Web app components
 ```
 
@@ -23,7 +24,21 @@ Carline app
 
 - Configurable CI/CD pipeline
 - Helper scripts
+- MobX store
+- Google Wire DI container
+- JWT/HMAC authentication services
+- RabbitMQ message broker
+- Asynchronous command bus
+- Asynchronous event dispatcher
+- Middleware
 - Frontend linting with ESLint and Prettier
+- GORM ORM
+- Database seeds for permissions, roles, and users
+- Database seeder
+- Domain models
+- API endpoints for authentication and registration
+- API endpoints for server-sent events
+- Repositories
 
 ## Prerequisites
 
@@ -47,7 +62,7 @@ cp .env.example .env
 ### Bring Up Environment
 
 ```bash
-bin/up
+bin/up <prod>
 ``` 
 
 You will find the site running at [http://localhost:9990/](http://localhost:9990/)
@@ -73,7 +88,7 @@ bin/yarn watch
 ### Take Down Environment
 
 ```bash
-bin/down
+bin/down <prod>
 ```
 
 ## Testing
