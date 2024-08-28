@@ -1,6 +1,7 @@
 package role
 
 import (
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"testing"
 )
