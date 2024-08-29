@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import 'bootstrap/dist/js/bootstrap.min.js';
 import { createRoot } from 'react-dom/client';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
