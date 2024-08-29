@@ -7,14 +7,17 @@ import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
 import Footer from '@components/Footer';
 
-export type LoginFormValues = {
+export type RegisterFormValues = {
+  first_name: string;
+  last_name: string;
   email_address: string;
   password: string;
+  confirm_password: string;
 };
 
 type LocationState = { from?: Location };
 
-const LoginPage = observer((): ReactElement => {
+const RegisterPage = observer((): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
 
@@ -27,27 +30,49 @@ const LoginPage = observer((): ReactElement => {
   const location = useLocation();
   const state: LocationState = location.state as LocationState;
 
-  const handleLogin = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleRegister = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const firstName = formData.get('first_name')?.toString() ?? '';
+    const lastName = formData.get('last_name')?.toString() ?? '';
     const emailAddress = formData.get('email_address')?.toString() ?? '';
     const password = formData.get('password')?.toString() ?? '';
+    const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
+    await authService.register({
+      first_name: firstName,
+      last_name: lastName,
+      email_address: emailAddress,
+      password,
+      confirm_password: confirmPassword
+    });
     await authService.login({ email_address: emailAddress, password });
     const from = state?.from?.pathname || Path.WALKER;
     navigate(from, { replace: true });
   };
 
   return (
-    <div id="login-page" className="login-page">
+    <div id="register-page" className="register-page">
       <Helmet>
-        <title>Carline - Login</title>
+        <title>Carline - Register</title>
       </Helmet>
       <main className="container vh-100 mt-3">
         <section>
           <div className="row row-cols-auto justify-content-center">
             <div className="col">
-              <h1>Login</h1>
-              <form id="login-form" className="login-form" onSubmit={handleLogin}>
+              <h1>Register</h1>
+              <form id="register-form" className="register-form" onSubmit={handleRegister}>
+                <div className="mb-3">
+                  <label htmlFor="first-name" className="form-label">
+                    First name
+                  </label>
+                  <input id="first-name" className="first-name form-control" type="text" name="first_name" />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="last-name" className="form-label">
+                    Last name
+                  </label>
+                  <input id="last-name" className="last-name form-control" type="text" name="last_name" />
+                </div>
                 <div className="mb-3">
                   <label htmlFor="email-address" className="form-label">
                     Email address
@@ -60,9 +85,20 @@ const LoginPage = observer((): ReactElement => {
                   </label>
                   <input id="password" className="password form-control" type="password" name="password" />
                 </div>
+                <div className="mb-3">
+                  <label htmlFor="confirm-password" className="form-label">
+                    Confirm password
+                  </label>
+                  <input
+                    id="confirm-password"
+                    className="confirm-password form-control"
+                    type="password"
+                    name="confirm_password"
+                  />
+                </div>
                 <div className="form-group">
-                  <button id="login-button" className="login-button btn btn-primary" type="submit">
-                    Login
+                  <button id="register-button" className="register-button btn btn-primary" type="submit">
+                    Register
                   </button>
                 </div>
               </form>
@@ -75,4 +111,4 @@ const LoginPage = observer((): ReactElement => {
   );
 });
 
-export default LoginPage;
+export default RegisterPage;

@@ -6,6 +6,7 @@ import HttpMethod from '@domain/constants/HttpMethod';
 import { User } from '@domain/types/User';
 import AuthStore from '@stores/AuthStore';
 import { LoginFormValues } from '@pages/LoginPage';
+import { RegisterFormValues } from '@pages/RegisterPage';
 
 // TODO: Extract to reset password component
 export type ResetPasswordFormValues = {
@@ -27,6 +28,15 @@ class AuthService {
 
   constructor(authStore: AuthStore) {
     this.authStore = authStore;
+  }
+
+  public async register(params: RegisterFormValues): Promise<void> {
+    await request.send({
+      method: HttpMethod.POST,
+      uri: '/api/v1/auth/register',
+      body: params,
+      options: { auth: false }
+    });
   }
 
   public async login(params: LoginFormValues): Promise<void> {

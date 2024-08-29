@@ -1,6 +1,17 @@
 import React, { ReactElement } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Path from '@domain/constants/Path';
+import useAuth from '@hooks/useAuth';
 
 const Navbar = (): ReactElement => {
+  const authService = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async (): Promise<void> => {
+    await authService.logout();
+    authService.logout().finally(() => navigate(Path.INDEX));
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
@@ -24,11 +35,13 @@ const Navbar = (): ReactElement => {
                 Home
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
-                Link
-              </a>
-            </li>
+            {authService.isLoggedIn() && (
+              <li className="nav-item">
+                <a className="nav-link" onClick={handleLogout}>
+                  Logout
+                </a>
+              </li>
+            )}
             <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle"

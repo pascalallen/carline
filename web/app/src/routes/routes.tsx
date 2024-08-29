@@ -3,6 +3,7 @@ import { RouteObject } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import IndexPage from '@pages/IndexPage';
 import LoginPage from '@pages/LoginPage';
+import RegisterPage from '@pages/RegisterPage';
 import TempPage from '@pages/TempPage';
 import WalkerPage from '@pages/WalkerPage';
 import RequiresAuthentication from './middleware/RequiresAuthentication';
@@ -12,6 +13,10 @@ const routes: RouteObject[] = [
   {
     path: Path.INDEX,
     element: <IndexPage />
+  },
+  {
+    path: Path.REGISTER,
+    element: <RegisterPage />
   },
   {
     path: Path.LOGIN,
@@ -30,11 +35,11 @@ const routes: RouteObject[] = [
   {
     path: Path.WALKER,
     element: (
-      // <RouteElementWrapper>
-      //   <RequiresAuthentication>
-      <WalkerPage />
-      // </RequiresAuthentication>
-      // </RouteElementWrapper>
+      <RouteElementWrapper>
+        <RequiresAuthentication>
+          <WalkerPage />
+        </RequiresAuthentication>
+      </RouteElementWrapper>
     )
   }
 ];
