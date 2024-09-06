@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react';
 
 const Footer = (): ReactElement => {
   return (
-    <footer id="footer" className="footer">
+    <footer id="footer" className="footer p-3">
       <div className="row justify-content-center align-items-center">
         <div className="col-auto d-none d-sm-block">
           <p className="copyright-desktop mb-0">© 2024 Pascal Allen & Crimson Drive Design LLC</p>

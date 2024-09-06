@@ -1,11 +1,13 @@
-import React, { FormEvent, ReactElement, useEffect } from 'react';
+import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
+import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import Footer from '@components/Footer';
+import Toast from '@components/Toast';
 
 export type RegisterFormValues = {
   first_name: string;
@@ -20,6 +22,10 @@ type LocationState = { from?: Location };
 const RegisterPage = observer((): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state: LocationState = location.state as LocationState;
+
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (authService.isLoggedIn()) {
@@ -27,35 +33,45 @@ const RegisterPage = observer((): ReactElement => {
     }
   }, [authService, navigate]);
 
-  const location = useLocation();
-  const state: LocationState = location.state as LocationState;
-
   const handleRegister = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const firstName = formData.get('first_name')?.toString() ?? '';
-    const lastName = formData.get('last_name')?.toString() ?? '';
-    const emailAddress = formData.get('email_address')?.toString() ?? '';
-    const password = formData.get('password')?.toString() ?? '';
-    const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
-    await authService.register({
-      first_name: firstName,
-      last_name: lastName,
-      email_address: emailAddress,
-      password,
-      confirm_password: confirmPassword
-    });
-    await authService.login({ email_address: emailAddress, password });
-    const from = state?.from?.pathname || Path.WALKER;
-    navigate(from, { replace: true });
+    try {
+      const formData = new FormData(event.currentTarget);
+      const firstName = formData.get('first_name')?.toString() ?? '';
+      const lastName = formData.get('last_name')?.toString() ?? '';
+      const emailAddress = formData.get('email_address')?.toString() ?? '';
+      const password = formData.get('password')?.toString() ?? '';
+      const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
+      await authService.register({
+        first_name: firstName,
+        last_name: lastName,
+        email_address: emailAddress,
+        password,
+        confirm_password: confirmPassword
+      });
+      await authService.login({ email_address: emailAddress, password });
+      const from = state?.from?.pathname || Path.WALKER;
+      navigate(from, { replace: true });
+    } catch (error) {
+      if ((error as FailApiResponse)?.statusCode === 400) {
+        setErrorMessage('Validation error');
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 422) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
+    }
   };
 
   return (
-    <div id="register-page" className="register-page">
+    <div id="register-page" className="register-page d-flex flex-column vh-100">
+      <div className="toast-container top-0 end-0 p-3">
+        {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
+      </div>
       <Helmet>
         <title>Carline - Register</title>
       </Helmet>
-      <main className="container vh-100 mt-3">
+      <main className="container flex-fill mt-3">
         <section>
           <div className="row row-cols-auto justify-content-center">
             <div className="col">

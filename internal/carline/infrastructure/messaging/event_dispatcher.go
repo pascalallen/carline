@@ -24,8 +24,9 @@ type EventDispatcher interface {
 }
 
 type RabbitMqEventDispatcher struct {
-	channel   *amqp091.Channel
-	listeners map[string]Listener
+	connection *amqp091.Connection
+	channel    *amqp091.Channel
+	listeners  map[string]Listener
 }
 
 const exchangeName = "events"
@@ -50,8 +51,9 @@ func NewRabbitMqEventDispatcher(conn *amqp091.Connection) EventDispatcher {
 	}
 
 	return &RabbitMqEventDispatcher{
-		channel:   ch,
-		listeners: make(map[string]Listener),
+		connection: conn,
+		channel:    ch,
+		listeners:  make(map[string]Listener),
 	}
 }
 
@@ -80,6 +82,15 @@ func (e *RabbitMqEventDispatcher) Dispatch(evt Event) {
 	b, err := json.Marshal(evt)
 	if err != nil {
 		log.Fatalf("failed to JSON encode event: %s", err)
+	}
+
+	if e.channel.IsClosed() {
+		ch, err := e.connection.Channel()
+		if err != nil {
+			log.Fatalf("failed to recreate server channel for event dispatcher: %s", err)
+		}
+
+		e.channel = ch
 	}
 
 	err = e.channel.PublishWithContext(

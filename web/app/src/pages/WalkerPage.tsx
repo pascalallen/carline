@@ -24,14 +24,14 @@ const WalkerPage = (): ReactElement => {
   };
 
   return (
-    <div id="walker-page" className="walker-page">
+    <div id="walker-page" className="walker-page d-flex flex-column vh-100">
       <Helmet>
         <title>Carline - Walker</title>
       </Helmet>
       <header>
         <Navbar />
       </header>
-      <main className="container vh-100 mt-3">
+      <main className="container flex-fill mt-3">
         <section>
           <div className="row">
             <div className="col">

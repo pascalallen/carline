@@ -4,14 +4,14 @@ import Navbar from '@components/Navbar';
 
 const MarshalPage = (): ReactElement => {
   return (
-    <div id="marshal-page" className="marshal-page mt-5">
+    <div id="marshal-page" className="marshal-page d-flex flex-column vh-100">
       <Helmet>
         <title>Carline - Marshal</title>
       </Helmet>
       <header>
         <Navbar />
       </header>
-      <main className="container mt-5">
+      <main className="container flex-fill mt-5">
         <h1>Ready For Pickup</h1>
         <section>
           <div className="row">

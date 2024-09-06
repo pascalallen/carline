@@ -38,11 +38,11 @@ const LoginPage = observer((): ReactElement => {
   };
 
   return (
-    <div id="login-page" className="login-page">
+    <div id="login-page" className="login-page d-flex flex-column vh-100">
       <Helmet>
         <title>Carline - Login</title>
       </Helmet>
-      <main className="container vh-100 mt-3">
+      <main className="container flex-fill mt-3">
         <section>
           <div className="row row-cols-auto justify-content-center">
             <div className="col">

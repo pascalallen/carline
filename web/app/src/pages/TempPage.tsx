@@ -50,7 +50,7 @@ const TempPage = observer((): ReactElement => {
   };
 
   return (
-    <div className="temp-page">
+    <div className="temp-page d-flex flex-column vh-100">
       <Helmet>
         <title>Pascal Allen - Temp</title>
       </Helmet>
@@ -58,23 +58,30 @@ const TempPage = observer((): ReactElement => {
         <h1>You&apos;re authenticated and connected to the event stream at /api/v1/event-stream!</h1>
         <h2>Event stream message received: {eventStreamMessage}</h2>
       </header>
-      <section className="temp-form-section">
-        <form className="temp-form" onSubmit={handleEventStreamPost}>
-          <div className="form-group">
-            <label htmlFor="message">Message</label>
-            <input id="event-stream-message-input" className="event-stream-message-input" type="text" name="message" />
-          </div>
-          <div className="form-group">
-            <button id="submit-temp-form-button" className="submit" type="submit">
-              Post to event stream
-            </button>
-          </div>
-        </form>
-        <br />
-        <button type="button" onClick={handleLogout}>
-          Logout
-        </button>
-      </section>
+      <main className="container flex-fill mt-3">
+        <section className="temp-form-section">
+          <form className="temp-form" onSubmit={handleEventStreamPost}>
+            <div className="form-group">
+              <label htmlFor="message">Message</label>
+              <input
+                id="event-stream-message-input"
+                className="event-stream-message-input"
+                type="text"
+                name="message"
+              />
+            </div>
+            <div className="form-group">
+              <button id="submit-temp-form-button" className="submit" type="submit">
+                Post to event stream
+              </button>
+            </div>
+          </form>
+          <br />
+          <button type="button" onClick={handleLogout}>
+            Logout
+          </button>
+        </section>
+      </main>
     </div>
   );
 });
