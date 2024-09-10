@@ -7,26 +7,22 @@
 package main
 
 import (
-	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/storage"
 )
 
 import (
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 )
 
 // Injectors from wire.go:
 
 func InitializeContainer() Container {
-	session := database.NewGormSession()
-	permissionRepository := repository.NewGormPermissionRepository(session)
-	roleRepository := repository.NewGormRoleRepository(session)
-	userRepository := repository.NewGormUserRepository(session)
-	seeder := database.NewDatabaseSeeder(session, permissionRepository, roleRepository, userRepository)
+	eventStore := storage.NewEventStoreDb()
 	connection := messaging.NewRabbitMQConnection()
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
-	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	container := NewContainer(session, permissionRepository, roleRepository, userRepository, seeder, connection, commandBus, eventDispatcher)
+	queryBus := messaging.NewSynchronousQueryBus()
+	container := NewContainer(eventStore, connection, commandBus, queryBus)
 	return container
 }
