@@ -1,11 +1,5 @@
 # Carline
 
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/pascalallen/carline)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pascalallen/carline)](https://goreportcard.com/report/github.com/pascalallen/carline)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/pascalallen/carline/go.yml)
-![GitHub](https://img.shields.io/github/license/pascalallen/carline)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/pascalallen/carline)
-
 ![Logo](web/static/logo.svg)
 
 Carline app
