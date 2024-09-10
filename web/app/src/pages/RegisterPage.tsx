@@ -1,5 +1,4 @@
 import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +18,7 @@ export type RegisterFormValues = {
 
 type LocationState = { from?: Location };
 
-const RegisterPage = observer((): ReactElement => {
+const RegisterPage = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -125,6 +124,6 @@ const RegisterPage = observer((): ReactElement => {
       <Footer />
     </div>
   );
-});
+};
 
 export default RegisterPage;

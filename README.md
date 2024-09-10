@@ -25,7 +25,6 @@ Carline app
 - Event sourcing pattern w/ EventStoreDB
 - Configurable CI/CD pipeline
 - Helper scripts
-- MobX store
 - Google Wire DI container
 - JWT/HMAC authentication services
 - RabbitMQ message broker
