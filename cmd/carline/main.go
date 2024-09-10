@@ -3,14 +3,14 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/command_handler"
-	"github.com/pascalallen/carline/internal/carline/application/event"
-	"github.com/pascalallen/carline/internal/carline/application/listener"
-	"github.com/pascalallen/carline/internal/carline/domain/permission"
-	"github.com/pascalallen/carline/internal/carline/domain/role"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/application/projection"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/application/query_handler"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/routes"
+	"log"
 	"os"
 )
 
@@ -18,38 +18,41 @@ func main() {
 	container := InitializeContainer()
 	defer container.MessageQueueConnection.Close()
 
-	configureDatabase(container)
+	setupProjections(container)
 
 	runConsumers(container)
 
 	configureServer(container)
 }
 
-func configureDatabase(container Container) {
-	container.DatabaseSession.AutoMigrate(&permission.Permission{}, &role.Role{}, &user.User{})
-	container.DatabaseSeeder.Seed()
+func setupProjections(container Container) {
+	eventStore := container.EventStore
+
+	// projection registry
+	err := eventStore.RegisterProjection(projection.UserEmailAddresses{})
+	if err != nil {
+		exitOnError(err)
+	}
 }
 
 func runConsumers(container Container) {
 	commandBus := container.CommandBus
-	eventDispatcher := container.EventDispatcher
-	userRepository := container.UserRepository
+	queryBus := container.QueryBus
+	eventStore := container.EventStore
 
 	// command registry
-	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, EventDispatcher: eventDispatcher})
-	commandBus.RegisterHandler(command.UpdateUser{}.CommandName(), command_handler.UpdateUserHandler{})
-	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher})
+	commandBus.RegisterHandler(command.UpdateUserEmailAddress{}.CommandName(), command_handler.UpdateUserEmailAddressHandler{EventStore: eventStore})
 
-	// event registry
-	eventDispatcher.RegisterListener(event.UserRegistered{}.EventName(), listener.UserRegistration{CommandBus: commandBus})
+	// query registry
+	queryBus.RegisterHandler(query.GetUserById{}.QueryName(), query_handler.GetUserByIdHandler{EventStore: eventStore})
+	queryBus.RegisterHandler(query.GetUserByEmailAddress{}.QueryName(), query_handler.GetUserByEmailAddressHandler{EventStore: eventStore})
 
 	go commandBus.StartConsuming()
-	go eventDispatcher.StartConsuming()
 }
 
 func configureServer(container Container) {
-	commandBus := container.CommandBus
-	userRepository := container.UserRepository
+	eventStore := container.EventStore
+	queryBus := container.QueryBus
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
@@ -58,7 +61,13 @@ func configureServer(container Container) {
 	router.Config()
 	router.Fileserver()
 	router.Default()
-	router.Auth(userRepository, commandBus)
-	router.Temp(userRepository)
+	router.Auth(queryBus, eventStore)
+	router.Temp(queryBus)
 	router.Serve(":9990")
+}
+
+func exitOnError(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

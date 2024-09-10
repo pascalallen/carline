@@ -3,52 +3,45 @@ package command_handler
 import (
 	"fmt"
 	"github.com/pascalallen/carline/internal/carline/application/command"
-	"github.com/pascalallen/carline/internal/carline/application/event"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/domain/event"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"log"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/storage"
 )
 
-type RegisterUserHandler struct {
-	UserRepository  user.UserRepository
-	EventDispatcher messaging.EventDispatcher
+type ProjectionState struct {
+	EmailAddresses map[string]string `json:"email_addresses"`
 }
 
-func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
-	c, ok := cmd.(*command.RegisterUser)
+type UpdateUserEmailAddressHandler struct {
+	EventStore storage.EventStore
+}
+
+func (h UpdateUserEmailAddressHandler) Handle(cmd messaging.Command) error {
+	c, ok := cmd.(*command.UpdateUserEmailAddress)
 	if !ok {
-		return fmt.Errorf("invalid command type passed to RegisterUserHandler: %v", cmd)
+		return fmt.Errorf("invalid command type passed to UpdateUserEmailAddressHandler: %v", cmd)
 	}
 
-	u := user.Register(c.Id, c.FirstName, c.LastName, c.EmailAddress)
-	u.SetPasswordHash(c.PasswordHash)
-
-	err := h.UserRepository.Add(u)
-	if err != nil {
-		return fmt.Errorf("user registration failed: %s", err)
+	var result ProjectionState
+	if err := h.EventStore.UnmarshalProjectionResult("user-email-addresses", &result); err != nil {
+		return fmt.Errorf("error getting projection result: %v", err)
 	}
 
-	evt := event.UserRegistered{
+	for emailAddress := range result.EmailAddresses {
+		if emailAddress == c.EmailAddress {
+			return fmt.Errorf("could not update user. email address %s is already taken", c.EmailAddress)
+		}
+	}
+
+	emailUpdateEvent := event.UserEmailAddressUpdated{
 		Id:           c.Id,
-		FirstName:    c.FirstName,
-		LastName:     c.LastName,
 		EmailAddress: c.EmailAddress,
 	}
-	h.EventDispatcher.Dispatch(evt)
-
-	return nil
-}
-
-type UpdateUserHandler struct{}
-
-func (h UpdateUserHandler) Handle(cmd messaging.Command) error {
-	c, ok := cmd.(*command.UpdateUser)
-	if !ok {
-		return fmt.Errorf("invalid command type passed to UpdateUserHandler: %v", cmd)
+	streamId := fmt.Sprintf("user-%s", c.Id)
+	err := h.EventStore.AppendToStream(streamId, emailUpdateEvent)
+	if err != nil {
+		return fmt.Errorf("could not store UserEmailAddressUpdated event: %w", err)
 	}
-
-	// TODO
-	log.Printf("UpdateUserHandler executed: %v", c)
 
 	return nil
 }

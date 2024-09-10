@@ -1,14 +1,19 @@
 services:
-  postgres:
+  eventstore:
     env_file:
       - .env
     build:
-      context: internal/carline/infrastructure/etc/postgres
-    container_name: postgres
+      context: internal/carline/infrastructure/etc/eventstore
+    container_name: eventstore
     ports:
-      - "5432:5432"
+      - "2113:2113"
     volumes:
-      - dbdata:/var/lib/postgresql/data
+      - type: volume
+        source: eventstore-volume-data
+        target: /var/lib/eventstore
+      - type: volume
+        source: eventstore-volume-logs
+        target: /var/log/eventstore
     networks:
       - carline
 
@@ -45,5 +50,5 @@ networks:
     name: carline
 
 volumes:
-  dbdata:
-    driver: local
+  eventstore-volume-data:
+  eventstore-volume-logs:

@@ -1,30 +1,12 @@
 package command
 
-import (
-	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/carline/internal/carline/domain/password"
-	"reflect"
-)
+import "github.com/oklog/ulid/v2"
 
-type RegisterUser struct {
-	Id           ulid.ULID             `json:"id"`
-	FirstName    string                `json:"first_name"`
-	LastName     string                `json:"last_name"`
-	EmailAddress string                `json:"email_address"`
-	PasswordHash password.PasswordHash `json:"password_hash"`
+type UpdateUserEmailAddress struct {
+	Id           ulid.ULID `json:"id"`
+	EmailAddress string    `json:"email_address"`
 }
 
-func (c RegisterUser) CommandName() string {
-	return reflect.TypeOf(c).Name()
-}
-
-type UpdateUser struct {
-	Id           ulid.ULID
-	FirstName    string
-	LastName     string
-	EmailAddress string
-}
-
-func (c UpdateUser) CommandName() string {
-	return reflect.TypeOf(c).Name()
+func (c UpdateUserEmailAddress) CommandName() string {
+	return "UpdateUserEmailAddress"
 }

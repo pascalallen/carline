@@ -6,14 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/oklog/ulid/v2"
-	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/domain/event"
 	"github.com/pascalallen/carline/internal/carline/domain/password"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/storage"
 	"time"
 )
+
+type EmailsProjectionState struct {
+	EmailAddresses map[string]string `json:"email_addresses"`
+}
 
 type LoginUserRules struct {
 	EmailAddress string `form:"email_address" json:"email_address" binding:"required,max=100,email"`
@@ -51,7 +57,7 @@ type RegisterUserRules struct {
 	ConfirmPassword string `form:"confirm_password" json:"confirm_password" binding:"required,eqfield=Password"`
 }
 
-func HandleLoginUser(userRepository user.UserRepository) gin.HandlerFunc {
+func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request LoginUserRules
 
@@ -62,13 +68,16 @@ func HandleLoginUser(userRepository user.UserRepository) gin.HandlerFunc {
 			return
 		}
 
-		u, err := userRepository.GetByEmailAddress(request.EmailAddress)
-		if u == nil || err != nil {
+		getUserByEmailAddressQuery := query.GetUserByEmailAddress{EmailAddress: request.EmailAddress}
+		result, err := queryBus.Fetch(getUserByEmailAddressQuery)
+		if result == nil || err != nil {
 			errorMessage := "invalid credentials"
 			responder.UnauthorizedResponse(c, errors.New(errorMessage))
 
 			return
 		}
+
+		u := result.(*user.User)
 
 		if u.PasswordHash.Compare(request.Password) == false {
 			errorMessage := "invalid credentials"
@@ -78,7 +87,7 @@ func HandleLoginUser(userRepository user.UserRepository) gin.HandlerFunc {
 		}
 
 		userClaims := tokenservice.UserClaims{
-			Id:    ulid.ULID(u.Id).String(),
+			Id:    u.Id.String(),
 			First: u.FirstName,
 			Last:  u.LastName,
 			StandardClaims: jwt.StandardClaims{
@@ -106,7 +115,7 @@ func HandleLoginUser(userRepository user.UserRepository) gin.HandlerFunc {
 		}
 
 		userData := UserData{
-			Id:           ulid.ULID(u.Id).String(),
+			Id:           u.Id.String(),
 			FirstName:    u.FirstName,
 			LastName:     u.LastName,
 			EmailAddress: u.EmailAddress,
@@ -144,7 +153,7 @@ func HandleLoginUser(userRepository user.UserRepository) gin.HandlerFunc {
 	}
 }
 
-func HandleRefreshTokens(userRepository user.UserRepository) gin.HandlerFunc {
+func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request RefreshTokensRules
 
@@ -158,13 +167,16 @@ func HandleRefreshTokens(userRepository user.UserRepository) gin.HandlerFunc {
 		userClaims := tokenservice.ParseAccessToken(request.AccessToken)
 		refreshClaims := tokenservice.ParseRefreshToken(request.RefreshToken)
 
-		u, err := userRepository.GetById(ulid.MustParse(userClaims.Id))
-		if u == nil || err != nil {
+		getUserById := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
+		result, err := queryBus.Fetch(getUserById)
+		if result == nil || err != nil {
 			errorMessage := "invalid credentials"
 			responder.UnauthorizedResponse(c, errors.New(errorMessage))
 
 			return
 		}
+
+		u := result.(*user.User)
 
 		// refresh token is expired
 		if refreshClaims.Valid() != nil {
@@ -224,7 +236,7 @@ func HandleRefreshTokens(userRepository user.UserRepository) gin.HandlerFunc {
 	}
 }
 
-func HandleRegisterUser(userRepository user.UserRepository, commandBus messaging.CommandBus) gin.HandlerFunc {
+func HandleRegisterUser(eventStore storage.EventStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request RegisterUserRules
 
@@ -235,21 +247,38 @@ func HandleRegisterUser(userRepository user.UserRepository, commandBus messaging
 			return
 		}
 
-		if u, err := userRepository.GetByEmailAddress(request.EmailAddress); u != nil || err != nil {
+		var result EmailsProjectionState
+		if err := eventStore.UnmarshalProjectionResult("user-email-addresses", &result); err != nil {
 			errorMessage := fmt.Sprint("Something went wrong. If you already have an account, please log in.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
 
 			return
 		}
 
-		cmd := command.RegisterUser{
+		for emailAddress := range result.EmailAddresses {
+			if emailAddress == request.EmailAddress {
+				errorMessage := fmt.Sprint("Something went wrong. If you already have an account, please log in.")
+				responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
+
+				return
+			}
+		}
+
+		registerEvent := event.UserRegistered{
 			Id:           ulid.Make(),
 			FirstName:    request.FirstName,
 			LastName:     request.LastName,
 			EmailAddress: request.EmailAddress,
 			PasswordHash: password.Create(request.Password),
 		}
-		commandBus.Execute(cmd)
+		streamId := fmt.Sprintf("user-%s", registerEvent.Id)
+		err := eventStore.AppendToStream(streamId, registerEvent)
+		if err != nil {
+			errorMessage := fmt.Sprint("Something went wrong. If you already have an account, please log in.")
+			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
+
+			return
+		}
 
 		responder.CreatedResponse[RegisterUserRules](c, &request)
 

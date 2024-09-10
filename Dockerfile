@@ -15,6 +15,6 @@ RUN go build -v -o /usr/local/bin/app ./cmd/carline
 
 EXPOSE 9990
 
-CMD /usr/local/bin/wait-for-it.sh $DB_HOST:$DB_PORT \
+CMD /usr/local/bin/wait-for-it.sh $EVENTSTORE_HOST:$EVENTSTORE_HTTP_PORT \
     && /usr/local/bin/wait-for-it.sh $RABBITMQ_HOST:$RABBITMQ_PORT \
     && /usr/local/bin/app

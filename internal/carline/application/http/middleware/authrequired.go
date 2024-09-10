@@ -5,12 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
 	"strings"
 )
 
-func AuthRequired(userRepository user.UserRepository) gin.HandlerFunc {
+func AuthRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -22,9 +23,11 @@ func AuthRequired(userRepository user.UserRepository) gin.HandlerFunc {
 		accessToken := strings.Split(authHeader, " ")[1]
 		userClaims := tokenservice.ParseAccessToken(accessToken)
 
-		u, err := userRepository.GetById(ulid.MustParse(userClaims.Id))
-		if u == nil || err != nil {
-			responder.UnauthorizedResponse(c, errors.New("invalid credentials"))
+		getUserById := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
+		result, err := queryBus.Fetch(getUserById)
+		if result == nil || err != nil {
+			errorMessage := "invalid credentials"
+			responder.UnauthorizedResponse(c, errors.New(errorMessage))
 
 			return
 		}

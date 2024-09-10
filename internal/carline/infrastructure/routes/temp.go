@@ -3,22 +3,22 @@ package routes
 import (
 	"github.com/pascalallen/carline/internal/carline/application/http/action"
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-func (r Router) Temp(repository user.UserRepository) {
+func (r Router) Temp(queryBus messaging.QueryBus) {
 	v := r.engine.Group(v1)
 	{
 		v.GET(
 			"/temp",
-			middleware.AuthRequired(repository),
+			middleware.AuthRequired(queryBus),
 			action.HandleTemp(),
 		)
 
 		ch := make(chan string)
 		v.POST(
 			"/event-stream",
-			middleware.AuthRequired(repository),
+			middleware.AuthRequired(queryBus),
 			action.HandleEventStreamPost(ch),
 		)
 		v.GET(
