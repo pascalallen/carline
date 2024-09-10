@@ -1,5 +1,4 @@
 import React, { FormEvent, ReactElement, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +13,7 @@ export type LoginFormValues = {
 
 type LocationState = { from?: Location };
 
-const LoginPage = observer((): ReactElement => {
+const LoginPage = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
 
@@ -73,6 +72,6 @@ const LoginPage = observer((): ReactElement => {
       <Footer />
     </div>
   );
-});
+};
 
 export default LoginPage;

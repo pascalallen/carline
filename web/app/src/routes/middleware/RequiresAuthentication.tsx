@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { observer } from 'mobx-react-lite';
 import { useLocation } from 'react-router';
 import { Navigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
@@ -9,7 +8,7 @@ export type RequiresAuthenticationProps = {
   children: ReactNode;
 };
 
-const RequiresAuthentication = observer((props: RequiresAuthenticationProps): ReactElement => {
+const RequiresAuthentication = (props: RequiresAuthenticationProps): ReactElement => {
   const { children } = props;
 
   const authService = useAuth();
@@ -20,6 +19,6 @@ const RequiresAuthentication = observer((props: RequiresAuthenticationProps): Re
   }
 
   return <>{children}</>;
-});
+};
 
 export default RequiresAuthentication;

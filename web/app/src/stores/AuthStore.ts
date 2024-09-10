@@ -1,4 +1,3 @@
-import { makeAutoObservable } from 'mobx';
 import { AuthData } from '@domain/types/AuthData';
 
 class AuthStore {
@@ -9,8 +8,6 @@ class AuthStore {
     if (serializedData !== null) {
       this.data = { ...JSON.parse(serializedData) };
     }
-
-    makeAutoObservable(this);
   }
 
   public setData(data: AuthData): void {
