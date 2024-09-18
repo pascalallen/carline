@@ -1,9 +1,0 @@
-services:
-  adminer:
-    image: adminer:4-standalone
-    container_name: adminer
-    restart: always
-    ports:
-      - "8888:8080"
-    networks:
-      - carline

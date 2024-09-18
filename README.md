@@ -16,22 +16,18 @@ Carline app
 
 ## Features
 
+- Event sourcing pattern w/ EventStoreDB
 - Configurable CI/CD pipeline
 - Helper scripts
 - Google Wire DI container
 - JWT/HMAC authentication services
 - RabbitMQ message broker
 - Asynchronous command bus
-- Asynchronous event dispatcher
 - Middleware
 - Frontend linting with ESLint and Prettier
-- GORM ORM
-- Database seeds for permissions, roles, and users
-- Database seeder
 - Domain models
 - API endpoints for authentication and registration
 - API endpoints for server-sent events
-- Repositories
 
 ## Prerequisites
 

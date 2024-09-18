@@ -18,7 +18,7 @@ func NewRabbitMQConnection() *amqp091.Connection {
 
 	conn, err := amqp091.Dial(url)
 	if err != nil {
-		log.Fatalf("failed to connect to message queue: %s", err)
+		log.Fatalf("failed to connect to message queue: %s\n", err)
 	}
 
 	return conn
