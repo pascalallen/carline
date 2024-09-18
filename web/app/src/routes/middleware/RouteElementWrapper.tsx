@@ -1,5 +1,4 @@
 import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import useAuth from '@hooks/useAuth';
 
 type State = {
@@ -16,7 +15,7 @@ type Props = {
   children: ReactNode;
 };
 
-const RouteElementWrapper = observer((props: Props): ReactElement => {
+const RouteElementWrapper = (props: Props): ReactElement => {
   const { children } = props;
 
   const authService = useAuth();
@@ -46,6 +45,6 @@ const RouteElementWrapper = observer((props: Props): ReactElement => {
   }
 
   return <>{children}</>;
-});
+};
 
 export default RouteElementWrapper;

@@ -1,5 +1,4 @@
 import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
-import { observer } from 'mobx-react-lite';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +18,7 @@ export type RegisterFormValues = {
 
 type LocationState = { from?: Location };
 
-const RegisterPage = observer((): ReactElement => {
+const RegisterPage = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,34 +32,36 @@ const RegisterPage = observer((): ReactElement => {
     }
   }, [authService, navigate]);
 
-  const handleRegister = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleRegister = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    try {
-      const formData = new FormData(event.currentTarget);
-      const firstName = formData.get('first_name')?.toString() ?? '';
-      const lastName = formData.get('last_name')?.toString() ?? '';
-      const emailAddress = formData.get('email_address')?.toString() ?? '';
-      const password = formData.get('password')?.toString() ?? '';
-      const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
-      await authService.register({
+    const formData = new FormData(event.currentTarget);
+    const firstName = formData.get('first_name')?.toString() ?? '';
+    const lastName = formData.get('last_name')?.toString() ?? '';
+    const emailAddress = formData.get('email_address')?.toString() ?? '';
+    const password = formData.get('password')?.toString() ?? '';
+    const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
+    authService
+      .register({
         first_name: firstName,
         last_name: lastName,
         email_address: emailAddress,
         password,
         confirm_password: confirmPassword
-      });
-      await authService.login({ email_address: emailAddress, password });
-      const from = state?.from?.pathname || Path.WALKER;
-      navigate(from, { replace: true });
-    } catch (error) {
-      if ((error as FailApiResponse)?.statusCode === 400) {
-        setErrorMessage('Validation error');
-      }
+      })
+      .then(() => authService.login({ email_address: emailAddress, password }))
+      .then(() => {
+        const from = state?.from?.pathname || Path.WALKER;
+        navigate(from, { replace: true });
+      })
+      .catch(error => {
+        if ((error as FailApiResponse)?.statusCode === 400) {
+          setErrorMessage('Validation error');
+        }
 
-      if ((error as ErrorApiResponse)?.statusCode === 422) {
-        setErrorMessage((error as ErrorApiResponse).body.message);
-      }
-    }
+        if ((error as ErrorApiResponse)?.statusCode === 422) {
+          setErrorMessage((error as ErrorApiResponse).body.message);
+        }
+      });
   };
 
   return (
@@ -125,6 +126,6 @@ const RegisterPage = observer((): ReactElement => {
       <Footer />
     </div>
   );
-});
+};
 
 export default RegisterPage;

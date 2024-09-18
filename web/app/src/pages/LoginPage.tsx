@@ -1,11 +1,12 @@
-import React, { FormEvent, ReactElement, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
+import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
+import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import Footer from '@components/Footer';
+import Toast from '@components/Toast';
 
 export type LoginFormValues = {
   email_address: string;
@@ -14,9 +15,13 @@ export type LoginFormValues = {
 
 type LocationState = { from?: Location };
 
-const LoginPage = observer((): ReactElement => {
+const LoginPage = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state: LocationState = location.state as LocationState;
+
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (authService.isLoggedIn()) {
@@ -24,21 +29,31 @@ const LoginPage = observer((): ReactElement => {
     }
   }, [authService, navigate]);
 
-  const location = useLocation();
-  const state: LocationState = location.state as LocationState;
-
   const handleLogin = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const emailAddress = formData.get('email_address')?.toString() ?? '';
-    const password = formData.get('password')?.toString() ?? '';
-    await authService.login({ email_address: emailAddress, password });
-    const from = state?.from?.pathname || Path.WALKER;
-    navigate(from, { replace: true });
+    try {
+      const formData = new FormData(event.currentTarget);
+      const emailAddress = formData.get('email_address')?.toString() ?? '';
+      const password = formData.get('password')?.toString() ?? '';
+      await authService.login({ email_address: emailAddress, password });
+      const from = state?.from?.pathname || Path.WALKER;
+      navigate(from, { replace: true });
+    } catch (error) {
+      if ((error as FailApiResponse)?.statusCode === 400) {
+        setErrorMessage('Validation error');
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 422) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
+    }
   };
 
   return (
     <div id="login-page" className="login-page d-flex flex-column vh-100">
+      <div className="toast-container top-0 end-0 p-3">
+        {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
+      </div>
       <Helmet>
         <title>Carline - Login</title>
       </Helmet>
@@ -73,6 +88,6 @@ const LoginPage = observer((): ReactElement => {
       <Footer />
     </div>
   );
-});
+};
 
 export default LoginPage;
