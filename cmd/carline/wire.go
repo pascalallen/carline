@@ -17,6 +17,8 @@ func InitializeContainer() Container {
 		repository.NewGormPermissionRepository,
 		repository.NewGormRoleRepository,
 		repository.NewGormUserRepository,
+		repository.NewGormSchoolRepository,
+		repository.NewGormStudentRepository,
 		database.NewDatabaseSeeder,
 		messaging.NewRabbitMQConnection,
 		messaging.NewRabbitMqCommandBus,

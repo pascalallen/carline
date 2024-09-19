@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
+	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/domain/student"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
@@ -14,6 +16,8 @@ type Container struct {
 	PermissionRepository   permission.PermissionRepository
 	RoleRepository         role.RoleRepository
 	UserRepository         user.UserRepository
+	SchoolRepository       school.SchoolRepository
+	StudentRepository      student.StudentRepository
 	DatabaseSeeder         database.Seeder
 	MessageQueueConnection *amqp091.Connection
 	CommandBus             messaging.CommandBus
@@ -25,6 +29,8 @@ func NewContainer(
 	permissionRepo permission.PermissionRepository,
 	roleRepo role.RoleRepository,
 	userRepo user.UserRepository,
+	schoolRepo school.SchoolRepository,
+	studentRepo student.StudentRepository,
 	dbSeeder database.Seeder,
 	mqConn *amqp091.Connection,
 	commandBus messaging.CommandBus,
@@ -35,6 +41,8 @@ func NewContainer(
 		PermissionRepository:   permissionRepo,
 		RoleRepository:         roleRepo,
 		UserRepository:         userRepo,
+		SchoolRepository:       schoolRepo,
+		StudentRepository:      studentRepo,
 		DatabaseSeeder:         dbSeeder,
 		MessageQueueConnection: mqConn,
 		CommandBus:             commandBus,
