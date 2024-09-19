@@ -9,6 +9,8 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/listener"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
+	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/domain/student"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/routes"
 	"os"
@@ -26,7 +28,7 @@ func main() {
 }
 
 func configureDatabase(container Container) {
-	container.DatabaseSession.AutoMigrate(&permission.Permission{}, &role.Role{}, &user.User{})
+	container.DatabaseSession.AutoMigrate(&permission.Permission{}, &role.Role{}, &user.User{}, &school.School{}, &student.Student{})
 	container.DatabaseSeeder.Seed()
 }
 
