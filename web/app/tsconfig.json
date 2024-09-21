@@ -20,9 +20,6 @@
             "@components/*": [
                 "components/*"
             ],
-            "@constants/*": [
-                "constants/*"
-            ],
             "@domain/*": [
                 "domain/*"
             ],

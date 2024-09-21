@@ -1,4 +1,5 @@
 import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
+import { Form, InputControl } from '@pascalallen/react-form-components';
 import { FormGroup } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router';
@@ -7,8 +8,6 @@ import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
 import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import Footer from '@components/Footer';
-import Form from '@components/Form/Form';
-import InputControl from '@components/InputControl/InputControl';
 import Toast from '@components/Toast';
 
 export type LoginFormValues = {
