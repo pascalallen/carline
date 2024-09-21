@@ -13,7 +13,7 @@ type GormStudentRepository struct {
 	session database.Session
 }
 
-func NewGormStudentRepository(session database.Session) student.StudentRepository {
+func NewGormStudentRepository(session database.Session) student.Repository {
 	return &GormStudentRepository{
 		session: session,
 	}

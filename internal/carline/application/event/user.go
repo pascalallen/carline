@@ -2,7 +2,6 @@ package event
 
 import (
 	"github.com/oklog/ulid/v2"
-	"reflect"
 )
 
 type UserRegistered struct {
@@ -13,7 +12,7 @@ type UserRegistered struct {
 }
 
 func (e UserRegistered) EventName() string {
-	return reflect.TypeOf(e).Name()
+	return "UserRegistered"
 }
 
 type UserUpdated struct {
@@ -24,5 +23,5 @@ type UserUpdated struct {
 }
 
 func (e UserUpdated) EventName() string {
-	return reflect.TypeOf(e).Name()
+	return "UserUpdated"
 }

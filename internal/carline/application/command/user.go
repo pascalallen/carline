@@ -3,7 +3,6 @@ package command
 import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/domain/password"
-	"reflect"
 )
 
 type RegisterUser struct {
@@ -15,7 +14,7 @@ type RegisterUser struct {
 }
 
 func (c RegisterUser) CommandName() string {
-	return reflect.TypeOf(c).Name()
+	return "RegisterUser"
 }
 
 type UpdateUser struct {
@@ -26,5 +25,5 @@ type UpdateUser struct {
 }
 
 func (c UpdateUser) CommandName() string {
-	return reflect.TypeOf(c).Name()
+	return "UpdateUser"
 }

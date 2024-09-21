@@ -12,32 +12,23 @@ type Role struct {
 	Name        string                  `json:"name"`
 	Permissions []permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions"`
 	CreatedAt   time.Time               `json:"created_at"`
-	ModifiedAt  time.Time               `json:"modified_at"`
-}
-
-type RoleRepository interface {
-	GetById(id ulid.ULID) (*Role, error)
-	GetByName(name string) (*Role, error)
-	GetAll() (*[]Role, error)
-	Add(role *Role) error
-	Remove(role *Role) error
-	UpdateOrAdd(role *Role) error
+	ModifiedAt  *time.Time              `json:"modified_at,omitempty"`
 }
 
 func Define(id ulid.ULID, name string) *Role {
 	createdAt := time.Now()
 
 	return &Role{
-		Id:         _type.GormUlid(id),
-		Name:       name,
-		CreatedAt:  createdAt,
-		ModifiedAt: createdAt,
+		Id:        _type.GormUlid(id),
+		Name:      name,
+		CreatedAt: createdAt,
 	}
 }
 
 func (r *Role) UpdateName(name string) {
 	r.Name = name
-	r.ModifiedAt = time.Now()
+	now := time.Now()
+	r.ModifiedAt = &now
 }
 
 func (r *Role) AddPermission(permission permission.Permission) {
@@ -48,7 +39,8 @@ func (r *Role) AddPermission(permission permission.Permission) {
 	}
 
 	r.Permissions = append(r.Permissions, permission)
-	r.ModifiedAt = time.Now()
+	now := time.Now()
+	r.ModifiedAt = &now
 }
 
 func (r *Role) RemovePermission(permission permission.Permission) {

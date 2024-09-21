@@ -19,9 +19,10 @@ func InitializeContainer() Container {
 		repository.NewGormUserRepository,
 		repository.NewGormSchoolRepository,
 		repository.NewGormStudentRepository,
-		database.NewDatabaseSeeder,
+		database.NewPostgresSeeder,
 		messaging.NewRabbitMQConnection,
 		messaging.NewRabbitMqCommandBus,
+		messaging.NewSynchronousQueryBus,
 		messaging.NewRabbitMqEventDispatcher,
 	)
 	return Container{}

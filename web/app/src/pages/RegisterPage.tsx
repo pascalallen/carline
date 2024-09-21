@@ -6,6 +6,9 @@ import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
 import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import Footer from '@components/Footer';
+import Form from '@components/Form/Form';
+import FormGroup from '@components/FormGroup/FormGroup';
+import InputControl from '@components/InputControl/InputControl';
 import Toast from '@components/Toast';
 
 export type RegisterFormValues = {
@@ -18,12 +21,50 @@ export type RegisterFormValues = {
 
 type LocationState = { from?: Location };
 
+type State = {
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  password: string;
+  confirmPassword: string;
+  touched: {
+    firstName: boolean;
+    lastName: boolean;
+    emailAddress: boolean;
+    password: boolean;
+    confirmPassword: boolean;
+  };
+  errorMessage: string;
+};
+
+const initialState: State = {
+  firstName: '',
+  lastName: '',
+  emailAddress: '',
+  password: '',
+  confirmPassword: '',
+  touched: {
+    firstName: false,
+    lastName: false,
+    emailAddress: false,
+    password: false,
+    confirmPassword: false
+  },
+  errorMessage: ''
+};
+
 const RegisterPage = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const state: LocationState = location.state as LocationState;
 
+  const [firstName, setFirstName] = useState(initialState.firstName);
+  const [lastName, setLastName] = useState(initialState.lastName);
+  const [emailAddress, setEmailAddress] = useState(initialState.emailAddress);
+  const [password, setPassword] = useState(initialState.password);
+  const [confirmPassword, setConfirmPassword] = useState(initialState.confirmPassword);
+  const [touched, setTouched] = useState(initialState.touched);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -34,12 +75,7 @@ const RegisterPage = (): ReactElement => {
 
   const handleRegister = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const firstName = formData.get('first_name')?.toString() ?? '';
-    const lastName = formData.get('last_name')?.toString() ?? '';
-    const emailAddress = formData.get('email_address')?.toString() ?? '';
-    const password = formData.get('password')?.toString() ?? '';
-    const confirmPassword = formData.get('confirm_password')?.toString() ?? '';
+    setErrorMessage(initialState.errorMessage);
     authService
       .register({
         first_name: firstName,
@@ -58,10 +94,21 @@ const RegisterPage = (): ReactElement => {
           setErrorMessage('Validation error');
         }
 
+        if ((error as FailApiResponse)?.statusCode === 401) {
+          setErrorMessage('Invalid credentials');
+        }
+
         if ((error as ErrorApiResponse)?.statusCode === 422) {
           setErrorMessage((error as ErrorApiResponse).body.message);
         }
       });
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched({
+      ...touched,
+      [field]: true
+    });
   };
 
   return (
@@ -77,48 +124,89 @@ const RegisterPage = (): ReactElement => {
           <div className="row row-cols-auto justify-content-center">
             <div className="col">
               <h1>Register</h1>
-              <form id="register-form" className="register-form" onSubmit={handleRegister}>
-                <div className="mb-3">
-                  <label htmlFor="first-name" className="form-label">
-                    First name
-                  </label>
-                  <input id="first-name" className="first-name form-control" type="text" name="first_name" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="last-name" className="form-label">
-                    Last name
-                  </label>
-                  <input id="last-name" className="last-name form-control" type="text" name="last_name" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="email-address" className="form-label">
-                    Email address
-                  </label>
-                  <input id="email-address" className="email-address form-control" type="email" name="email_address" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>
-                  <input id="password" className="password form-control" type="password" name="password" />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="confirm-password" className="form-label">
-                    Confirm password
-                  </label>
-                  <input
-                    id="confirm-password"
-                    className="confirm-password form-control"
-                    type="password"
-                    name="confirm_password"
-                  />
-                </div>
-                <div className="form-group">
-                  <button id="register-button" className="register-button btn btn-primary" type="submit">
+              <Form id="register-form" className="register-form" onSubmit={handleRegister}>
+                <InputControl
+                  inputId="first-name"
+                  className="first-name mb-3"
+                  name="first_name"
+                  type="text"
+                  label="First name"
+                  tabIndex={1}
+                  value={firstName}
+                  isValid={touched.firstName ? firstName.length > 0 : true}
+                  required
+                  autoFocus
+                  error={touched.firstName && firstName.length < 1 ? 'First name is required' : undefined}
+                  onChange={e => setFirstName(e.target.value)}
+                  onBlur={() => handleBlur('firstName')}
+                />
+                <InputControl
+                  inputId="last-name"
+                  className="last-name mb-3"
+                  name="last_name"
+                  type="text"
+                  label="Last name"
+                  tabIndex={2}
+                  value={lastName}
+                  isValid={touched.lastName ? lastName.length > 0 : true}
+                  required
+                  error={touched.lastName && lastName.length < 1 ? 'Last name is required' : undefined}
+                  onChange={e => setLastName(e.target.value)}
+                  onBlur={() => handleBlur('lastName')}
+                />
+                <InputControl
+                  inputId="email-address"
+                  className="email-address mb-3"
+                  name="email_address"
+                  type="email"
+                  label="Email address"
+                  tabIndex={3}
+                  value={emailAddress}
+                  isValid={touched.emailAddress ? emailAddress.length > 0 : true}
+                  required
+                  error={touched.emailAddress && emailAddress.length < 1 ? 'Email address is required' : undefined}
+                  onChange={e => setEmailAddress(e.target.value)}
+                  onBlur={() => handleBlur('emailAddress')}
+                />
+                <InputControl
+                  inputId="password"
+                  className="password mb-3"
+                  name="password"
+                  type="password"
+                  label="Password"
+                  tabIndex={4}
+                  value={password}
+                  isValid={touched.password ? password.length > 0 : true}
+                  required
+                  error={touched.password && password.length < 1 ? 'Password is required' : undefined}
+                  onChange={e => setPassword(e.target.value)}
+                  onBlur={() => handleBlur('password')}
+                />
+                <InputControl
+                  inputId="confirm-password"
+                  className="confirm-password mb-3"
+                  name="confirm_password"
+                  type="password"
+                  label="Confirm password"
+                  tabIndex={5}
+                  value={confirmPassword}
+                  isValid={touched.confirmPassword ? confirmPassword.length > 0 : true}
+                  required
+                  error={
+                    touched.confirmPassword && confirmPassword.length < 1
+                      ? 'Password confirmation is required'
+                      : undefined
+                  }
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  onBlur={() => handleBlur('confirmPassword')}
+                />
+
+                <FormGroup>
+                  <button id="register-button" className="register-button btn btn-primary" type="submit" tabIndex={6}>
                     Register
                   </button>
-                </div>
-              </form>
+                </FormGroup>
+              </Form>
             </div>
           </div>
         </section>

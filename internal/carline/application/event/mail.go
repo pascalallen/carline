@@ -3,7 +3,6 @@ package event
 import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/domain/crypto"
-	"reflect"
 )
 
 type WelcomeEmailSent struct {
@@ -15,5 +14,5 @@ type WelcomeEmailSent struct {
 }
 
 func (e WelcomeEmailSent) EventName() string {
-	return reflect.TypeOf(e).Name()
+	return "WelcomeEmailSent"
 }

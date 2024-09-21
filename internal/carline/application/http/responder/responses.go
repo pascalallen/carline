@@ -81,3 +81,15 @@ func CreatedResponse[T interface{}](c *gin.Context, i *T) {
 
 	return
 }
+
+func OkResponse[T interface{}](c *gin.Context, i *T) {
+	c.JSON(
+		http.StatusOK,
+		JSendSuccessResponse[T]{
+			Status: "success",
+			Data:   *i,
+		},
+	)
+
+	return
+}

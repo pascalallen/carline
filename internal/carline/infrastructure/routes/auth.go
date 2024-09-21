@@ -1,19 +1,19 @@
 package routes
 
 import (
-	"github.com/pascalallen/carline/internal/carline/application/http/action"
+	"github.com/pascalallen/carline/internal/carline/application/http/action/auth"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-func (r Router) Auth(repository user.UserRepository, bus messaging.CommandBus) {
+func (r Router) Auth(repository user.Repository, bus messaging.CommandBus) {
 	v := r.engine.Group(v1)
 	{
-		auth := v.Group("/auth")
+		a := v.Group("/auth")
 		{
-			auth.POST("/register", action.HandleRegisterUser(repository, bus))
-			auth.POST("/login", action.HandleLoginUser(repository))
-			auth.PATCH("/refresh", action.HandleRefreshTokens(repository))
+			a.POST("/register", auth.HandleRegisterUser(repository, bus))
+			a.POST("/login", auth.HandleLoginUser(repository))
+			a.PATCH("/refresh", auth.HandleRefreshTokens(repository))
 			// router.POST("/request-reset", auth.HandleRequestPasswordReset)
 			// router.POST("/reset-password", auth.HandleResetPassword)
 		}

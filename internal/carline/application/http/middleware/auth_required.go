@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func AuthRequired(userRepository user.UserRepository) gin.HandlerFunc {
+func AuthRequired(userRepository user.Repository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

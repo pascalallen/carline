@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
+import { DomainEvents } from '@domain/constants/DomainEvents';
 import { School } from '@domain/types/School';
+import useEvent from '@hooks/useEvents';
+import useSchoolService from '@hooks/useSchoolService';
+import { DomainEvent } from '@services/eventDispatcher';
 import AddSchoolModal from '@components/AddSchoolModal';
 import Footer from '@components/Footer';
 import Navbar from '@components/Navbar';
@@ -27,6 +31,8 @@ const initialState: State = {
 };
 
 const SchoolsPage = (): React.ReactElement => {
+  const schoolService = useSchoolService();
+
   const [loading, setLoading] = useState(initialState.loading);
   const [schools, setSchools] = useState(initialState.schools);
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(initialState.showAddSchoolModal);
@@ -35,21 +41,21 @@ const SchoolsPage = (): React.ReactElement => {
   const [showRemoveSchoolModal, setShowRemoveSchoolModal] = useState(initialState.showRemoveSchoolModal);
   const [removingSchool, setRemovingSchool] = useState(initialState.removingSchool);
 
+  const schoolAddedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_ADDED);
+
   useEffect(() => {
-    // TODO: call service to fetch schools
     setLoading(initialState.loading);
-    setSchools([
-      {
-        id: '1',
-        name: 'Weiss Elementary'
-      },
-      {
-        id: '2',
-        name: 'Hutto Elementary'
-      }
-    ]);
+    schoolService.getAll().then(schools => setSchools(schools));
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    setLoading(initialState.loading);
+    if (schoolAddedEvent?.id) {
+      schoolService.getAll().then(schools => setSchools(schools));
+    }
+    setLoading(false);
+  }, [schoolAddedEvent]);
 
   const handleShowAddSchoolModal = (): void => {
     setShowAddSchoolModal(true);
@@ -59,10 +65,14 @@ const SchoolsPage = (): React.ReactElement => {
     setShowAddSchoolModal(initialState.showAddSchoolModal);
   };
 
-  const handleAddSchool = async (): Promise<void> => {
+  const handleAddSchool = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+
     try {
       setAddingSchool(true);
-      // TODO: call service to add school and trigger re-fetching of schools
+      const formData = new FormData(event.currentTarget);
+      const name = formData.get('name')?.toString() ?? '';
+      await schoolService.add({ name });
       setAddingSchool(initialState.addingSchool);
       handleHideAddSchoolModal();
     } catch (error) {

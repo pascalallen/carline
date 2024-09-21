@@ -26,7 +26,10 @@ func (l UserRegistration) Handle(evt messaging.Event) error {
 		EmailAddress: e.EmailAddress,
 		Token:        token,
 	}
-	l.CommandBus.Execute(cmd)
+	err := l.CommandBus.Execute(cmd)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

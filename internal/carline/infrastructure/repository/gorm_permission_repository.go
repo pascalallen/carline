@@ -13,7 +13,7 @@ type GormPermissionRepository struct {
 	session database.Session
 }
 
-func NewGormPermissionRepository(session database.Session) permission.PermissionRepository {
+func NewGormPermissionRepository(session database.Session) permission.Repository {
 	return &GormPermissionRepository{
 		session: session,
 	}

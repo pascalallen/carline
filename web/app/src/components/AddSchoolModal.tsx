@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { FormEvent } from 'react';
 import { Modal } from 'react-bootstrap';
 
 type Props = {
   show: boolean;
   onClose: () => void;
-  onAdd: () => Promise<void>;
+  onAdd: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   isAdding: boolean;
 };
 

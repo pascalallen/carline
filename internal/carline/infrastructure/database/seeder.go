@@ -49,17 +49,17 @@ type Seeder interface {
 	Seed()
 }
 
-type DatabaseSeeder struct {
+type PostgresSeeder struct {
 	permissionsMap       map[string]permission.Permission
 	rolesMap             map[string]role.Role
 	session              Session
-	permissionRepository permission.PermissionRepository
-	roleRepository       role.RoleRepository
-	userRepository       user.UserRepository
+	permissionRepository permission.Repository
+	roleRepository       role.Repository
+	userRepository       user.Repository
 }
 
-func NewDatabaseSeeder(session Session, permissionRepo permission.PermissionRepository, roleRepo role.RoleRepository, userRepo user.UserRepository) Seeder {
-	return &DatabaseSeeder{
+func NewPostgresSeeder(session Session, permissionRepo permission.Repository, roleRepo role.Repository, userRepo user.Repository) Seeder {
+	return &PostgresSeeder{
 		permissionsMap:       make(map[string]permission.Permission),
 		rolesMap:             make(map[string]role.Role),
 		session:              session,
@@ -69,7 +69,7 @@ func NewDatabaseSeeder(session Session, permissionRepo permission.PermissionRepo
 	}
 }
 
-func (s *DatabaseSeeder) Seed() {
+func (s *PostgresSeeder) Seed() {
 	if err := s.seedPermissions(); err != nil {
 		log.Fatalf("failed to seed permissions: %s", err)
 	}
@@ -83,7 +83,7 @@ func (s *DatabaseSeeder) Seed() {
 	}
 }
 
-func (s *DatabaseSeeder) seedPermissions() error {
+func (s *PostgresSeeder) seedPermissions() error {
 	if err := s.loadPermissionsMap(); err != nil {
 		return fmt.Errorf("failed to load permissions map: %s", err)
 	}
@@ -165,7 +165,7 @@ func (s *DatabaseSeeder) seedPermissions() error {
 	return nil
 }
 
-func (s *DatabaseSeeder) seedRoles() error {
+func (s *PostgresSeeder) seedRoles() error {
 	if err := s.loadRolesMap(); err != nil {
 		return fmt.Errorf("failed to load roles map: %s", err)
 	}
@@ -270,7 +270,7 @@ func (s *DatabaseSeeder) seedRoles() error {
 	return nil
 }
 
-func (s *DatabaseSeeder) seedUsers() error {
+func (s *PostgresSeeder) seedUsers() error {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
 		return fmt.Errorf("error getting filename")
@@ -355,7 +355,7 @@ func (s *DatabaseSeeder) seedUsers() error {
 	return nil
 }
 
-func (s *DatabaseSeeder) loadPermissionsMap() error {
+func (s *PostgresSeeder) loadPermissionsMap() error {
 	permissions, err := s.permissionRepository.GetAll()
 	if err != nil {
 		return err
@@ -368,7 +368,7 @@ func (s *DatabaseSeeder) loadPermissionsMap() error {
 	return nil
 }
 
-func (s *DatabaseSeeder) loadRolesMap() error {
+func (s *PostgresSeeder) loadRolesMap() error {
 	roles, err := s.roleRepository.GetAll()
 	if err != nil {
 		return err

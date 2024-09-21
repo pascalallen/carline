@@ -6,7 +6,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 )
 
-func (r Router) Temp(repository user.UserRepository) {
+func (r Router) Temp(repository user.Repository) {
 	v := r.engine.Group(v1)
 	{
 		v.GET(
