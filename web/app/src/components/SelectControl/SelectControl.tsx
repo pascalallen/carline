@@ -13,7 +13,6 @@ export type SelectControlProps = {
   defaultValue?: string | string[] | number;
   value?: string | string[] | number;
   label?: string;
-  placeholder?: string;
   tabIndex?: number;
   error?: string;
   tip?: string;
@@ -43,7 +42,6 @@ const SelectControl = (props: SelectControlProps): ReactElement => {
     defaultValue,
     value,
     label,
-    placeholder,
     tabIndex,
     error,
     tip,

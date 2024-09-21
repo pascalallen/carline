@@ -47,7 +47,7 @@ const SchoolsPage = (): React.ReactElement => {
     setLoading(initialState.loading);
     schoolService.getAll().then(schools => setSchools(schools));
     setLoading(false);
-  }, []);
+  }, [schoolService]);
 
   useEffect(() => {
     setLoading(initialState.loading);
@@ -55,7 +55,7 @@ const SchoolsPage = (): React.ReactElement => {
       schoolService.getAll().then(schools => setSchools(schools));
     }
     setLoading(false);
-  }, [schoolAddedEvent]);
+  }, [schoolAddedEvent, schoolService]);
 
   const handleShowAddSchoolModal = (): void => {
     setShowAddSchoolModal(true);
