@@ -13,7 +13,7 @@ type GormRoleRepository struct {
 	session database.Session
 }
 
-func NewGormRoleRepository(session database.Session) role.RoleRepository {
+func NewGormRoleRepository(session database.Session) role.Repository {
 	return &GormRoleRepository{
 		session: session,
 	}

@@ -11,16 +11,7 @@ type Permission struct {
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	CreatedAt   time.Time      `json:"created_at"`
-	ModifiedAt  time.Time      `json:"modified_at"`
-}
-
-type PermissionRepository interface {
-	GetById(id ulid.ULID) (*Permission, error)
-	GetByName(name string) (*Permission, error)
-	GetAll() (*[]Permission, error)
-	Add(permission *Permission) error
-	Remove(permission *Permission) error
-	UpdateOrAdd(permission *Permission) error
+	ModifiedAt  *time.Time     `json:"modified_at"`
 }
 
 func Define(id ulid.ULID, name string, description string) *Permission {
@@ -31,16 +22,17 @@ func Define(id ulid.ULID, name string, description string) *Permission {
 		Name:        name,
 		Description: description,
 		CreatedAt:   createdAt,
-		ModifiedAt:  createdAt,
 	}
 }
 
 func (p *Permission) UpdateName(name string) {
 	p.Name = name
-	p.ModifiedAt = time.Now()
+	now := time.Now()
+	p.ModifiedAt = &now
 }
 
 func (p *Permission) UpdateDescription(description string) {
 	p.Description = description
-	p.ModifiedAt = time.Now()
+	now := time.Now()
+	p.ModifiedAt = &now
 }

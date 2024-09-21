@@ -25,10 +25,11 @@ func InitializeContainer() Container {
 	userRepository := repository.NewGormUserRepository(session)
 	schoolRepository := repository.NewGormSchoolRepository(session)
 	studentRepository := repository.NewGormStudentRepository(session)
-	seeder := database.NewDatabaseSeeder(session, permissionRepository, roleRepository, userRepository)
+	seeder := database.NewPostgresSeeder(session, permissionRepository, roleRepository, userRepository)
 	connection := messaging.NewRabbitMQConnection()
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
+	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	container := NewContainer(session, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, seeder, connection, commandBus, eventDispatcher)
+	container := NewContainer(session, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, seeder, connection, commandBus, queryBus, eventDispatcher)
 	return container
 }

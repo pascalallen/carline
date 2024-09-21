@@ -59,6 +59,11 @@
                         "position": "after"
                     },
                     {
+                        "pattern": "@constants/**",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
                         "pattern": "@domain/**",
                         "group": "internal",
                         "position": "after"

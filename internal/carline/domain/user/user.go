@@ -5,6 +5,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/password"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
+	"github.com/pascalallen/carline/internal/carline/domain/school"
 	_type "github.com/pascalallen/carline/internal/carline/infrastructure/database/type"
 	"time"
 )
@@ -15,19 +16,11 @@ type User struct {
 	LastName     string                `json:"last_name" gorm:"size:100;not null"`
 	EmailAddress string                `json:"email_address" gorm:"size:100;not null"`
 	PasswordHash password.PasswordHash `json:"-" gorm:"column:password;size:255;default:null"`
+	Schools      []school.School       `json:"schools" gorm:"many2many:user_schools"`
 	Roles        []role.Role           `json:"roles" gorm:"many2many:user_roles"`
 	CreatedAt    time.Time             `json:"created_at" gorm:"not null"`
 	ModifiedAt   time.Time             `json:"modified_at" gorm:"not null"`
 	DeletedAt    time.Time             `json:"deleted_at" gorm:"default:null"` // TODO: Make nullable/optional
-}
-
-type UserRepository interface {
-	GetById(id ulid.ULID) (*User, error)
-	GetByEmailAddress(emailAddress string) (*User, error)
-	GetAll(includeDeleted bool) (*[]User, error)
-	Add(user *User) error
-	Remove(user *User) error
-	UpdateOrAdd(user *User) error
 }
 
 func Register(id ulid.ULID, firstName string, lastName string, emailAddress string) *User {

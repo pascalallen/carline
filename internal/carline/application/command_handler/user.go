@@ -10,7 +10,7 @@ import (
 )
 
 type RegisterUserHandler struct {
-	UserRepository  user.UserRepository
+	UserRepository  user.Repository
 	EventDispatcher messaging.EventDispatcher
 }
 

@@ -3,7 +3,6 @@ package command
 import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/domain/crypto"
-	"reflect"
 )
 
 type SendWelcomeEmail struct {
@@ -15,5 +14,5 @@ type SendWelcomeEmail struct {
 }
 
 func (c SendWelcomeEmail) CommandName() string {
-	return reflect.TypeOf(c).Name()
+	return "SendWelcomeEmail"
 }

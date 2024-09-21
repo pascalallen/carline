@@ -7,6 +7,8 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/command_handler"
 	"github.com/pascalallen/carline/internal/carline/application/event"
 	"github.com/pascalallen/carline/internal/carline/application/listener"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/application/query_handler"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
@@ -34,13 +36,19 @@ func configureDatabase(container Container) {
 
 func runConsumers(container Container) {
 	commandBus := container.CommandBus
+	queryBus := container.QueryBus
 	eventDispatcher := container.EventDispatcher
 	userRepository := container.UserRepository
+	schoolRepository := container.SchoolRepository
 
 	// command registry
 	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.UpdateUser{}.CommandName(), command_handler.UpdateUserHandler{})
 	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher})
+	commandBus.RegisterHandler(command.AddSchool{}.CommandName(), command_handler.AddSchoolHandler{SchoolRepository: schoolRepository})
+
+	// query registry
+	queryBus.RegisterHandler(query.GetUserById{}.QueryName(), query_handler.GetUserByIdHandler{UserRepository: userRepository})
 
 	// event registry
 	eventDispatcher.RegisterListener(event.UserRegistered{}.EventName(), listener.UserRegistration{CommandBus: commandBus})
@@ -52,6 +60,7 @@ func runConsumers(container Container) {
 func configureServer(container Container) {
 	commandBus := container.CommandBus
 	userRepository := container.UserRepository
+	schoolRepository := container.SchoolRepository
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
@@ -62,5 +71,6 @@ func configureServer(container Container) {
 	router.Default()
 	router.Auth(userRepository, commandBus)
 	router.Temp(userRepository)
+	router.Schools(userRepository, schoolRepository, commandBus)
 	router.Serve(":9990")
 }
