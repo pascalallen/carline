@@ -46,6 +46,7 @@
     "webpack-cli": "^5.1.1"
   },
   "dependencies": {
+    "@pascalallen/react-form-components": "^3.0.0",
     "@popperjs/core": "^2.11.8",
     "@react-rxjs/core": "^0.10.7",
     "@react-rxjs/utils": "^0.9.7",
