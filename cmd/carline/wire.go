@@ -13,13 +13,12 @@ import (
 func InitializeContainer() Container {
 	wire.Build(
 		NewContainer,
-		database.NewGormSession,
-		repository.NewGormPermissionRepository,
-		repository.NewGormRoleRepository,
+		database.NewPostgresSession,
+		repository.NewPostgresPermissionRepository,
+		repository.NewPostgresRoleRepository,
 		repository.NewGormUserRepository,
-		repository.NewGormSchoolRepository,
-		repository.NewGormStudentRepository,
-		database.NewPostgresSeeder,
+		repository.NewPostgresSchoolRepository,
+		repository.NewPostgresStudentRepository,
 		messaging.NewRabbitMQConnection,
 		messaging.NewRabbitMqCommandBus,
 		messaging.NewSynchronousQueryBus,

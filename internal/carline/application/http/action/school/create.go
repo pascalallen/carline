@@ -7,7 +7,8 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
-	school2 "github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
@@ -19,7 +20,7 @@ type CreatedResponsePayload struct {
 	Id ulid.ULID `json:"id"`
 }
 
-func HandleCreate(schoolRepository school2.Repository, commandBus messaging.CommandBus) gin.HandlerFunc {
+func HandleCreate(queryBus messaging.QueryBus, commandBus messaging.CommandBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request CreateRequestPayload
 
@@ -30,7 +31,10 @@ func HandleCreate(schoolRepository school2.Repository, commandBus messaging.Comm
 			return
 		}
 
-		if s, err := schoolRepository.GetByName(request.Name); s != nil || err != nil {
+		q := query.GetSchoolByName{Name: request.Name}
+		result, err := queryBus.Fetch(q)
+		s, ok := result.(*school.School)
+		if s != nil || err != nil || !ok {
 			errorMessage := fmt.Sprint("School already exists.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
 
@@ -41,7 +45,7 @@ func HandleCreate(schoolRepository school2.Repository, commandBus messaging.Comm
 			Id:   ulid.Make(),
 			Name: request.Name,
 		}
-		err := commandBus.Execute(cmd)
+		err = commandBus.Execute(cmd)
 		if err != nil {
 			errorMessage := fmt.Sprintf("Something went wrong executing the command: %s", err.Error())
 			responder.InternalServerErrorResponse(c, errors.New(errorMessage))

@@ -14,3 +14,13 @@ func TestThatQueryNameReturnsExpectedValueGetUserById(t *testing.T) {
 		t.Fatal("test assertion failed for GetUserById.QueryName()")
 	}
 }
+
+func TestThatQueryNameReturnsExpectedValueGetUserByEmailAddress(t *testing.T) {
+	qry := GetUserByEmailAddress{
+		EmailAddress: "foo@bar.com",
+	}
+
+	if qry.QueryName() != "GetUserByEmailAddress" {
+		t.Fatal("test assertion failed for GetUserByEmailAddress.QueryName()")
+	}
+}

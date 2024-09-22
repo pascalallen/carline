@@ -8,5 +8,4 @@ type Repository interface {
 	GetAll() (*[]Permission, error)
 	Add(permission *Permission) error
 	Remove(permission *Permission) error
-	UpdateOrAdd(permission *Permission) error
 }

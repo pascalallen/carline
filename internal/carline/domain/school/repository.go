@@ -8,5 +8,4 @@ type Repository interface {
 	GetAll(includeDeleted bool) (*[]School, error)
 	Add(school *School) error
 	Remove(school *School) error
-	UpdateOrAdd(school *School) error
 }

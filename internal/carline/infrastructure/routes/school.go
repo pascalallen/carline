@@ -3,24 +3,22 @@ package routes
 import (
 	school2 "github.com/pascalallen/carline/internal/carline/application/http/action/school"
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
-	"github.com/pascalallen/carline/internal/carline/domain/school"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-func (r Router) Schools(userRepo user.Repository, schoolRepo school.Repository, commandBus messaging.CommandBus) {
+func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.CommandBus) {
 	v := r.engine.Group(v1)
 	{
 		v.POST(
 			"/schools",
-			middleware.AuthRequired(userRepo),
-			school2.HandleCreate(schoolRepo, commandBus),
+			middleware.AuthRequired(queryBus),
+			school2.HandleCreate(queryBus, commandBus),
 		)
 
 		v.GET(
 			"/schools",
-			middleware.AuthRequired(userRepo),
-			school2.HandleList(schoolRepo),
+			middleware.AuthRequired(queryBus),
+			school2.HandleList(queryBus),
 		)
 	}
 }

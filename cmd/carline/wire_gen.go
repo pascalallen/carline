@@ -14,22 +14,22 @@ import (
 
 import (
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 )
 
 // Injectors from wire.go:
 
 func InitializeContainer() Container {
-	session := database.NewGormSession()
-	permissionRepository := repository.NewGormPermissionRepository(session)
-	roleRepository := repository.NewGormRoleRepository(session)
-	userRepository := repository.NewGormUserRepository(session)
-	schoolRepository := repository.NewGormSchoolRepository(session)
-	studentRepository := repository.NewGormStudentRepository(session)
-	seeder := database.NewPostgresSeeder(session, permissionRepository, roleRepository, userRepository)
+	db := database.NewPostgresSession()
+	permissionRepository := repository.NewPostgresPermissionRepository(db)
+	roleRepository := repository.NewPostgresRoleRepository(db)
+	userRepository := repository.NewGormUserRepository(db)
+	schoolRepository := repository.NewPostgresSchoolRepository(db)
+	studentRepository := repository.NewPostgresStudentRepository(db)
 	connection := messaging.NewRabbitMQConnection()
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	container := NewContainer(session, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, seeder, connection, commandBus, queryBus, eventDispatcher)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher)
 	return container
 }

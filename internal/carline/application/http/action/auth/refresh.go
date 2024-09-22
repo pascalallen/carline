@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
+	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
 )
 
@@ -15,7 +17,7 @@ type RefreshRequestPayload struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-func HandleRefreshTokens(userRepository user.Repository) gin.HandlerFunc {
+func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request RefreshRequestPayload
 
@@ -29,8 +31,10 @@ func HandleRefreshTokens(userRepository user.Repository) gin.HandlerFunc {
 		userClaims := tokenservice.ParseAccessToken(request.AccessToken)
 		refreshClaims := tokenservice.ParseRefreshToken(request.RefreshToken)
 
-		u, err := userRepository.GetById(ulid.MustParse(userClaims.Id))
-		if u == nil || err != nil {
+		q := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
+		result, err := queryBus.Fetch(q)
+		u, ok := result.(*user.User)
+		if u == nil || err != nil || !ok {
 			errorMessage := "invalid credentials"
 			responder.UnauthorizedResponse(c, errors.New(errorMessage))
 
@@ -70,14 +74,18 @@ func HandleRefreshTokens(userRepository user.Repository) gin.HandlerFunc {
 		}
 
 		userData := UserData{
-			Id:           ulid.ULID(u.Id).String(),
+			Id:           u.Id.String(),
 			FirstName:    u.FirstName,
 			LastName:     u.LastName,
 			EmailAddress: u.EmailAddress,
 			CreatedAt:    u.CreatedAt.String(),
-			ModifiedAt:   u.ModifiedAt.String(),
 		}
-		if !u.DeletedAt.IsZero() {
+
+		if u.ModifiedAt != nil {
+			userData.ModifiedAt = u.ModifiedAt.String()
+		}
+
+		if u.DeletedAt != nil {
 			userData.DeletedAt = u.DeletedAt.String()
 		}
 

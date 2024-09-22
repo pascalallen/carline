@@ -9,11 +9,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/listener"
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/application/query_handler"
-	"github.com/pascalallen/carline/internal/carline/domain/permission"
-	"github.com/pascalallen/carline/internal/carline/domain/role"
-	"github.com/pascalallen/carline/internal/carline/domain/school"
-	"github.com/pascalallen/carline/internal/carline/domain/student"
-	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/routes"
 	"os"
 )
@@ -22,16 +17,9 @@ func main() {
 	container := InitializeContainer()
 	defer container.MessageQueueConnection.Close()
 
-	configureDatabase(container)
-
 	runConsumers(container)
 
 	configureServer(container)
-}
-
-func configureDatabase(container Container) {
-	container.DatabaseSession.AutoMigrate(&permission.Permission{}, &role.Role{}, &user.User{}, &school.School{}, &student.Student{})
-	container.DatabaseSeeder.Seed()
 }
 
 func runConsumers(container Container) {
@@ -47,20 +35,22 @@ func runConsumers(container Container) {
 	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.AddSchool{}.CommandName(), command_handler.AddSchoolHandler{SchoolRepository: schoolRepository})
 
-	// query registry
-	queryBus.RegisterHandler(query.GetUserById{}.QueryName(), query_handler.GetUserByIdHandler{UserRepository: userRepository})
-
 	// event registry
 	eventDispatcher.RegisterListener(event.UserRegistered{}.EventName(), listener.UserRegistration{CommandBus: commandBus})
+
+	// query registry
+	queryBus.RegisterHandler(query.GetUserById{}.QueryName(), query_handler.GetUserByIdHandler{UserRepository: userRepository})
+	queryBus.RegisterHandler(query.GetUserByEmailAddress{}.QueryName(), query_handler.GetUserByEmailAddressHandler{UserRepository: userRepository})
+	queryBus.RegisterHandler(query.GetSchoolByName{}.QueryName(), query_handler.GetSchoolByNameHandler{SchoolRepository: schoolRepository})
+	queryBus.RegisterHandler(query.ListSchools{}.QueryName(), query_handler.ListSchoolsHandler{SchoolRepository: schoolRepository})
 
 	go commandBus.StartConsuming()
 	go eventDispatcher.StartConsuming()
 }
 
 func configureServer(container Container) {
+	queryBus := container.QueryBus
 	commandBus := container.CommandBus
-	userRepository := container.UserRepository
-	schoolRepository := container.SchoolRepository
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
@@ -69,8 +59,8 @@ func configureServer(container Container) {
 	router.Config()
 	router.Fileserver()
 	router.Default()
-	router.Auth(userRepository, commandBus)
-	router.Temp(userRepository)
-	router.Schools(userRepository, schoolRepository, commandBus)
+	router.Auth(queryBus, commandBus)
+	router.Schools(queryBus, commandBus)
+	router.Temp(queryBus)
 	router.Serve(":9990")
 }

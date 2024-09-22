@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
-	school2 "github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/application/query"
+	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
 type ListRequestPayload struct {
@@ -13,10 +15,10 @@ type ListRequestPayload struct {
 }
 
 type ListResponsePayload struct {
-	Schools []school2.School `json:"schools"`
+	Schools []school.School `json:"schools"`
 }
 
-func HandleList(schoolRepository school2.Repository) gin.HandlerFunc {
+func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request ListRequestPayload
 
@@ -27,8 +29,10 @@ func HandleList(schoolRepository school2.Repository) gin.HandlerFunc {
 			return
 		}
 
-		s, err := schoolRepository.GetAll(request.IncludeDeleted)
-		if s != nil || err != nil {
+		q := query.ListSchools{IncludeDeleted: request.IncludeDeleted}
+		result, err := queryBus.Fetch(q)
+		s, ok := result.(*[]school.School)
+		if err != nil || !ok {
 			errorMessage := fmt.Sprint("Something went wrong.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
 

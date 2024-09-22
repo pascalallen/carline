@@ -47,23 +47,28 @@ const SchoolsPage = (): React.ReactElement => {
     setLoading(initialState.loading);
     schoolService.getAll().then(schools => setSchools(schools));
     setLoading(false);
-  }, [schoolService]);
+  }, []);
 
   useEffect(() => {
-    setLoading(initialState.loading);
-    if (schoolAddedEvent?.id) {
-      schoolService.getAll().then(schools => setSchools(schools));
-    }
-    setLoading(false);
+    console.log(schoolAddedEvent);
+    const fetchSchools = async (): Promise<void> => {
+      try {
+        setLoading(initialState.loading);
+        if (schoolAddedEvent?.id) {
+          const schools = await schoolService.getAll();
+          setSchools(schools);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.log('something went wrong');
+      }
+    };
+
+    fetchSchools();
   }, [schoolAddedEvent, schoolService]);
 
-  const handleShowAddSchoolModal = (): void => {
-    setShowAddSchoolModal(true);
-  };
-
-  const handleHideAddSchoolModal = (): void => {
-    setShowAddSchoolModal(initialState.showAddSchoolModal);
-  };
+  const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
+  const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);
 
   const handleAddSchool = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();

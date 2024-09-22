@@ -8,5 +8,4 @@ type Repository interface {
 	GetAll(includeDeleted bool) (*[]User, error)
 	Add(user *User) error
 	Remove(user *User) error
-	UpdateOrAdd(user *User) error
 }

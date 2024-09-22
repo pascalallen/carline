@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
+	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
 	"time"
 )
@@ -17,7 +18,7 @@ type LoginRequestPayload struct {
 	Password     string `form:"password" json:"password" binding:"required"`
 }
 
-func HandleLoginUser(userRepository user.Repository) gin.HandlerFunc {
+func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request LoginRequestPayload
 
@@ -28,8 +29,10 @@ func HandleLoginUser(userRepository user.Repository) gin.HandlerFunc {
 			return
 		}
 
-		u, err := userRepository.GetByEmailAddress(request.EmailAddress)
-		if u == nil || err != nil {
+		q := query.GetUserByEmailAddress{EmailAddress: request.EmailAddress}
+		result, err := queryBus.Fetch(q)
+		u, ok := result.(*user.User)
+		if u == nil || err != nil || !ok {
 			errorMessage := "invalid credentials"
 			responder.UnauthorizedResponse(c, errors.New(errorMessage))
 
@@ -44,7 +47,7 @@ func HandleLoginUser(userRepository user.Repository) gin.HandlerFunc {
 		}
 
 		userClaims := tokenservice.UserClaims{
-			Id:    ulid.ULID(u.Id).String(),
+			Id:    u.Id.String(),
 			First: u.FirstName,
 			Last:  u.LastName,
 			StandardClaims: jwt.StandardClaims{
@@ -72,14 +75,18 @@ func HandleLoginUser(userRepository user.Repository) gin.HandlerFunc {
 		}
 
 		userData := UserData{
-			Id:           ulid.ULID(u.Id).String(),
+			Id:           u.Id.String(),
 			FirstName:    u.FirstName,
 			LastName:     u.LastName,
 			EmailAddress: u.EmailAddress,
 			CreatedAt:    u.CreatedAt.String(),
-			ModifiedAt:   u.ModifiedAt.String(),
 		}
-		if !u.DeletedAt.IsZero() {
+
+		if u.ModifiedAt != nil {
+			userData.ModifiedAt = u.ModifiedAt.String()
+		}
+
+		if u.DeletedAt != nil {
 			userData.DeletedAt = u.DeletedAt.String()
 		}
 

@@ -8,6 +8,7 @@ Carline app
 
 ```
 ├── bin/       # Executable CLI commands
+├── docs/      # Additional documentation
 ├── cmd/       # Go commands
 ├── internal/  # Supporting packages
 ├── scripts/   # Application-specific scripts
@@ -21,13 +22,12 @@ Carline app
 - Google Wire DI container
 - JWT/HMAC authentication services
 - RabbitMQ message broker
+- Query bus
 - Asynchronous command bus
 - Asynchronous event dispatcher
 - Middleware
 - Frontend linting with ESLint and Prettier
-- GORM ORM
-- Database seeds for permissions, roles, and users
-- Database seeder
+- Database migrations w/ tooling for managing migrations
 - Domain models
 - API endpoints for authentication and registration
 - API endpoints for server-sent events
@@ -59,6 +59,12 @@ bin/up <prod>
 ``` 
 
 You will find the site running at [http://localhost:9990/](http://localhost:9990/)
+
+### Migrate database
+
+```bash
+bin/migrate -database "postgres://pascalallen:password@postgres:5432/carline?sslmode=disable" -path . up
+```
 
 ### Install JavaScript Dependencies
 
