@@ -3,14 +3,13 @@ package role
 import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
-	_type "github.com/pascalallen/carline/internal/carline/infrastructure/database/type"
 	"time"
 )
 
 type Role struct {
-	Id          _type.GormUlid          `json:"id" gorm:"primaryKey;size:26;not null"`
+	Id          ulid.ULID               `json:"id"`
 	Name        string                  `json:"name"`
-	Permissions []permission.Permission `json:"permissions,omitempty" gorm:"many2many:role_permissions"`
+	Permissions []permission.Permission `json:"permissions"`
 	CreatedAt   time.Time               `json:"created_at"`
 	ModifiedAt  *time.Time              `json:"modified_at,omitempty"`
 }
@@ -19,7 +18,7 @@ func Define(id ulid.ULID, name string) *Role {
 	createdAt := time.Now()
 
 	return &Role{
-		Id:        _type.GormUlid(id),
+		Id:        id,
 		Name:      name,
 		CreatedAt: createdAt,
 	}

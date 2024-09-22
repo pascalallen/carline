@@ -7,6 +7,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
+	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/password"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
@@ -20,7 +21,7 @@ type RegisterRequestPayload struct {
 	ConfirmPassword string `form:"confirm_password" json:"confirm_password" binding:"required,eqfield=Password"`
 }
 
-func HandleRegisterUser(userRepository user.Repository, commandBus messaging.CommandBus) gin.HandlerFunc {
+func HandleRegisterUser(queryBus messaging.QueryBus, commandBus messaging.CommandBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request RegisterRequestPayload
 
@@ -31,7 +32,10 @@ func HandleRegisterUser(userRepository user.Repository, commandBus messaging.Com
 			return
 		}
 
-		if u, err := userRepository.GetByEmailAddress(request.EmailAddress); u != nil || err != nil {
+		q := query.GetUserByEmailAddress{EmailAddress: request.EmailAddress}
+		result, err := queryBus.Fetch(q)
+		u, ok := result.(*user.User)
+		if u != nil || err != nil || !ok {
 			errorMessage := fmt.Sprint("Something went wrong. If you already have an account, please log in.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
 
@@ -45,7 +49,7 @@ func HandleRegisterUser(userRepository user.Repository, commandBus messaging.Com
 			EmailAddress: request.EmailAddress,
 			PasswordHash: password.Create(request.Password),
 		}
-		err := commandBus.Execute(cmd)
+		err = commandBus.Execute(cmd)
 		if err != nil {
 			errorMessage := fmt.Sprintf("Something went wrong executing the command: %s", err.Error())
 			responder.InternalServerErrorResponse(c, errors.New(errorMessage))

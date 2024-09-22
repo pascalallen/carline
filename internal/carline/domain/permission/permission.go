@@ -2,23 +2,22 @@ package permission
 
 import (
 	"github.com/oklog/ulid/v2"
-	_type "github.com/pascalallen/carline/internal/carline/infrastructure/database/type"
 	"time"
 )
 
 type Permission struct {
-	Id          _type.GormUlid `json:"id" gorm:"primaryKey;size:26;not null"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	CreatedAt   time.Time      `json:"created_at"`
-	ModifiedAt  *time.Time     `json:"modified_at"`
+	Id          ulid.ULID  `json:"id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	CreatedAt   time.Time  `json:"created_at"`
+	ModifiedAt  *time.Time `json:"modified_at,omitempty"`
 }
 
 func Define(id ulid.ULID, name string, description string) *Permission {
 	createdAt := time.Now()
 
 	return &Permission{
-		Id:          _type.GormUlid(id),
+		Id:          id,
 		Name:        name,
 		Description: description,
 		CreatedAt:   createdAt,

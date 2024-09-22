@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# change to the project root
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"/.. || exit
+
+docker container run \
+    --rm -it \
+    --network carline \
+    -v "$(pwd)":/app \
+    -w /app/internal/carline/infrastructure/database/migrations \
+    migrate/migrate "$@"

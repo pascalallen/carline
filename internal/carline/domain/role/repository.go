@@ -8,5 +8,4 @@ type Repository interface {
 	GetAll() (*[]Role, error)
 	Add(role *Role) error
 	Remove(role *Role) error
-	UpdateOrAdd(role *Role) error
 }
