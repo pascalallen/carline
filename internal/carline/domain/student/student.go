@@ -48,13 +48,13 @@ func (s *Student) UpdateLastName(lastName string) {
 }
 
 func (s *Student) IsDeleted() bool {
-	return !s.DeletedAt.IsZero()
+	return s.DeletedAt != nil
 }
 
 func (s *Student) Delete() {
 	now := time.Now()
 	s.DeletedAt = &now
-	s.ModifiedAt = s.DeletedAt
+	s.ModifiedAt = &now
 }
 
 func (s *Student) Restore() {

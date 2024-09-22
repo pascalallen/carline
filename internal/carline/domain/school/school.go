@@ -30,13 +30,13 @@ func (s *School) UpdateName(name string) {
 }
 
 func (s *School) IsDeleted() bool {
-	return !s.DeletedAt.IsZero()
+	return s.DeletedAt != nil
 }
 
 func (s *School) Delete() {
 	now := time.Now()
 	s.DeletedAt = &now
-	s.ModifiedAt = s.DeletedAt
+	s.ModifiedAt = &now
 }
 
 func (s *School) Restore() {

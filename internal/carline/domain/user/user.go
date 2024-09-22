@@ -110,13 +110,13 @@ func (u *User) HasPermission(name string) bool {
 }
 
 func (u *User) IsDeleted() bool {
-	return !u.DeletedAt.IsZero()
+	return u.DeletedAt != nil
 }
 
 func (u *User) Delete() {
 	now := time.Now()
 	u.DeletedAt = &now
-	u.ModifiedAt = u.DeletedAt
+	u.ModifiedAt = &now
 }
 
 func (u *User) Restore() {
