@@ -153,6 +153,8 @@ func (bus *RabbitMqCommandBus) processCommand(msg amqp091.Delivery) error {
 		cmd = &command.UpdateUser{}
 	case command.AddSchool{}.CommandName():
 		cmd = &command.AddSchool{}
+	case command.RemoveSchool{}.CommandName():
+		cmd = &command.RemoveSchool{}
 	case command.SendWelcomeEmail{}.CommandName():
 		cmd = &command.SendWelcomeEmail{}
 	default:

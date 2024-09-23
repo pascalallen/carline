@@ -101,7 +101,7 @@ func (r *PostgresSchoolRepository) Add(school *school.School) error {
 func (r *PostgresSchoolRepository) Remove(school *school.School) error {
 	school.Delete()
 
-	if _, err := r.session.Exec("UPDATE schools SET deleted_at = $1 WHERE id = $2", school.DeletedAt, school.Id); err != nil {
+	if _, err := r.session.Exec("UPDATE schools SET deleted_at = $1, modified_at = $2 WHERE id = $3", school.DeletedAt, school.ModifiedAt, school.Id.String()); err != nil {
 		return fmt.Errorf("failed to soft delete School: %v", err)
 	}
 
