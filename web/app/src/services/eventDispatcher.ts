@@ -20,7 +20,6 @@ const dispatch = (event: DomainEvent): void => {
     event.id = uuid();
   }
   setEvent(event);
-  setEvent(undefined);
 };
 
 export default Object.freeze({

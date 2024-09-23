@@ -12,3 +12,11 @@ type AddSchool struct {
 func (c AddSchool) CommandName() string {
 	return "AddSchool"
 }
+
+type RemoveSchool struct {
+	Id ulid.ULID `json:"id"`
+}
+
+func (c RemoveSchool) CommandName() string {
+	return "RemoveSchool"
+}

@@ -93,3 +93,15 @@ func OkResponse[T interface{}](c *gin.Context, i *T) {
 
 	return
 }
+
+func NotFoundResponse(c *gin.Context, error error) {
+	c.JSON(
+		http.StatusNotFound,
+		JSendErrorResponse[string]{
+			Status:  "error",
+			Message: error.Error(),
+		},
+	)
+
+	return
+}

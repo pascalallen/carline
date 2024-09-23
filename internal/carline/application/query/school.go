@@ -1,5 +1,15 @@
 package query
 
+import "github.com/oklog/ulid/v2"
+
+type GetSchoolById struct {
+	Id ulid.ULID `json:"id"`
+}
+
+func (q GetSchoolById) QueryName() string {
+	return "GetSchoolById"
+}
+
 type GetSchoolByName struct {
 	Name string `json:"name"`
 }

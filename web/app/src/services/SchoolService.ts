@@ -22,6 +22,10 @@ export type SchoolAddedResponse = {
   id: string;
 };
 
+export type SchoolRemovedResponse = {
+  id: string;
+};
+
 class SchoolService {
   private readonly authStore: AuthStore;
 
@@ -50,6 +54,21 @@ class SchoolService {
 
     eventDispatcher.dispatch({
       name: DomainEvents.SCHOOL_ADDED,
+      data: {
+        id: response.body.data?.id
+      }
+    });
+  }
+
+  public async remove(id: string) {
+    const response = await request.send<SchoolRemovedResponse>({
+      method: HttpMethod.DELETE,
+      uri: `/api/v1/schools/${id}`,
+      options: { auth: true, authStore: this.authStore }
+    });
+
+    eventDispatcher.dispatch({
+      name: DomainEvents.SCHOOL_REMOVED,
       data: {
         id: response.body.data?.id
       }

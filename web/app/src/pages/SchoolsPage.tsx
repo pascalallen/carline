@@ -42,30 +42,30 @@ const SchoolsPage = (): React.ReactElement => {
   const [removingSchool, setRemovingSchool] = useState(initialState.removingSchool);
 
   const schoolAddedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_ADDED);
+  const schoolRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_REMOVED);
+
+  const fetchSchools = async (): Promise<void> => {
+    setLoading(initialState.loading);
+
+    try {
+      const schools = await schoolService.getAll();
+      setSchools(schools);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    setLoading(initialState.loading);
-    schoolService.getAll().then(schools => setSchools(schools));
-    setLoading(false);
+    fetchSchools();
   }, []);
 
   useEffect(() => {
-    console.log(schoolAddedEvent);
-    const fetchSchools = async (): Promise<void> => {
-      try {
-        setLoading(initialState.loading);
-        if (schoolAddedEvent?.id) {
-          const schools = await schoolService.getAll();
-          setSchools(schools);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.log('something went wrong');
-      }
-    };
-
-    fetchSchools();
-  }, [schoolAddedEvent, schoolService]);
+    if (schoolAddedEvent?.id) {
+      fetchSchools();
+    }
+  }, [schoolAddedEvent, schoolRemovedEvent]);
 
   const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
   const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);
@@ -99,10 +99,7 @@ const SchoolsPage = (): React.ReactElement => {
   const handleRemoveSchool = async (): Promise<void> => {
     try {
       setRemovingSchool(true);
-      if (!selectedSchool?.id) {
-        // TODO: throw error if this function is triggered without having set a school ID
-      }
-      // TODO: call service to remove school
+      await schoolService.remove(selectedSchool?.id ?? '');
       setSchools(prevSchools => prevSchools.filter(school => school.id !== selectedSchool?.id));
       setRemovingSchool(initialState.removingSchool);
       handleHideRemoveSchoolModal();
