@@ -1,8 +1,6 @@
 package command
 
-import (
-	"github.com/oklog/ulid/v2"
-)
+import "github.com/oklog/ulid/v2"
 
 type AddSchool struct {
 	Id   ulid.ULID `json:"id"`

@@ -1,0 +1,73 @@
+import { queryStringify, removeEmptyKeys } from '@utilities/collections';
+import request from '@utilities/request';
+import { DomainEvents } from '@domain/constants/DomainEvents';
+import HttpMethod from '@domain/constants/HttpMethod';
+import { Student } from '@domain/types/Student';
+import AuthStore from '@stores/AuthStore';
+import eventDispatcher from '@services/eventDispatcher';
+
+export type GetAllStudentsRequest = {
+  include_deleted?: boolean;
+};
+
+export type GetAllStudentsResponse = {
+  students: Student[];
+};
+
+export type StudentRemovedResponse = {
+  id: string;
+};
+
+class StudentService {
+  private readonly authStore: AuthStore;
+
+  constructor(authStore: AuthStore) {
+    this.authStore = authStore;
+  }
+
+  public async getAll(params: GetAllStudentsRequest = { include_deleted: false }): Promise<Student[]> {
+    const queryParams = queryStringify(removeEmptyKeys(params || {}));
+    const response = await request.send<GetAllStudentsResponse>({
+      method: HttpMethod.GET,
+      uri: `/api/v1/students${queryParams}`,
+      options: { auth: true, authStore: this.authStore }
+    });
+
+    return response.body.data?.students || [];
+  }
+
+  public async import(formData: FormData): Promise<void> {
+    await request.send({
+      method: HttpMethod.POST,
+      uri: '/api/v1/students/import',
+      body: formData,
+      options: {
+        auth: true,
+        authStore: this.authStore,
+        contentType: 'multipart/form-data'
+      }
+    });
+
+    eventDispatcher.dispatch({
+      name: DomainEvents.STUDENTS_IMPORTED,
+      data: {}
+    });
+  }
+
+  public async remove(id: string) {
+    const response = await request.send<StudentRemovedResponse>({
+      method: HttpMethod.DELETE,
+      uri: `/api/v1/students/${id}`,
+      options: { auth: true, authStore: this.authStore }
+    });
+
+    eventDispatcher.dispatch({
+      name: DomainEvents.STUDENT_REMOVED,
+      data: {
+        id: response.body.data?.id
+      }
+    });
+  }
+}
+
+export default StudentService;
