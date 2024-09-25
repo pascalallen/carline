@@ -3,7 +3,6 @@ import { Spinner } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
-import Path from '@domain/constants/Path';
 import { School } from '@domain/types/School';
 import useEvent from '@hooks/useEvents';
 import useSchoolService from '@hooks/useSchoolService';
