@@ -21,8 +21,16 @@ func NewPostgresSchoolRepository(session *sql.DB) school.Repository {
 func (r *PostgresSchoolRepository) GetById(id ulid.ULID) (*school.School, error) {
 	var s school.School
 	var i string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM schools 
+		WHERE id = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM schools WHERE id = $1", id.String())
+	row := r.session.QueryRow(q, id.String())
 	if err := row.Scan(&i, &s.Name, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -33,16 +41,22 @@ func (r *PostgresSchoolRepository) GetById(id ulid.ULID) (*school.School, error)
 
 	s.Id = ulid.MustParse(i)
 
-	// TODO: eager load students
-
 	return &s, nil
 }
 
 func (r *PostgresSchoolRepository) GetByName(name string) (*school.School, error) {
 	var s school.School
 	var id string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM schools 
+		WHERE name = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM schools WHERE name = $1", name)
+	row := r.session.QueryRow(q, name)
 	if err := row.Scan(&id, &s.Name, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -53,28 +67,32 @@ func (r *PostgresSchoolRepository) GetByName(name string) (*school.School, error
 
 	s.Id = ulid.MustParse(id)
 
-	// TODO: eager load students
-
 	return &s, nil
 }
 
-// GetAll TODO: Add pagination
 func (r *PostgresSchoolRepository) GetAll(includeDeleted bool) (*[]school.School, error) {
-	var s school.School
 	var schools []school.School
-	var id string
-	query := "SELECT * FROM schools"
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM schools`
 
 	if !includeDeleted {
-		query += " WHERE deleted_at IS NULL"
+		q += ` WHERE deleted_at IS NULL;`
 	}
 
-	rows, err := r.session.Query(query)
+	rows, err := r.session.Query(q)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Schools: %s", err)
 	}
 
 	for rows.Next() {
+		var id string
+		var s school.School
+
 		if err := rows.Scan(&id, &s.Name, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
@@ -91,7 +109,9 @@ func (r *PostgresSchoolRepository) GetAll(includeDeleted bool) (*[]school.School
 }
 
 func (r *PostgresSchoolRepository) Add(school *school.School) error {
-	if _, err := r.session.Exec("INSERT INTO schools(id, name, created_at) VALUES($1, $2, $3)", school.Id.String(), school.Name, school.CreatedAt); err != nil {
+	q := `INSERT INTO schools(id, name, created_at) VALUES($1, $2, $3)`
+
+	if _, err := r.session.Exec(q, school.Id.String(), school.Name, school.CreatedAt); err != nil {
 		return fmt.Errorf("failed to persist School to database: %v", err)
 	}
 
@@ -100,8 +120,9 @@ func (r *PostgresSchoolRepository) Add(school *school.School) error {
 
 func (r *PostgresSchoolRepository) Remove(school *school.School) error {
 	school.Delete()
+	q := `UPDATE schools SET deleted_at = $1, modified_at = $2 WHERE id = $3`
 
-	if _, err := r.session.Exec("UPDATE schools SET deleted_at = $1, modified_at = $2 WHERE id = $3", school.DeletedAt, school.ModifiedAt, school.Id.String()); err != nil {
+	if _, err := r.session.Exec(q, school.DeletedAt, school.ModifiedAt, school.Id.String()); err != nil {
 		return fmt.Errorf("failed to soft delete School: %v", err)
 	}
 

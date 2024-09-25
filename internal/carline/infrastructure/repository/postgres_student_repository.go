@@ -21,9 +21,21 @@ func NewPostgresStudentRepository(session *sql.DB) student.Repository {
 func (r *PostgresStudentRepository) GetById(id ulid.ULID) (*student.Student, error) {
 	var s student.Student
 	var i string
+	var sid string
+	q := `SELECT 
+			id, 
+			tag_number, 
+			first_name, 
+			last_name, 
+			school_id, 
+			created_at, 
+			modified_at, 
+			deleted_at 
+		FROM students 
+		WHERE id = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM students WHERE id = $1", id.String())
-	if err := row.Scan(&i, &s.TagNumber, &s.FirstName, &s.LastName, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
+	row := r.session.QueryRow(q, id.String())
+	if err := row.Scan(&i, &s.TagNumber, &s.FirstName, &s.LastName, &sid, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -32,8 +44,7 @@ func (r *PostgresStudentRepository) GetById(id ulid.ULID) (*student.Student, err
 	}
 
 	s.Id = ulid.MustParse(i)
-
-	// TODO: eager load school
+	s.SchoolId = ulid.MustParse(sid)
 
 	return &s, nil
 }
@@ -41,9 +52,20 @@ func (r *PostgresStudentRepository) GetById(id ulid.ULID) (*student.Student, err
 func (r *PostgresStudentRepository) GetByTagNumber(tagNumber string) (*student.Student, error) {
 	var s student.Student
 	var id string
+	q := `SELECT 
+			id, 
+			tag_number, 
+			first_name, 
+			last_name, 
+			school_id, 
+			created_at, 
+			modified_at, 
+			deleted_at 
+		FROM students 
+		WHERE tag_number = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM students WHERE tag_number = $1", tagNumber)
-	if err := row.Scan(&id, &s.TagNumber, &s.FirstName, &s.LastName, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
+	row := r.session.QueryRow(q, tagNumber)
+	if err := row.Scan(&id, &s.TagNumber, &s.FirstName, &s.LastName, &s.SchoolId, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -53,29 +75,39 @@ func (r *PostgresStudentRepository) GetByTagNumber(tagNumber string) (*student.S
 
 	s.Id = ulid.MustParse(id)
 
-	// TODO: eager load school
-
 	return &s, nil
 }
 
 func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID, includeDeleted bool) (*[]student.Student, error) {
 	var students []student.Student
+	q := `SELECT 
+			id, 
+			tag_number, 
+			first_name, 
+			last_name, 
+			school_id, 
+			created_at, 
+			modified_at, 
+			deleted_at 
+		FROM students 
+		WHERE school_id = $1`
 
-	query := "SELECT id, tag_number, first_name, last_name, created_at, modified_at, deleted_at FROM students WHERE school_id = $1"
 	if !includeDeleted {
-		query += " AND deleted_at IS NULL"
+		q += ` AND deleted_at IS NULL;`
 	}
 
-	rows, err := r.session.Query(query, schoolId.String())
+	rows, err := r.session.Query(q, schoolId.String())
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Students: %s", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
+		var sid string
 		var id string
 		var s student.Student
-		if err := rows.Scan(&id, &s.TagNumber, &s.FirstName, &s.LastName, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
+
+		if err := rows.Scan(&id, &s.TagNumber, &s.FirstName, &s.LastName, &sid, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
 			}
@@ -84,6 +116,7 @@ func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID, includeDeleted bo
 		}
 
 		s.Id = ulid.MustParse(id)
+		s.SchoolId = ulid.MustParse(sid)
 		students = append(students, s)
 	}
 
@@ -91,7 +124,9 @@ func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID, includeDeleted bo
 }
 
 func (r *PostgresStudentRepository) Add(student *student.Student) error {
-	if _, err := r.session.Exec("INSERT INTO students(id, tag_number, first_name, last_name, school_id, created_at) VALUES($1, $2, $3, $4, $5)", student.Id.String(), student.TagNumber, student.FirstName, student.LastName, student.School.Id, student.CreatedAt); err != nil {
+	q := `INSERT INTO students(id, tag_number, first_name, last_name, school_id, created_at) VALUES($1, $2, $3, $4, $5)`
+
+	if _, err := r.session.Exec(q, student.Id.String(), student.TagNumber, student.FirstName, student.LastName, student.SchoolId, student.CreatedAt); err != nil {
 		return fmt.Errorf("failed to persist Student to database: %v", err)
 	}
 
@@ -100,8 +135,9 @@ func (r *PostgresStudentRepository) Add(student *student.Student) error {
 
 func (r *PostgresStudentRepository) Remove(student *student.Student) error {
 	student.Delete()
+	q := `UPDATE students SET deleted_at = $1 WHERE id = $2`
 
-	if _, err := r.session.Exec("UPDATE students SET deleted_at = $1 WHERE id = $2", student.DeletedAt, student.Id); err != nil {
+	if _, err := r.session.Exec(q, student.DeletedAt, student.Id.String()); err != nil {
 		return fmt.Errorf("failed to soft delete Student: %v", err)
 	}
 

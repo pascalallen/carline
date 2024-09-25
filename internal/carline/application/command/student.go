@@ -12,3 +12,12 @@ type ImportStudents struct {
 func (c ImportStudents) CommandName() string {
 	return "ImportStudents"
 }
+
+type DeleteStudent struct {
+	SchoolId ulid.ULID `json:"school_id"`
+	Id       ulid.ULID `json:"id"`
+}
+
+func (c DeleteStudent) CommandName() string {
+	return "DeleteStudent"
+}

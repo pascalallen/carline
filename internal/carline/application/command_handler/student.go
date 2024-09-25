@@ -125,3 +125,26 @@ func checkHeaders(headers []string, requiredHeaders []string) []string {
 
 	return missingHeaders
 }
+
+type DeleteStudentHandler struct {
+	StudentRepository student.Repository
+}
+
+func (h DeleteStudentHandler) Handle(cmd messaging.Command) error {
+	c, ok := cmd.(*command.DeleteStudent)
+	if !ok {
+		return fmt.Errorf("invalid command type passed to DeleteStudentHandler: %v", cmd)
+	}
+
+	s, err := h.StudentRepository.GetById(c.Id)
+	if err != nil {
+		return fmt.Errorf("student not found: %s", c.Id)
+	}
+
+	err = h.StudentRepository.Remove(s)
+	if err != nil {
+		return fmt.Errorf("student removal failed: %s", err)
+	}
+
+	return nil
+}

@@ -21,7 +21,7 @@ type ListResponsePayload struct {
 
 func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id := c.Param("id")
+		id := c.Param("schoolId")
 		if id == "" {
 			responder.BadRequestResponse(c, errors.New("school ID required"))
 

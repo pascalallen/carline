@@ -101,7 +101,7 @@ const StudentsIndex = (): React.ReactElement => {
   const handleRemoveStudent = async (): Promise<void> => {
     try {
       setRemovingStudent(true);
-      await studentService.remove(selectedStudent?.id ?? '');
+      await studentService.remove(schoolId ?? '', selectedStudent?.id ?? '');
       setStudents(prevStudents => prevStudents.filter(student => student.id !== selectedStudent?.id));
       setRemovingStudent(initialState.removingStudent);
       handleHideRemoveStudentModal();
@@ -159,7 +159,7 @@ const StudentsIndex = (): React.ReactElement => {
                         <th scope="col">Tag Number</th>
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
-                        <th scope="col">School</th>
+                        <th scope="col">School ID</th>
                         <th scope="col">
                           <button
                             type="button"
@@ -179,12 +179,12 @@ const StudentsIndex = (): React.ReactElement => {
                           <td>{student.last_name}</td>
                           <td>
                             <a
-                              href={`/schools/${student.school.id}`}
+                              href={`/schools/${student.school_id}`}
                               onClick={event => {
                                 event.preventDefault();
-                                navigate(`/schools/${student.school.id}`);
+                                navigate(`/schools/${student.school_id}`);
                               }}>
-                              {student.school.name}
+                              {student.school_id}
                             </a>
                           </td>
 

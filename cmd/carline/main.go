@@ -35,9 +35,10 @@ func runConsumers(container Container) {
 	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.UpdateUser{}.CommandName(), command_handler.UpdateUserHandler{})
 	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher})
-	commandBus.RegisterHandler(command.AddSchool{}.CommandName(), command_handler.AddSchoolHandler{SchoolRepository: schoolRepository})
-	commandBus.RegisterHandler(command.RemoveSchool{}.CommandName(), command_handler.RemoveSchoolHandler{SchoolRepository: schoolRepository})
+	commandBus.RegisterHandler(command.CreateSchool{}.CommandName(), command_handler.CreateSchoolHandler{SchoolRepository: schoolRepository})
+	commandBus.RegisterHandler(command.DeleteSchool{}.CommandName(), command_handler.DeleteSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.ImportStudents{}.CommandName(), command_handler.ImportStudentsHandler{SchoolRepository: schoolRepository, StudentRepository: studentRepository, DatabaseSession: databaseSession})
+	commandBus.RegisterHandler(command.DeleteStudent{}.CommandName(), command_handler.DeleteStudentHandler{StudentRepository: studentRepository})
 
 	// event registry
 	eventDispatcher.RegisterListener(event.UserRegistered{}.EventName(), listener.UserRegistration{CommandBus: commandBus})
@@ -49,6 +50,7 @@ func runConsumers(container Container) {
 	queryBus.RegisterHandler(query.GetSchoolByName{}.QueryName(), query_handler.GetSchoolByNameHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.ListSchools{}.QueryName(), query_handler.ListSchoolsHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.ListStudents{}.QueryName(), query_handler.ListStudentsHandler{StudentRepository: studentRepository})
+	queryBus.RegisterHandler(query.GetStudentById{}.QueryName(), query_handler.GetStudentByIdHandler{StudentRepository: studentRepository})
 
 	go commandBus.StartConsuming()
 	go eventDispatcher.StartConsuming()
