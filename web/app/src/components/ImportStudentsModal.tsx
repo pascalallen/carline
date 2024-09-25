@@ -19,7 +19,7 @@ const ImportStudentsModal = (props: Props): React.ReactElement => {
       <Modal.Header className="border-0">
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} />
       </Modal.Header>
-      <Modal.Body className="text-center d-flex flex-column align-items-center pt-0">
+      <Modal.Body className="d-flex flex-column align-items-center pt-0">
         <h5 className="import-students-header">Import Students</h5>
         <form id="import-students-form" className="import-students-form" onSubmit={onImport}>
           <div className="mb-3">
@@ -28,7 +28,7 @@ const ImportStudentsModal = (props: Props): React.ReactElement => {
             </label>
             <input className="form-control" type="file" id="students-file" name="file" />
           </div>
-          <div className="form-group">
+          <div className="form-group text-center">
             <button
               id="import-students-button"
               className="import-students-button btn btn-primary"

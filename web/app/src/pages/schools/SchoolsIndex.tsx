@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import { School } from '@domain/types/School';
 import useEvent from '@hooks/useEvents';
@@ -30,8 +31,9 @@ const initialState: State = {
   removingSchool: false
 };
 
-const SchoolsPage = (): React.ReactElement => {
+const SchoolsIndex = (): React.ReactElement => {
   const schoolService = useSchoolService();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(initialState.loading);
   const [schools, setSchools] = useState(initialState.schools);
@@ -165,7 +167,16 @@ const SchoolsPage = (): React.ReactElement => {
                     <tbody>
                       {schools.map((school: School, index: number) => (
                         <tr key={`school-row-${index}`} className="align-middle">
-                          <td>{school.id}</td>
+                          <td>
+                            <a
+                              href={`/schools/${school.id}/students`}
+                              onClick={event => {
+                                event.preventDefault();
+                                navigate(`/schools/${school.id}/students`);
+                              }}>
+                              {school.id}
+                            </a>
+                          </td>
                           <td>{school.name}</td>
                           <td>
                             <button
@@ -190,4 +201,4 @@ const SchoolsPage = (): React.ReactElement => {
   );
 };
 
-export default SchoolsPage;
+export default SchoolsIndex;

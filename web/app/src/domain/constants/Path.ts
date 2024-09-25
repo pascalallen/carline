@@ -4,7 +4,8 @@ const LOGIN = '/login';
 const MARSHALL = '/marshall';
 const FORBIDDEN = '/forbidden';
 const SCHOOLS = '/schools';
-const STUDENTS = '/students';
+const SCHOOL = '/schools/:schoolId';
+const STUDENTS = '/schools/:schoolId/students';
 const TEMP = '/temp';
 const WALKER = '/walker';
 
@@ -16,6 +17,7 @@ export default Object.freeze({
   FORBIDDEN,
   TEMP,
   SCHOOLS,
+  SCHOOL,
   STUDENTS,
   WALKER
 });

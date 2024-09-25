@@ -7,8 +7,9 @@ import IndexPage from '@pages/IndexPage';
 import LoginPage from '@pages/LoginPage';
 import MarshalPage from '@pages/MarshalPage';
 import RegisterPage from '@pages/RegisterPage';
-import SchoolsPage from '@pages/SchoolsPage';
-import StudentsPage from '@pages/StudentsPage';
+import SchoolsDetail from '@pages/schools/SchoolsDetail';
+import SchoolsIndex from '@pages/schools/SchoolsIndex';
+import StudentsIndex from '@pages/schools/students/StudentsIndex';
 import TempPage from '@pages/TempPage';
 import WalkerPage from '@pages/WalkerPage';
 
@@ -37,23 +38,43 @@ const routes: RouteObject[] = [
   },
   {
     path: Path.SCHOOLS,
-    element: (
-      <RouteElementWrapper>
-        <RequiresAuthentication>
-          <SchoolsPage />
-        </RequiresAuthentication>
-      </RouteElementWrapper>
-    )
-  },
-  {
-    path: Path.STUDENTS,
-    element: (
-      <RouteElementWrapper>
-        <RequiresAuthentication>
-          <StudentsPage />
-        </RequiresAuthentication>
-      </RouteElementWrapper>
-    )
+    children: [
+      {
+        index: true,
+        element: (
+          <RouteElementWrapper>
+            <RequiresAuthentication>
+              <SchoolsIndex />
+            </RequiresAuthentication>
+          </RouteElementWrapper>
+        )
+      },
+      {
+        path: Path.SCHOOL,
+        children: [
+          {
+            index: true,
+            element: (
+              <RouteElementWrapper>
+                <RequiresAuthentication>
+                  <SchoolsDetail />
+                </RequiresAuthentication>
+              </RouteElementWrapper>
+            )
+          },
+          {
+            path: Path.STUDENTS,
+            element: (
+              <RouteElementWrapper>
+                <RequiresAuthentication>
+                  <StudentsIndex />
+                </RequiresAuthentication>
+              </RouteElementWrapper>
+            )
+          }
+        ]
+      }
+    ]
   },
   {
     path: Path.TEMP,

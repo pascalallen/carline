@@ -32,7 +32,7 @@ const Navbar = (): ReactElement => {
           aria-controls="navbar-content"
           aria-expanded="false"
           aria-label="Toggle navigation">
-          <span className="navbar-content-icon" />
+          <i className="fa-solid fa-bars" />
         </button>
         <div id="navbar-content" className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
@@ -56,17 +56,6 @@ const Navbar = (): ReactElement => {
                   navigate(Path.SCHOOLS);
                 }}>
                 Schools
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link"
-                href={Path.STUDENTS}
-                onClick={event => {
-                  event.preventDefault();
-                  navigate(Path.STUDENTS);
-                }}>
-                Students
               </a>
             </li>
             <li className="nav-item">

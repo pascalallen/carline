@@ -58,23 +58,23 @@ func (r *PostgresStudentRepository) GetByTagNumber(tagNumber string) (*student.S
 	return &s, nil
 }
 
-// GetAll TODO: Add pagination
-func (r *PostgresStudentRepository) GetAll(includeDeleted bool) (*[]student.Student, error) {
-	var s student.Student
+func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID, includeDeleted bool) (*[]student.Student, error) {
 	var students []student.Student
-	var id string
-	query := "SELECT * FROM students"
 
+	query := "SELECT id, tag_number, first_name, last_name, created_at, modified_at, deleted_at FROM students WHERE school_id = $1"
 	if !includeDeleted {
-		query += " WHERE deleted_at IS NULL"
+		query += " AND deleted_at IS NULL"
 	}
 
-	rows, err := r.session.Query(query)
+	rows, err := r.session.Query(query, schoolId.String())
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Students: %s", err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
+		var id string
+		var s student.Student
 		if err := rows.Scan(&id, &s.TagNumber, &s.FirstName, &s.LastName, &s.CreatedAt, &s.ModifiedAt, &s.DeletedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
@@ -91,7 +91,7 @@ func (r *PostgresStudentRepository) GetAll(includeDeleted bool) (*[]student.Stud
 }
 
 func (r *PostgresStudentRepository) Add(student *student.Student) error {
-	if _, err := r.session.Exec("INSERT INTO students(id, tag_number, first_name, last_name, created_at) VALUES($1, $2, $3, $4, $5)", student.Id.String(), student.TagNumber, student.FirstName, student.LastName, student.CreatedAt); err != nil {
+	if _, err := r.session.Exec("INSERT INTO students(id, tag_number, first_name, last_name, school_id, created_at) VALUES($1, $2, $3, $4, $5)", student.Id.String(), student.TagNumber, student.FirstName, student.LastName, student.School.Id, student.CreatedAt); err != nil {
 		return fmt.Errorf("failed to persist Student to database: %v", err)
 	}
 
