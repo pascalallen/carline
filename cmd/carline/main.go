@@ -28,6 +28,8 @@ func runConsumers(container Container) {
 	eventDispatcher := container.EventDispatcher
 	userRepository := container.UserRepository
 	schoolRepository := container.SchoolRepository
+	studentRepository := container.StudentRepository
+	databaseSession := container.DatabaseSession
 
 	// command registry
 	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, EventDispatcher: eventDispatcher})
@@ -35,6 +37,7 @@ func runConsumers(container Container) {
 	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.AddSchool{}.CommandName(), command_handler.AddSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.RemoveSchool{}.CommandName(), command_handler.RemoveSchoolHandler{SchoolRepository: schoolRepository})
+	commandBus.RegisterHandler(command.ImportStudents{}.CommandName(), command_handler.ImportStudentsHandler{SchoolRepository: schoolRepository, StudentRepository: studentRepository, DatabaseSession: databaseSession})
 
 	// event registry
 	eventDispatcher.RegisterListener(event.UserRegistered{}.EventName(), listener.UserRegistration{CommandBus: commandBus})
@@ -45,6 +48,7 @@ func runConsumers(container Container) {
 	queryBus.RegisterHandler(query.GetSchoolById{}.QueryName(), query_handler.GetSchoolByIdHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.GetSchoolByName{}.QueryName(), query_handler.GetSchoolByNameHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.ListSchools{}.QueryName(), query_handler.ListSchoolsHandler{SchoolRepository: schoolRepository})
+	queryBus.RegisterHandler(query.ListStudents{}.QueryName(), query_handler.ListStudentsHandler{StudentRepository: studentRepository})
 
 	go commandBus.StartConsuming()
 	go eventDispatcher.StartConsuming()

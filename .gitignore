@@ -5,6 +5,7 @@
 
 # misc
 .idea
+/tmp
 .env
 .DS_Store
 coverage.out

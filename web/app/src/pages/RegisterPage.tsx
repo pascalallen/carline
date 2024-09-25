@@ -72,35 +72,35 @@ const RegisterPage = (): ReactElement => {
     }
   }, [authService, navigate]);
 
-  const handleRegister = (event: FormEvent<HTMLFormElement>): void => {
+  const handleRegister = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setErrorMessage(initialState.errorMessage);
-    authService
-      .register({
+    try {
+      await authService.register({
         first_name: firstName,
         last_name: lastName,
         email_address: emailAddress,
         password,
         confirm_password: confirmPassword
-      })
-      .then(() => authService.login({ email_address: emailAddress, password }))
-      .then(() => {
+      });
+      setTimeout(async () => {
+        await authService.login({ email_address: emailAddress, password });
         const from = state?.from?.pathname || Path.WALKER;
         navigate(from, { replace: true });
-      })
-      .catch(error => {
-        if ((error as FailApiResponse)?.statusCode === 400) {
-          setErrorMessage('Validation error');
-        }
+      }, 100);
+    } catch (error) {
+      if ((error as FailApiResponse)?.statusCode === 400) {
+        setErrorMessage('Validation error');
+      }
 
-        if ((error as FailApiResponse)?.statusCode === 401) {
-          setErrorMessage('Invalid credentials');
-        }
+      if ((error as FailApiResponse)?.statusCode === 401) {
+        setErrorMessage('Invalid credentials');
+      }
 
-        if ((error as ErrorApiResponse)?.statusCode === 422) {
-          setErrorMessage((error as ErrorApiResponse).body.message);
-        }
-      });
+      if ((error as ErrorApiResponse)?.statusCode === 422) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
+    }
   };
 
   const handleBlur = (field: string) => {

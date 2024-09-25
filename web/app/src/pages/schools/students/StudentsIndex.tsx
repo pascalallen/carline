@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import { Student } from '@domain/types/Student';
 import useEvent from '@hooks/useEvents';
@@ -30,8 +31,10 @@ const initialState: State = {
   removingStudent: false
 };
 
-const StudentsPage = (): React.ReactElement => {
+const StudentsIndex = (): React.ReactElement => {
   const studentService = useStudentService();
+  const { schoolId } = useParams();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(initialState.loading);
   const [students, setStudents] = useState(initialState.students);
@@ -48,7 +51,7 @@ const StudentsPage = (): React.ReactElement => {
     setLoading(initialState.loading);
 
     try {
-      const students = await studentService.getAll();
+      const students = await studentService.getAll(schoolId ?? '', { include_deleted: false });
       setStudents(students);
     } catch (error) {
       console.error(error);
@@ -76,7 +79,7 @@ const StudentsPage = (): React.ReactElement => {
     try {
       setImportingStudents(true);
       const formData = new FormData(event.currentTarget);
-      await studentService.import(formData);
+      await studentService.import(schoolId ?? '', formData);
       setImportingStudents(initialState.importingStudents);
       handleHideImportStudentsModal();
     } catch (error) {
@@ -156,7 +159,7 @@ const StudentsPage = (): React.ReactElement => {
                         <th scope="col">Tag Number</th>
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
-                        <th scope="col">School ID</th>
+                        <th scope="col">School</th>
                         <th scope="col">
                           <button
                             type="button"
@@ -174,7 +177,17 @@ const StudentsPage = (): React.ReactElement => {
                           <td>{student.tag_number}</td>
                           <td>{student.first_name}</td>
                           <td>{student.last_name}</td>
-                          <td>{student.school.id}</td>
+                          <td>
+                            <a
+                              href={`/schools/${student.school.id}`}
+                              onClick={event => {
+                                event.preventDefault();
+                                navigate(`/schools/${student.school.id}`);
+                              }}>
+                              {student.school.name}
+                            </a>
+                          </td>
+
                           <td>
                             <button
                               type="button"
@@ -198,4 +211,4 @@ const StudentsPage = (): React.ReactElement => {
   );
 };
 
-export default StudentsPage;
+export default StudentsIndex;

@@ -21,6 +21,10 @@ type RegisterRequestPayload struct {
 	ConfirmPassword string `form:"confirm_password" json:"confirm_password" binding:"required,eqfield=Password"`
 }
 
+type RegisteredResponsePayload struct {
+	Id ulid.ULID `json:"id"`
+}
+
 func HandleRegisterUser(queryBus messaging.QueryBus, commandBus messaging.CommandBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request RegisterRequestPayload
@@ -57,7 +61,11 @@ func HandleRegisterUser(queryBus messaging.QueryBus, commandBus messaging.Comman
 			return
 		}
 
-		responder.CreatedResponse[RegisterRequestPayload](c, &request)
+		response := RegisteredResponsePayload{
+			Id: cmd.Id,
+		}
+
+		responder.CreatedResponse[RegisteredResponsePayload](c, &response)
 
 		return
 	}

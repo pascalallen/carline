@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school"
+	"github.com/pascalallen/carline/internal/carline/application/http/action/school/student"
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
@@ -25,6 +26,18 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			"/schools",
 			middleware.AuthRequired(queryBus),
 			school.HandleList(queryBus),
+		)
+
+		v.POST(
+			"/schools/:id/students/import",
+			middleware.AuthRequired(queryBus),
+			student.HandleImport(commandBus),
+		)
+
+		v.GET(
+			"/schools/:id/students",
+			middleware.AuthRequired(queryBus),
+			student.HandleList(queryBus),
 		)
 	}
 }

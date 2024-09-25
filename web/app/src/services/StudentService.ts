@@ -25,21 +25,24 @@ class StudentService {
     this.authStore = authStore;
   }
 
-  public async getAll(params: GetAllStudentsRequest = { include_deleted: false }): Promise<Student[]> {
+  public async getAll(
+    schoolId: string,
+    params: GetAllStudentsRequest = { include_deleted: false }
+  ): Promise<Student[]> {
     const queryParams = queryStringify(removeEmptyKeys(params || {}));
     const response = await request.send<GetAllStudentsResponse>({
       method: HttpMethod.GET,
-      uri: `/api/v1/students${queryParams}`,
+      uri: `/api/v1/schools/${schoolId}/students${queryParams}`,
       options: { auth: true, authStore: this.authStore }
     });
 
     return response.body.data?.students || [];
   }
 
-  public async import(formData: FormData): Promise<void> {
+  public async import(schoolId: string, formData: FormData): Promise<void> {
     await request.send({
       method: HttpMethod.POST,
-      uri: '/api/v1/students/import',
+      uri: `/api/v1/schools/${schoolId}/students/import`,
       body: formData,
       options: {
         auth: true,

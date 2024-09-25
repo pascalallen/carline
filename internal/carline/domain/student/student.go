@@ -17,7 +17,7 @@ type Student struct {
 	DeletedAt  *time.Time    `json:"deleted_at,omitempty"`
 }
 
-func Register(id ulid.ULID, tagNumber string, firstName string, lastName string) *Student {
+func Register(id ulid.ULID, tagNumber string, firstName string, lastName string, school school.School) *Student {
 	createdAt := time.Now()
 
 	return &Student{
@@ -25,6 +25,7 @@ func Register(id ulid.ULID, tagNumber string, firstName string, lastName string)
 		TagNumber: tagNumber,
 		FirstName: firstName,
 		LastName:  lastName,
+		School:    school,
 		CreatedAt: createdAt,
 	}
 }
