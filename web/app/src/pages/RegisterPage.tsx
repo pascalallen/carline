@@ -64,7 +64,7 @@ const RegisterPage = (): ReactElement => {
   const [password, setPassword] = useState(initialState.password);
   const [confirmPassword, setConfirmPassword] = useState(initialState.confirmPassword);
   const [touched, setTouched] = useState(initialState.touched);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(initialState.errorMessage);
 
   useEffect(() => {
     if (authService.isLoggedIn()) {

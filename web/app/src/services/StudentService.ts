@@ -57,10 +57,10 @@ class StudentService {
     });
   }
 
-  public async remove(id: string) {
+  public async remove(schoolId: string, id: string) {
     const response = await request.send<StudentRemovedResponse>({
       method: HttpMethod.DELETE,
-      uri: `/api/v1/students/${id}`,
+      uri: `/api/v1/schools/${schoolId}/students/${id}`,
       options: { auth: true, authStore: this.authStore }
     });
 

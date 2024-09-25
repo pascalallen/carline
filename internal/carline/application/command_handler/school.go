@@ -7,14 +7,14 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-type AddSchoolHandler struct {
+type CreateSchoolHandler struct {
 	SchoolRepository school.Repository
 }
 
-func (h AddSchoolHandler) Handle(cmd messaging.Command) error {
-	c, ok := cmd.(*command.AddSchool)
+func (h CreateSchoolHandler) Handle(cmd messaging.Command) error {
+	c, ok := cmd.(*command.CreateSchool)
 	if !ok {
-		return fmt.Errorf("invalid command type passed to AddSchoolHandler: %v", cmd)
+		return fmt.Errorf("invalid command type passed to CreateSchoolHandler: %v", cmd)
 	}
 
 	s := school.Create(c.Id, c.Name)
@@ -27,14 +27,14 @@ func (h AddSchoolHandler) Handle(cmd messaging.Command) error {
 	return nil
 }
 
-type RemoveSchoolHandler struct {
+type DeleteSchoolHandler struct {
 	SchoolRepository school.Repository
 }
 
-func (h RemoveSchoolHandler) Handle(cmd messaging.Command) error {
-	c, ok := cmd.(*command.RemoveSchool)
+func (h DeleteSchoolHandler) Handle(cmd messaging.Command) error {
+	c, ok := cmd.(*command.DeleteSchool)
 	if !ok {
-		return fmt.Errorf("invalid command type passed to RemoveSchoolHandler: %v", cmd)
+		return fmt.Errorf("invalid command type passed to DeleteSchoolHandler: %v", cmd)
 	}
 
 	s, err := h.SchoolRepository.GetById(c.Id)

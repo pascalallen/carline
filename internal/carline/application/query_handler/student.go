@@ -24,3 +24,21 @@ func (h ListStudentsHandler) Handle(qry messaging.Query) (any, error) {
 
 	return s, nil
 }
+
+type GetStudentByIdHandler struct {
+	StudentRepository student.Repository
+}
+
+func (h GetStudentByIdHandler) Handle(qry messaging.Query) (any, error) {
+	q, ok := qry.(query.GetStudentById)
+	if !ok {
+		return nil, fmt.Errorf("invalid query type passed to GetStudentByIdHandler: %v", qry)
+	}
+
+	s, err := h.StudentRepository.GetById(q.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error attempting to retrieve Student from database: %s", err)
+	}
+
+	return s, nil
+}

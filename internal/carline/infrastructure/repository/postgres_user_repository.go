@@ -21,8 +21,19 @@ func NewGormUserRepository(session *sql.DB) user.Repository {
 func (r *PostgresUserRepository) GetById(id ulid.ULID) (*user.User, error) {
 	var u user.User
 	var i string
+	q := `SELECT 
+			id,
+			first_name,
+			last_name,
+			email_address,
+			password_hash,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM users 
+		WHERE id = $1`
 
-	row := r.session.QueryRow("SELECT * FROM users WHERE id = $1", id.String())
+	row := r.session.QueryRow(q, id.String())
 	if err := row.Scan(&i, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -33,16 +44,25 @@ func (r *PostgresUserRepository) GetById(id ulid.ULID) (*user.User, error) {
 
 	u.Id = ulid.MustParse(i)
 
-	// TODO: eager load schools and roles
-
 	return &u, nil
 }
 
 func (r *PostgresUserRepository) GetByEmailAddress(emailAddress string) (*user.User, error) {
 	var u user.User
 	var id string
+	q := `SELECT 
+			id,
+			first_name,
+			last_name,
+			email_address,
+			password_hash,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM users 
+		WHERE email_address = $1`
 
-	row := r.session.QueryRow("SELECT * FROM users WHERE email_address = $1", emailAddress)
+	row := r.session.QueryRow(q, emailAddress)
 	if err := row.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -53,28 +73,35 @@ func (r *PostgresUserRepository) GetByEmailAddress(emailAddress string) (*user.U
 
 	u.Id = ulid.MustParse(id)
 
-	// TODO: eager load schools and roles
-
 	return &u, nil
 }
 
-// GetAll TODO: Add pagination
 func (r *PostgresUserRepository) GetAll(includeDeleted bool) (*[]user.User, error) {
-	var u user.User
 	var users []user.User
-	var id string
-	query := "SELECT * FROM users"
+	q := `SELECT 
+			id,
+			first_name,
+			last_name,
+			email_address,
+			password_hash,
+			created_at,
+			modified_at,
+			deleted_at
+		FROM users`
 
 	if !includeDeleted {
-		query += " WHERE deleted_at IS NULL"
+		q += ` WHERE deleted_at IS NULL`
 	}
 
-	rows, err := r.session.Query(query)
+	rows, err := r.session.Query(q)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Users: %s", err)
 	}
 
 	for rows.Next() {
+		var id string
+		var u user.User
+
 		if err := rows.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
@@ -91,7 +118,9 @@ func (r *PostgresUserRepository) GetAll(includeDeleted bool) (*[]user.User, erro
 }
 
 func (r *PostgresUserRepository) Add(user *user.User) error {
-	if _, err := r.session.Exec("INSERT INTO users(id, first_name, last_name, email_address, password_hash, created_at) VALUES($1, $2, $3, $4, $5, $6)", user.Id.String(), user.FirstName, user.LastName, user.EmailAddress, user.PasswordHash, user.CreatedAt); err != nil {
+	q := `INSERT INTO users(id, first_name, last_name, email_address, password_hash, created_at) VALUES($1, $2, $3, $4, $5, $6)`
+
+	if _, err := r.session.Exec(q, user.Id.String(), user.FirstName, user.LastName, user.EmailAddress, user.PasswordHash, user.CreatedAt); err != nil {
 		return fmt.Errorf("failed to persist User to database: %v", err)
 	}
 
@@ -100,8 +129,9 @@ func (r *PostgresUserRepository) Add(user *user.User) error {
 
 func (r *PostgresUserRepository) Remove(user *user.User) error {
 	user.Delete()
+	q := `UPDATE users SET deleted_at = $1 WHERE id = $2`
 
-	if _, err := r.session.Exec("UPDATE users SET deleted_at = $1 WHERE id = $2", user.DeletedAt, user.Id); err != nil {
+	if _, err := r.session.Exec(q, user.DeletedAt, user.Id); err != nil {
 		return fmt.Errorf("failed to soft delete User: %v", err)
 	}
 

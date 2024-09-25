@@ -6,11 +6,13 @@ import { DomainEvents } from '@domain/constants/DomainEvents';
 import { School } from '@domain/types/School';
 import useEvent from '@hooks/useEvents';
 import useSchoolService from '@hooks/useSchoolService';
+import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import { DomainEvent } from '@services/eventDispatcher';
 import AddSchoolModal from '@components/AddSchoolModal';
 import Footer from '@components/Footer';
 import Navbar from '@components/Navbar';
 import RemoveSchoolModal from '@components/RemoveSchoolModal';
+import Toast from '@components/Toast';
 
 type State = {
   loading: boolean;
@@ -20,6 +22,7 @@ type State = {
   selectedSchool?: School;
   showRemoveSchoolModal: boolean;
   removingSchool: boolean;
+  errorMessage: string;
 };
 
 const initialState: State = {
@@ -28,7 +31,8 @@ const initialState: State = {
   showAddSchoolModal: false,
   addingSchool: false,
   showRemoveSchoolModal: false,
-  removingSchool: false
+  removingSchool: false,
+  errorMessage: ''
 };
 
 const SchoolsIndex = (): React.ReactElement => {
@@ -42,6 +46,7 @@ const SchoolsIndex = (): React.ReactElement => {
   const [selectedSchool, setSelectedSchool] = useState(initialState.selectedSchool);
   const [showRemoveSchoolModal, setShowRemoveSchoolModal] = useState(initialState.showRemoveSchoolModal);
   const [removingSchool, setRemovingSchool] = useState(initialState.removingSchool);
+  const [errorMessage, setErrorMessage] = useState(initialState.errorMessage);
 
   const schoolAddedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_ADDED);
   const schoolRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_REMOVED);
@@ -74,6 +79,7 @@ const SchoolsIndex = (): React.ReactElement => {
 
   const handleAddSchool = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setErrorMessage(initialState.errorMessage);
 
     try {
       setAddingSchool(true);
@@ -83,6 +89,18 @@ const SchoolsIndex = (): React.ReactElement => {
       setAddingSchool(initialState.addingSchool);
       handleHideAddSchoolModal();
     } catch (error) {
+      // 400 fail, 422 error, 500 error
+      if ((error as FailApiResponse)?.statusCode === 400) {
+        setErrorMessage('Validation error');
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 422) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 500) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
       handleHideAddSchoolModal();
       setAddingSchool(initialState.addingSchool);
     }
@@ -113,6 +131,9 @@ const SchoolsIndex = (): React.ReactElement => {
 
   return (
     <div id="schools-page" className="schools-page d-flex flex-column vh-100">
+      <div className="toast-container top-0 end-0 p-3">
+        {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
+      </div>
       <Helmet>
         <title>Carline - Schools</title>
       </Helmet>

@@ -1,4 +1,4 @@
-package school
+package student
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
 	"github.com/pascalallen/carline/internal/carline/application/query"
-	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/domain/student"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
@@ -17,24 +17,31 @@ type DeleteResponsePayload struct {
 
 func HandleDelete(queryBus messaging.QueryBus, commandBus messaging.CommandBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id := c.Param("schoolId")
+		schoolId := c.Param("schoolId")
+		studentId := c.Param("studentId")
 
-		if id == "" {
+		if schoolId == "" {
 			responder.BadRequestResponse(c, errors.New("school ID required"))
 
 			return
 		}
 
-		q := query.GetSchoolById{Id: ulid.MustParse(id)}
-		result, err := queryBus.Fetch(q)
-		s, ok := result.(*school.School)
-		if s == nil || err != nil || !ok {
-			responder.NotFoundResponse(c, errors.New("school not found"))
+		if studentId == "" {
+			responder.BadRequestResponse(c, errors.New("student ID required"))
 
 			return
 		}
 
-		cmd := command.DeleteSchool{Id: q.Id}
+		q := query.GetStudentById{SchoolId: ulid.MustParse(schoolId), Id: ulid.MustParse(studentId)}
+		result, err := queryBus.Fetch(q)
+		s, ok := result.(*student.Student)
+		if s == nil || err != nil || !ok {
+			responder.NotFoundResponse(c, errors.New("student not found"))
+
+			return
+		}
+
+		cmd := command.DeleteStudent{SchoolId: q.SchoolId, Id: q.Id}
 		err = commandBus.Execute(cmd)
 		if err != nil {
 			responder.InternalServerErrorResponse(c, err)

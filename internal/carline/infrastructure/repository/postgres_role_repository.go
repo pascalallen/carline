@@ -21,8 +21,15 @@ func NewPostgresRoleRepository(session *sql.DB) role.Repository {
 func (r *PostgresRoleRepository) GetById(id ulid.ULID) (*role.Role, error) {
 	var ro role.Role
 	var i string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at
+		FROM roles 
+		WHERE id = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM roles WHERE id = $1", id.String())
+	row := r.session.QueryRow(q, id.String())
 	if err := row.Scan(&i, &ro.Name, &ro.CreatedAt, &ro.ModifiedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -33,16 +40,21 @@ func (r *PostgresRoleRepository) GetById(id ulid.ULID) (*role.Role, error) {
 
 	ro.Id = ulid.MustParse(i)
 
-	// TODO: eager load permissions
-
 	return &ro, nil
 }
 
 func (r *PostgresRoleRepository) GetByName(name string) (*role.Role, error) {
 	var ro role.Role
 	var id string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at
+		FROM roles 
+		WHERE name = $1;`
 
-	row := r.session.QueryRow("SELECT * FROM roles WHERE name = $1", name)
+	row := r.session.QueryRow(q, name)
 	if err := row.Scan(&id, &ro.Name, &ro.CreatedAt, &ro.ModifiedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -53,23 +65,27 @@ func (r *PostgresRoleRepository) GetByName(name string) (*role.Role, error) {
 
 	ro.Id = ulid.MustParse(id)
 
-	// TODO: eager load permissions
-
 	return &ro, nil
 }
 
-// GetAll TODO: Add pagination
 func (r *PostgresRoleRepository) GetAll() (*[]role.Role, error) {
-	var ro role.Role
 	var roles []role.Role
-	var id string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at
+		FROM roles;`
 
-	rows, err := r.session.Query("SELECT * FROM roles")
+	rows, err := r.session.Query(q)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Roles: %s", err)
 	}
 
 	for rows.Next() {
+		var id string
+		var ro role.Role
+
 		if err := rows.Scan(&id, &ro.Name, &ro.CreatedAt, &ro.ModifiedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
@@ -86,7 +102,9 @@ func (r *PostgresRoleRepository) GetAll() (*[]role.Role, error) {
 }
 
 func (r *PostgresRoleRepository) Add(role *role.Role) error {
-	if _, err := r.session.Exec("INSERT INTO roles(id, name, created_at) VALUES($1, $2, $3)", role.Id.String(), role.Name, role.CreatedAt); err != nil {
+	q := `INSERT INTO roles(id, name, created_at) VALUES($1, $2, $3)`
+
+	if _, err := r.session.Exec(q, role.Id.String(), role.Name, role.CreatedAt); err != nil {
 		return fmt.Errorf("failed to persist Role to database: %v", err)
 	}
 
@@ -94,7 +112,9 @@ func (r *PostgresRoleRepository) Add(role *role.Role) error {
 }
 
 func (r *PostgresRoleRepository) Remove(role *role.Role) error {
-	if _, err := r.session.Exec("DELETE FROM roles WHERE id = $1", role.Id.String()); err != nil {
+	q := `DELETE FROM roles WHERE id = $1`
+
+	if _, err := r.session.Exec(q, role.Id.String()); err != nil {
 		return fmt.Errorf("failed to delete Role from database: %s", role)
 	}
 

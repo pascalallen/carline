@@ -2,19 +2,19 @@ package command
 
 import "github.com/oklog/ulid/v2"
 
-type AddSchool struct {
+type CreateSchool struct {
 	Id   ulid.ULID `json:"id"`
 	Name string    `json:"name"`
 }
 
-func (c AddSchool) CommandName() string {
-	return "AddSchool"
+func (c CreateSchool) CommandName() string {
+	return "CreateSchool"
 }
 
-type RemoveSchool struct {
+type DeleteSchool struct {
 	Id ulid.ULID `json:"id"`
 }
 
-func (c RemoveSchool) CommandName() string {
-	return "RemoveSchool"
+func (c DeleteSchool) CommandName() string {
+	return "DeleteSchool"
 }

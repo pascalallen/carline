@@ -41,7 +41,7 @@ func HandleCreate(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 			return
 		}
 
-		cmd := command.AddSchool{
+		cmd := command.CreateSchool{
 			Id:   ulid.Make(),
 			Name: request.Name,
 		}
