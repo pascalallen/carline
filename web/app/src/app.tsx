@@ -18,8 +18,8 @@ const App = (): ReactElement => {
       <StoresProvider value={storesInstance}>
         <HelmetProvider>
           <Helmet>
-            <title>Carline</title>
-            <meta name="description" content="Carline app" />
+            <title>CarLine</title>
+            <meta name="description" content="CarLine app" />
             <meta name="robots" content="index, follow" />
             <link rel="canonical" href="https://carline.com/" />
           </Helmet>

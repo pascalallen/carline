@@ -1,8 +1,8 @@
-# Carline
+# CarLine
 
 ![Logo](web/static/logo.svg)
 
-Carline app
+CarLine app
 
 ## Core Project Tree
 

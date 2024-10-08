@@ -26,7 +26,7 @@ const WalkerPage = (): ReactElement => {
   return (
     <div id="walker-page" className="walker-page d-flex flex-column vh-100">
       <Helmet>
-        <title>Carline - Walker</title>
+        <title>CarLine - Walker</title>
       </Helmet>
       <header>
         <Navbar />

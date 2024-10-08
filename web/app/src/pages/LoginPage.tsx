@@ -85,7 +85,7 @@ const LoginPage = (): ReactElement => {
         {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
       </div>
       <Helmet>
-        <title>Carline - Login</title>
+        <title>CarLine - Login</title>
       </Helmet>
       <main className="container flex-fill mt-3">
         <section>

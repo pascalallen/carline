@@ -1,6 +1,6 @@
 {
-  "name": "Carline",
-  "short_name": "Carline",
+  "name": "CarLine",
+  "short_name": "CarLine",
   "icons": [
     {
       "src": "/static/android-chrome-192x192.png",

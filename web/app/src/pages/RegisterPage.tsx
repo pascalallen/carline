@@ -116,7 +116,7 @@ const RegisterPage = (): ReactElement => {
         {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
       </div>
       <Helmet>
-        <title>Carline - Register</title>
+        <title>CarLine - Register</title>
       </Helmet>
       <main className="container flex-fill mt-3">
         <section>

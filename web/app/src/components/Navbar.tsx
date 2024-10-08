@@ -22,7 +22,7 @@ const Navbar = (): ReactElement => {
             event.preventDefault();
             navigate(Path.INDEX);
           }}>
-          Carline
+          CarLine
         </a>
         <button
           className="navbar-toggler"

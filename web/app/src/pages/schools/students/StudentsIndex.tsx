@@ -114,7 +114,7 @@ const StudentsIndex = (): React.ReactElement => {
   return (
     <div id="students-page" className="students-page d-flex flex-column vh-100">
       <Helmet>
-        <title>Carline - Students</title>
+        <title>CarLine - Students</title>
       </Helmet>
       <header>
         <Navbar />

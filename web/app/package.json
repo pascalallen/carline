@@ -1,7 +1,7 @@
 {
-  "name": "Carline",
+  "name": "carline",
   "version": "1.0.0",
-  "description": "Carline app",
+  "description": "CarLine app",
   "main": "src/app.tsx",
   "repository": "https://github.com/pascalallen/carline",
   "author": "Pascal Allen",

@@ -6,7 +6,7 @@ const MarshalPage = (): ReactElement => {
   return (
     <div id="marshal-page" className="marshal-page d-flex flex-column vh-100">
       <Helmet>
-        <title>Carline - Marshal</title>
+        <title>CarLine - Marshal</title>
       </Helmet>
       <header>
         <Navbar />
