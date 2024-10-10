@@ -58,7 +58,7 @@ cp .env.example .env
 bin/up <prod>
 ``` 
 
-You will find the site running at [http://localhost:9990/](http://localhost:9990/)
+You will find the site running at [http://localhost:9991/](http://localhost:9991/)
 
 ### Migrate database
 

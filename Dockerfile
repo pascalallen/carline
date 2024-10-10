@@ -13,7 +13,7 @@ RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 RUN go build -v -o /usr/local/bin/app ./cmd/carline
 
-EXPOSE 9990
+EXPOSE 9991
 
 CMD /usr/local/bin/wait-for-it.sh $DB_HOST:$DB_PORT \
     && /usr/local/bin/wait-for-it.sh $RABBITMQ_HOST:$RABBITMQ_PORT \

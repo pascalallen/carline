@@ -34,7 +34,7 @@ services:
       context: .
     container_name: go
     ports:
-      - "9990:9990"
+      - "9991:9991"
     volumes:
       - .:/usr/src/app:rw
     networks:

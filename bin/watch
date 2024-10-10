@@ -14,7 +14,7 @@ docker container run \
     --rm -it \
     -v "$(pwd)":/app \
     -w /app \
-    -p 9990:9990 \
+    -p 9991:9991 \
     --name air \
     --net carline \
     --env-file .env \
