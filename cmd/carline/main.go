@@ -70,5 +70,5 @@ func configureServer(container Container) {
 	router.Auth(queryBus, commandBus)
 	router.Schools(queryBus, commandBus)
 	router.Temp(queryBus)
-	router.Serve(":9991")
+	router.Serve(":9990")
 }

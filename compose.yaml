@@ -6,7 +6,7 @@ services:
       context: internal/carline/infrastructure/etc/postgres
     container_name: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
     networks:
@@ -20,8 +20,8 @@ services:
     hostname: rabbitmq
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5673:5672"
+      - "15673:15672"
     volumes:
       - ./internal/carline/infrastructure/etc/rabbitmq:/etc/rabbitmq
     networks:
@@ -34,7 +34,7 @@ services:
       context: .
     container_name: go
     ports:
-      - "9991:9991"
+      - "9991:9990"
     volumes:
       - .:/usr/src/app:rw
     networks:
