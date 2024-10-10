@@ -18,10 +18,10 @@ const App = (): ReactElement => {
       <StoresProvider value={storesInstance}>
         <HelmetProvider>
           <Helmet>
-            <title>CarLine</title>
-            <meta name="description" content="CarLine app" />
+            <title>CarLine - Efficient School Dismissal</title>
+            <meta name="description" content="Helping parents and teachers streamline end-of-day classroom pickups." />
             <meta name="robots" content="index, follow" />
-            <link rel="canonical" href="https://carline.com/" />
+            <link rel="canonical" href="https://app.pascalallen.com/" />
           </Helmet>
           <RouterProvider router={createBrowserRouter(routes)} />
         </HelmetProvider>
