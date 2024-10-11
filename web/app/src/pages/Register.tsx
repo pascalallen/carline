@@ -52,7 +52,7 @@ const initialState: State = {
   errorMessage: ''
 };
 
-const RegisterPage = (): ReactElement => {
+const Register = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,7 +68,7 @@ const RegisterPage = (): ReactElement => {
 
   useEffect(() => {
     if (authService.isLoggedIn()) {
-      navigate(Path.WALKER, { replace: true });
+      navigate(Path.SCHOOLS, { replace: true });
     }
   }, [authService, navigate]);
 
@@ -85,7 +85,7 @@ const RegisterPage = (): ReactElement => {
       });
       setTimeout(async () => {
         await authService.login({ email_address: emailAddress, password });
-        const from = state?.from?.pathname || Path.WALKER;
+        const from = state?.from?.pathname || Path.SCHOOLS;
         navigate(from, { replace: true });
       }, 100);
     } catch (error) {
@@ -215,4 +215,4 @@ const RegisterPage = (): ReactElement => {
   );
 };
 
-export default RegisterPage;
+export default Register;

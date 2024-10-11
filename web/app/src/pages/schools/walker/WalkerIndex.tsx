@@ -13,7 +13,7 @@ const initialState: State = {
   studentNumbers: []
 };
 
-const WalkerPage = (): ReactElement => {
+const WalkerIndex = (): ReactElement => {
   const [studentNumber, setStudentNumber] = useState(initialState.studentNumber);
   const [studentNumbers, setStudentNumbers] = useState(initialState.studentNumbers);
 
@@ -39,7 +39,7 @@ const WalkerPage = (): ReactElement => {
               <p>
                 Well look at you! Today, you&apos;re the <strong>walker</strong>. Your job is to walk through the
                 parking lot and log the student numbers that you see on parents cars using the number pad below. This
-                allows the faculty inside the school classrooms to see which students are ready to be picked up.
+                allows the marshal inside the school classroom to see which students are ready to be picked up.
               </p>
             </div>
           </div>
@@ -145,4 +145,4 @@ const WalkerPage = (): ReactElement => {
   );
 };
 
-export default WalkerPage;
+export default WalkerIndex;

@@ -3,35 +3,35 @@ import { RouteObject } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import RequiresAuthentication from '@routes/middleware/RequiresAuthentication';
 import RouteElementWrapper from '@routes/middleware/RouteElementWrapper';
-import IndexPage from '@pages/IndexPage';
-import LoginPage from '@pages/LoginPage';
-import MarshalPage from '@pages/MarshalPage';
-import RegisterPage from '@pages/RegisterPage';
+import Index from '@pages/Index';
+import Login from '@pages/Login';
+import Register from '@pages/Register';
+import MarshalIndex from '@pages/schools/marshal/MarshalIndex';
 import SchoolsDetail from '@pages/schools/SchoolsDetail';
 import SchoolsIndex from '@pages/schools/SchoolsIndex';
 import StudentsIndex from '@pages/schools/students/StudentsIndex';
-import TempPage from '@pages/TempPage';
-import WalkerPage from '@pages/WalkerPage';
+import WalkerIndex from '@pages/schools/walker/WalkerIndex';
+import Temp from '@pages/Temp';
 
 const routes: RouteObject[] = [
   {
     path: Path.INDEX,
-    element: <IndexPage />
+    element: <Index />
   },
   {
     path: Path.REGISTER,
-    element: <RegisterPage />
+    element: <Register />
   },
   {
     path: Path.LOGIN,
-    element: <LoginPage />
+    element: <Login />
   },
   {
-    path: Path.MARSHALL,
+    path: Path.MARSHAL,
     element: (
       <RouteElementWrapper>
         <RequiresAuthentication>
-          <MarshalPage />
+          <MarshalIndex />
         </RequiresAuthentication>
       </RouteElementWrapper>
     )
@@ -71,6 +71,26 @@ const routes: RouteObject[] = [
                 </RequiresAuthentication>
               </RouteElementWrapper>
             )
+          },
+          {
+            path: Path.MARSHAL,
+            element: (
+              <RouteElementWrapper>
+                <RequiresAuthentication>
+                  <MarshalIndex />
+                </RequiresAuthentication>
+              </RouteElementWrapper>
+            )
+          },
+          {
+            path: Path.WALKER,
+            element: (
+              <RouteElementWrapper>
+                <RequiresAuthentication>
+                  <WalkerIndex />
+                </RequiresAuthentication>
+              </RouteElementWrapper>
+            )
           }
         ]
       }
@@ -81,7 +101,7 @@ const routes: RouteObject[] = [
     element: (
       <RouteElementWrapper>
         <RequiresAuthentication>
-          <TempPage />
+          <Temp />
         </RequiresAuthentication>
       </RouteElementWrapper>
     )
@@ -91,7 +111,7 @@ const routes: RouteObject[] = [
     element: (
       <RouteElementWrapper>
         <RequiresAuthentication>
-          <WalkerPage />
+          <WalkerIndex />
         </RequiresAuthentication>
       </RouteElementWrapper>
     )

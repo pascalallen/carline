@@ -6,7 +6,7 @@ import useStore from '@hooks/useStore';
 import AuthService from '@services/AuthService';
 import TempService from '@services/TempService';
 
-const TempPage = (): ReactElement => {
+const Temp = (): ReactElement => {
   const authStore = useStore('authStore');
   const navigate = useNavigate();
 
@@ -85,4 +85,4 @@ const TempPage = (): ReactElement => {
   );
 };
 
-export default TempPage;
+export default Temp;

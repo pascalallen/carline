@@ -37,7 +37,7 @@ const initialState: State = {
   errorMessage: ''
 };
 
-const LoginPage = (): ReactElement => {
+const Login = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,7 +50,7 @@ const LoginPage = (): ReactElement => {
 
   useEffect(() => {
     if (authService.isLoggedIn()) {
-      navigate(Path.WALKER, { replace: true });
+      navigate(Path.SCHOOLS, { replace: true });
     }
   }, [authService, navigate]);
 
@@ -59,7 +59,7 @@ const LoginPage = (): ReactElement => {
     setErrorMessage(initialState.errorMessage);
     try {
       await authService.login({ email_address: emailAddress, password });
-      const from = state?.from?.pathname || Path.WALKER;
+      const from = state?.from?.pathname || Path.SCHOOLS;
       navigate(from, { replace: true });
     } catch (error) {
       if ((error as FailApiResponse)?.statusCode === 400) {
@@ -137,4 +137,4 @@ const LoginPage = (): ReactElement => {
   );
 };
 
-export default LoginPage;
+export default Login;

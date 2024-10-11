@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import Footer from '@components/Footer';
 
-const IndexPage = (): ReactElement => {
+const Index = (): ReactElement => {
   const navigate = useNavigate();
 
   return (
@@ -86,4 +86,4 @@ const IndexPage = (): ReactElement => {
   );
 };
 
-export default IndexPage;
+export default Index;

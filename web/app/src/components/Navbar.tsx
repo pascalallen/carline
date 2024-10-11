@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
@@ -6,6 +7,7 @@ import useAuth from '@hooks/useAuth';
 const Navbar = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async (): Promise<void> => {
     await authService.logout();
@@ -38,35 +40,13 @@ const Navbar = (): ReactElement => {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <a
-                className="nav-link"
-                href={Path.MARSHALL}
-                onClick={event => {
-                  event.preventDefault();
-                  navigate(Path.MARSHALL);
-                }}>
-                Marshall
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link"
+                className={`nav-link ${location.pathname === Path.SCHOOLS ? 'active' : ''}`}
                 href={Path.SCHOOLS}
                 onClick={event => {
                   event.preventDefault();
                   navigate(Path.SCHOOLS);
                 }}>
                 Schools
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link"
-                href={Path.WALKER}
-                onClick={event => {
-                  event.preventDefault();
-                  navigate(Path.WALKER);
-                }}>
-                Walker
               </a>
             </li>
             {authService.isLoggedIn() && (
