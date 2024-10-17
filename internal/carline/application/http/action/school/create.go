@@ -10,6 +10,8 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"strings"
 )
 
 type CreateRequestPayload struct {
@@ -41,9 +43,15 @@ func HandleCreate(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 			return
 		}
 
+		authHeader := c.GetHeader("Authorization")
+		accessToken := strings.Split(authHeader, " ")[1]
+		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userId := ulid.MustParse(userClaims.Id)
+
 		cmd := command.CreateSchool{
-			Id:   ulid.Make(),
-			Name: request.Name,
+			Id:     ulid.Make(),
+			Name:   request.Name,
+			UserId: userId,
 		}
 		err = commandBus.Execute(cmd)
 		if err != nil {

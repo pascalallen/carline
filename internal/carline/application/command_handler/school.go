@@ -19,7 +19,7 @@ func (h CreateSchoolHandler) Handle(cmd messaging.Command) error {
 
 	s := school.Create(c.Id, c.Name)
 
-	err := h.SchoolRepository.Add(s)
+	err := h.SchoolRepository.Add(s, c.UserId)
 	if err != nil {
 		return fmt.Errorf("school creation failed: %s", err)
 	}
@@ -42,7 +42,7 @@ func (h DeleteSchoolHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("school not found: %s", c.Id)
 	}
 
-	err = h.SchoolRepository.Remove(s)
+	err = h.SchoolRepository.Remove(s, c.UserId)
 	if err != nil {
 		return fmt.Errorf("school removal failed: %s", err)
 	}

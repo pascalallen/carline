@@ -6,6 +6,10 @@ import { School } from '@domain/types/School';
 import AuthStore from '@stores/AuthStore';
 import eventDispatcher from '@services/eventDispatcher';
 
+export type GetSchoolByIdResponse = {
+  school: School;
+};
+
 export type GetAllSchoolsRequest = {
   include_deleted?: boolean;
 };
@@ -31,6 +35,16 @@ class SchoolService {
 
   constructor(authStore: AuthStore) {
     this.authStore = authStore;
+  }
+
+  public async getById(id: string): Promise<School | undefined> {
+    const response = await request.send<GetSchoolByIdResponse>({
+      method: HttpMethod.GET,
+      uri: `/api/v1/schools/${id}`,
+      options: { auth: true, authStore: this.authStore }
+    });
+
+    return response.body.data?.school;
   }
 
   public async getAll(params: GetAllSchoolsRequest = { include_deleted: false }): Promise<School[]> {

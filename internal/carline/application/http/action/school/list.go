@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"strings"
 )
 
 type ListRequestPayload struct {
@@ -29,7 +32,12 @@ func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 			return
 		}
 
-		q := query.ListSchools{IncludeDeleted: request.IncludeDeleted}
+		authHeader := c.GetHeader("Authorization")
+		accessToken := strings.Split(authHeader, " ")[1]
+		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userId := ulid.MustParse(userClaims.Id)
+
+		q := query.ListSchools{UserId: userId}
 		result, err := queryBus.Fetch(q)
 		s, ok := result.(*[]school.School)
 		if err != nil || !ok {

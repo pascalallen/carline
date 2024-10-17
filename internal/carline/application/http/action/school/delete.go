@@ -6,9 +6,9 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
-	"github.com/pascalallen/carline/internal/carline/application/query"
-	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"strings"
 )
 
 type DeleteResponsePayload struct {
@@ -25,17 +25,16 @@ func HandleDelete(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 			return
 		}
 
-		q := query.GetSchoolById{Id: ulid.MustParse(id)}
-		result, err := queryBus.Fetch(q)
-		s, ok := result.(*school.School)
-		if s == nil || err != nil || !ok {
-			responder.NotFoundResponse(c, errors.New("school not found"))
+		authHeader := c.GetHeader("Authorization")
+		accessToken := strings.Split(authHeader, " ")[1]
+		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userId := ulid.MustParse(userClaims.Id)
 
-			return
+		cmd := command.DeleteSchool{
+			Id:     ulid.MustParse(id),
+			UserId: userId,
 		}
-
-		cmd := command.DeleteSchool{Id: q.Id}
-		err = commandBus.Execute(cmd)
+		err := commandBus.Execute(cmd)
 		if err != nil {
 			responder.InternalServerErrorResponse(c, err)
 
@@ -43,7 +42,7 @@ func HandleDelete(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 		}
 
 		response := DeleteResponsePayload{
-			Id: s.Id.String(),
+			Id: id,
 		}
 		responder.OkResponse[DeleteResponsePayload](c, &response)
 

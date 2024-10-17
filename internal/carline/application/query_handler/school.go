@@ -7,24 +7,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-type GetSchoolByIdHandler struct {
-	SchoolRepository school.Repository
-}
-
-func (h GetSchoolByIdHandler) Handle(qry messaging.Query) (any, error) {
-	q, ok := qry.(query.GetSchoolById)
-	if !ok {
-		return nil, fmt.Errorf("invalid query type passed to GetSchoolByIdHandler: %v", qry)
-	}
-
-	s, err := h.SchoolRepository.GetById(q.Id)
-	if err != nil {
-		return nil, fmt.Errorf("error attempting to retrieve School from database: %s", err)
-	}
-
-	return s, nil
-}
-
 type GetSchoolByNameHandler struct {
 	SchoolRepository school.Repository
 }
@@ -53,7 +35,7 @@ func (h ListSchoolsHandler) Handle(qry messaging.Query) (any, error) {
 		return nil, fmt.Errorf("invalid query type passed to ListSchoolsHandler: %v", qry)
 	}
 
-	s, err := h.SchoolRepository.GetAll(q.IncludeDeleted)
+	s, err := h.SchoolRepository.GetAll(q.UserId)
 	if err != nil {
 		return nil, fmt.Errorf("error attempting to list Schools from database: %s", err)
 	}

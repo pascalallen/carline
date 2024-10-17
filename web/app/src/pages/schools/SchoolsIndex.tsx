@@ -193,7 +193,7 @@ const SchoolsIndex = (): React.ReactElement => {
                               href={`/schools/${school.id}/students`}
                               onClick={event => {
                                 event.preventDefault();
-                                navigate(`/schools/${school.id}/students`);
+                                navigate(`/schools/${school.id}`);
                               }}>
                               {school.id}
                             </a>
