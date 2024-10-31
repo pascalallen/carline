@@ -105,3 +105,15 @@ func NotFoundResponse(c *gin.Context, error error) {
 
 	return
 }
+
+func ForbiddenResponse(c *gin.Context, error error) {
+	c.JSON(
+		http.StatusForbidden,
+		JSendErrorResponse[string]{
+			Status:  "error",
+			Message: error.Error(),
+		},
+	)
+
+	return
+}
