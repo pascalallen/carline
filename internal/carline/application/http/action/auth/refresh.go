@@ -85,10 +85,6 @@ func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 			userData.ModifiedAt = u.ModifiedAt.String()
 		}
 
-		if u.DeletedAt != nil {
-			userData.DeletedAt = u.DeletedAt.String()
-		}
-
 		responseData := &TokenResponsePayload{
 			AccessToken:  request.AccessToken,
 			RefreshToken: request.RefreshToken,

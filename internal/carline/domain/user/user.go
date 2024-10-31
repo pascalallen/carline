@@ -19,7 +19,6 @@ type User struct {
 	Roles        []role.Role           `json:"roles"`
 	CreatedAt    time.Time             `json:"created_at"`
 	ModifiedAt   *time.Time            `json:"modified_at,omitempty"`
-	DeletedAt    *time.Time            `json:"deleted_at,omitempty"`
 }
 
 func Register(id ulid.ULID, firstName string, lastName string, emailAddress string) *User {
@@ -107,20 +106,4 @@ func (u *User) HasPermission(name string) bool {
 	}
 
 	return false
-}
-
-func (u *User) IsDeleted() bool {
-	return u.DeletedAt != nil
-}
-
-func (u *User) Delete() {
-	now := time.Now()
-	u.DeletedAt = &now
-	u.ModifiedAt = &now
-}
-
-func (u *User) Restore() {
-	now := time.Now()
-	u.DeletedAt = nil
-	u.ModifiedAt = &now
 }

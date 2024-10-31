@@ -51,7 +51,7 @@ const StudentsIndex = (): React.ReactElement => {
     setLoading(initialState.loading);
 
     try {
-      const students = await studentService.getAll(schoolId ?? '', { include_deleted: false });
+      const students = await studentService.getAll(schoolId ?? '');
       setStudents(students);
     } catch (error) {
       console.error(error);

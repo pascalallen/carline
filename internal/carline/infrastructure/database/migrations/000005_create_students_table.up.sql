@@ -7,6 +7,5 @@ CREATE TABLE students
     school_id   CHAR(26)     NOT NULL,
     created_at  TIMESTAMP    NOT NULL,
     modified_at TIMESTAMP,
-    deleted_at  TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES schools (id)
 );

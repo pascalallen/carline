@@ -13,25 +13,12 @@ import (
 	"strings"
 )
 
-type ListRequestPayload struct {
-	IncludeDeleted bool `form:"include_deleted" json:"include_deleted"`
-}
-
 type ListResponsePayload struct {
 	Schools []school.School `json:"schools"`
 }
 
 func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var request ListRequestPayload
-
-		if err := c.ShouldBind(&request); err != nil {
-			errorMessage := fmt.Sprintf("Request validation error: %s", err.Error())
-			responder.BadRequestResponse(c, errors.New(errorMessage))
-
-			return
-		}
-
 		authHeader := c.GetHeader("Authorization")
 		accessToken := strings.Split(authHeader, " ")[1]
 		userClaims := tokenservice.ParseAccessToken(accessToken)

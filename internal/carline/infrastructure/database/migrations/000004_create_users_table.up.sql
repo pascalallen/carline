@@ -6,8 +6,7 @@ CREATE TABLE users
     email_address VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     created_at    TIMESTAMP    NOT NULL,
-    modified_at   TIMESTAMP,
-    deleted_at    TIMESTAMP
+    modified_at   TIMESTAMP
 );
 
 CREATE TABLE user_schools

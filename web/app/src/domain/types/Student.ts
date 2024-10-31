@@ -6,5 +6,4 @@ export type Student = {
   school_id: string;
   created_at: string;
   modified_at?: string;
-  deleted_at?: string;
 };

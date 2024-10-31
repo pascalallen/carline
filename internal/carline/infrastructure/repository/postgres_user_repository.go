@@ -28,13 +28,12 @@ func (r *PostgresUserRepository) GetById(id ulid.ULID) (*user.User, error) {
 			email_address,
 			password_hash,
 			created_at,
-			modified_at,
-			deleted_at
-		FROM users 
+			modified_at
+		FROM users
 		WHERE id = $1`
 
 	row := r.session.QueryRow(q, id.String())
-	if err := row.Scan(&i, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
+	if err := row.Scan(&i, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -57,13 +56,12 @@ func (r *PostgresUserRepository) GetByEmailAddress(emailAddress string) (*user.U
 			email_address,
 			password_hash,
 			created_at,
-			modified_at,
-			deleted_at
+			modified_at
 		FROM users 
 		WHERE email_address = $1`
 
 	row := r.session.QueryRow(q, emailAddress)
-	if err := row.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
+	if err := row.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -76,7 +74,7 @@ func (r *PostgresUserRepository) GetByEmailAddress(emailAddress string) (*user.U
 	return &u, nil
 }
 
-func (r *PostgresUserRepository) GetAll(includeDeleted bool) (*[]user.User, error) {
+func (r *PostgresUserRepository) GetAll() (*[]user.User, error) {
 	var users []user.User
 	q := `SELECT 
 			id,
@@ -85,13 +83,8 @@ func (r *PostgresUserRepository) GetAll(includeDeleted bool) (*[]user.User, erro
 			email_address,
 			password_hash,
 			created_at,
-			modified_at,
-			deleted_at
+			modified_at
 		FROM users`
-
-	if !includeDeleted {
-		q += ` WHERE deleted_at IS NULL`
-	}
 
 	rows, err := r.session.Query(q)
 	if err != nil {
@@ -102,7 +95,7 @@ func (r *PostgresUserRepository) GetAll(includeDeleted bool) (*[]user.User, erro
 		var id string
 		var u user.User
 
-		if err := rows.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt, &u.DeletedAt); err != nil {
+		if err := rows.Scan(&id, &u.FirstName, &u.LastName, &u.EmailAddress, &u.PasswordHash, &u.CreatedAt, &u.ModifiedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
 			}
@@ -128,11 +121,10 @@ func (r *PostgresUserRepository) Add(user *user.User) error {
 }
 
 func (r *PostgresUserRepository) Remove(user *user.User) error {
-	user.Delete()
-	q := `UPDATE users SET deleted_at = $1 WHERE id = $2`
+	q := `DELETE FROM users WHERE id = $1`
 
-	if _, err := r.session.Exec(q, user.DeletedAt, user.Id); err != nil {
-		return fmt.Errorf("failed to soft delete User: %v", err)
+	if _, err := r.session.Exec(q, user.Id); err != nil {
+		return fmt.Errorf("failed to remove User from database: %v", err)
 	}
 
 	return nil

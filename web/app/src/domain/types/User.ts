@@ -5,5 +5,4 @@ export type User = {
   email_address: string;
   created_at: string;
   modified_at: string;
-  deleted_at?: string;
 };
