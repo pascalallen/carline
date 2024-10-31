@@ -15,7 +15,7 @@ type DeleteResponsePayload struct {
 	Id string `json:"id"`
 }
 
-func HandleDelete(queryBus messaging.QueryBus, commandBus messaging.CommandBus) gin.HandlerFunc {
+func HandleDelete(commandBus messaging.CommandBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("schoolId")
 
