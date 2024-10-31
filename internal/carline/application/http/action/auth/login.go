@@ -86,10 +86,6 @@ func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 			userData.ModifiedAt = u.ModifiedAt.String()
 		}
 
-		if u.DeletedAt != nil {
-			userData.DeletedAt = u.DeletedAt.String()
-		}
-
 		refreshClaims := jwt.StandardClaims{
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),

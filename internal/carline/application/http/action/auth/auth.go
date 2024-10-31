@@ -7,7 +7,6 @@ type UserData struct {
 	EmailAddress string `json:"email_address"`
 	CreatedAt    string `json:"created_at"`
 	ModifiedAt   string `json:"modified_at,omitempty"`
-	DeletedAt    string `json:"deleted_at,omitempty"`
 }
 
 type TokenResponsePayload struct {

@@ -161,32 +161,3 @@ func TestThatHasPermissionReturnsFalse(t *testing.T) {
 		t.Fatal("test failed attempting to call method: HasPermission")
 	}
 }
-
-func TestThatDeleteDeletesUser(t *testing.T) {
-	id := ulid.Make()
-	firstName := "Leeroy"
-	lastName := "Jenkins"
-	emailAddress := "ljenkins@example.com"
-	u := Register(id, firstName, lastName, emailAddress)
-
-	u.Delete()
-
-	if u.IsDeleted() == false {
-		t.Fatal("test failed attempting to call method: Delete")
-	}
-}
-
-func TestThatRestoreRestoresUser(t *testing.T) {
-	id := ulid.Make()
-	firstName := "Leeroy"
-	lastName := "Jenkins"
-	emailAddress := "ljenkins@example.com"
-	u := Register(id, firstName, lastName, emailAddress)
-
-	u.Delete()
-	u.Restore()
-
-	if u.IsDeleted() == true {
-		t.Fatal("test failed attempting to call method: Restore")
-	}
-}

@@ -1,4 +1,3 @@
-import { queryStringify, removeEmptyKeys } from '@utilities/collections';
 import request from '@utilities/request';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import HttpMethod from '@domain/constants/HttpMethod';
@@ -8,10 +7,6 @@ import eventDispatcher from '@services/eventDispatcher';
 
 export type GetSchoolByIdResponse = {
   school: School;
-};
-
-export type GetAllSchoolsRequest = {
-  include_deleted?: boolean;
 };
 
 export type GetAllSchoolsResponse = {
@@ -47,11 +42,10 @@ class SchoolService {
     return response.body.data?.school;
   }
 
-  public async getAll(params: GetAllSchoolsRequest = { include_deleted: false }): Promise<School[]> {
-    const queryParams = queryStringify(removeEmptyKeys(params || {}));
+  public async getAll(): Promise<School[]> {
     const response = await request.send<GetAllSchoolsResponse>({
       method: HttpMethod.GET,
-      uri: `/api/v1/schools${queryParams}`,
+      uri: '/api/v1/schools',
       options: { auth: true, authStore: this.authStore }
     });
 

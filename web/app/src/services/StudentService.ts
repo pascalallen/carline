@@ -1,14 +1,9 @@
-import { queryStringify, removeEmptyKeys } from '@utilities/collections';
 import request from '@utilities/request';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import HttpMethod from '@domain/constants/HttpMethod';
 import { Student } from '@domain/types/Student';
 import AuthStore from '@stores/AuthStore';
 import eventDispatcher from '@services/eventDispatcher';
-
-export type GetAllStudentsRequest = {
-  include_deleted?: boolean;
-};
 
 export type GetAllStudentsResponse = {
   students: Student[];
@@ -25,14 +20,10 @@ class StudentService {
     this.authStore = authStore;
   }
 
-  public async getAll(
-    schoolId: string,
-    params: GetAllStudentsRequest = { include_deleted: false }
-  ): Promise<Student[]> {
-    const queryParams = queryStringify(removeEmptyKeys(params || {}));
+  public async getAll(schoolId: string): Promise<Student[]> {
     const response = await request.send<GetAllStudentsResponse>({
       method: HttpMethod.GET,
-      uri: `/api/v1/schools/${schoolId}/students${queryParams}`,
+      uri: `/api/v1/schools/${schoolId}/students`,
       options: { auth: true, authStore: this.authStore }
     });
 

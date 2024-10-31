@@ -11,10 +11,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
-type ListRequestPayload struct {
-	IncludeDeleted bool `form:"include_deleted" json:"include_deleted"`
-}
-
 type ListResponsePayload struct {
 	Students []student.Student `json:"students"`
 }
@@ -28,17 +24,8 @@ func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 			return
 		}
 
-		var request ListRequestPayload
-		if err := c.ShouldBind(&request); err != nil {
-			errorMessage := fmt.Sprintf("Request validation error: %s", err.Error())
-			responder.BadRequestResponse(c, errors.New(errorMessage))
-
-			return
-		}
-
 		q := query.ListStudents{
-			SchoolId:       ulid.MustParse(id),
-			IncludeDeleted: request.IncludeDeleted,
+			SchoolId: ulid.MustParse(id),
 		}
 		result, err := queryBus.Fetch(q)
 		s, ok := result.(*[]student.Student)
