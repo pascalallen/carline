@@ -46,6 +46,7 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 		v.GET(
 			"/schools/:schoolId/students",
 			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
 			student.HandleList(queryBus),
 		)
 	}
