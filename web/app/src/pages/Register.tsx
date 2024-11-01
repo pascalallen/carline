@@ -199,11 +199,23 @@ const Register = (): ReactElement => {
                   onChange={e => setConfirmPassword(e.target.value)}
                   onBlur={() => handleBlur('confirmPassword')}
                 />
-
-                <FormGroup>
+                <FormGroup className="mb-3">
                   <button id="register-button" className="register-button btn btn-primary" type="submit" tabIndex={6}>
                     Register
                   </button>
+                </FormGroup>
+                <FormGroup>
+                  <p>
+                    Already have an account?{' '}
+                    <a
+                      href={Path.LOGIN}
+                      onClick={event => {
+                        event.preventDefault();
+                        navigate(Path.LOGIN);
+                      }}>
+                      Log in
+                    </a>
+                  </p>
                 </FormGroup>
               </Form>
             </div>

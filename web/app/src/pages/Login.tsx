@@ -122,10 +122,24 @@ const Login = (): ReactElement => {
                   onChange={e => setPassword(e.target.value)}
                   onBlur={() => handleBlur('password')}
                 />
-                <FormGroup>
+                <FormGroup className="mb-3">
                   <button id="login-button" className="login-button btn btn-primary" type="submit" tabIndex={3}>
                     Login
                   </button>
+                </FormGroup>
+                <FormGroup>
+                  <p>
+                    Not yet registered?{' '}
+                    <a
+                      href={Path.REGISTER}
+                      tabIndex={4}
+                      onClick={event => {
+                        event.preventDefault();
+                        navigate(Path.REGISTER);
+                      }}>
+                      Sign up
+                    </a>
+                  </p>
                 </FormGroup>
               </Form>
             </div>
