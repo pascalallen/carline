@@ -138,18 +138,18 @@ func (r *PostgresSchoolRepository) Remove(school *school.School, userId ulid.ULI
 		return fmt.Errorf("failed to begin transaction for PostgresSchoolRepository.Remove(): %v", err)
 	}
 
-	q := `DELETE FROM schools WHERE id = $1`
-	_, err = tx.Exec(q, school.Id.String())
-	if err != nil {
-		_ = tx.Rollback()
-		return fmt.Errorf("failed to remove School from database: %v", err)
-	}
-
-	q = `DELETE FROM user_schools WHERE user_id = $1 AND school_id = $2`
+	q := `DELETE FROM user_schools WHERE user_id = $1 AND school_id = $2`
 	_, err = tx.Exec(q, userId.String(), school.Id.String())
 	if err != nil {
 		_ = tx.Rollback()
 		return fmt.Errorf("failed to remove user_schools record from database: %v", err)
+	}
+
+	q = `DELETE FROM schools WHERE id = $1`
+	_, err = tx.Exec(q, school.Id.String())
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("failed to remove School from database: %v", err)
 	}
 
 	if err := tx.Commit(); err != nil {

@@ -32,8 +32,8 @@ const SchoolsDetail = (): React.ReactElement => {
       .getById(schoolId ?? '')
       .then((school?: School) => setSchool(school))
       .catch(error => setErrorMessage(error))
-      .finally(() => setLoading(initialState.loading));
-  }, [schoolId, schoolService]);
+      .finally(() => setLoading(false));
+  }, [schoolId]);
 
   return (
     <div id="schools-detail-page" className="schools-detail-page d-flex flex-column vh-100">
@@ -53,7 +53,16 @@ const SchoolsDetail = (): React.ReactElement => {
           <>
             <section>
               <div className="row">
-                <div className="col"></div>
+                <div className="col">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab alias consequatur delectus, dolore eos
+                  exercitationem iusto laboriosam minus, molestiae obcaecati pariatur possimus rerum sed suscipit
+                  tempora ullam unde veritatis voluptatem.
+                </div>
+                <div className="col">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab alias consequatur delectus, dolore eos
+                  exercitationem iusto laboriosam minus, molestiae obcaecati pariatur possimus rerum sed suscipit
+                  tempora ullam unde veritatis voluptatem.
+                </div>
               </div>
             </section>
           </>

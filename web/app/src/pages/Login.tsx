@@ -66,6 +66,10 @@ const Login = (): ReactElement => {
         setErrorMessage('Validation error');
       }
 
+      if ((error as FailApiResponse)?.statusCode === 401) {
+        setErrorMessage('Invalid credentials');
+      }
+
       if ((error as ErrorApiResponse)?.statusCode === 422) {
         setErrorMessage((error as ErrorApiResponse).body.message);
       }
