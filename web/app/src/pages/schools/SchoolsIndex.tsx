@@ -51,28 +51,25 @@ const SchoolsIndex = (): React.ReactElement => {
   const schoolAddedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_ADDED);
   const schoolRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_REMOVED);
 
-  const fetchSchools = async (): Promise<void> => {
-    setLoading(initialState.loading);
-
-    try {
-      const schools = await schoolService.getAll();
-      setSchools(schools);
-    } catch (error) {
-      console.error(error);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
-    fetchSchools();
-  }, []);
+    setLoading(initialState.loading);
+    schoolService
+      .getAll()
+      .then((schools: School[]) => setSchools(schools))
+      .catch(error => setErrorMessage(error))
+      .finally(() => setLoading(false));
+  }, [schoolService]);
 
   useEffect(() => {
     if (schoolAddedEvent?.id) {
-      fetchSchools();
+      setLoading(initialState.loading);
+      schoolService
+        .getAll()
+        .then((schools: School[]) => setSchools(schools))
+        .catch(error => setErrorMessage(error))
+        .finally(() => setLoading(false));
     }
-  }, [schoolAddedEvent, schoolRemovedEvent]);
+  }, [schoolAddedEvent, schoolRemovedEvent, schoolService]);
 
   const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
   const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);

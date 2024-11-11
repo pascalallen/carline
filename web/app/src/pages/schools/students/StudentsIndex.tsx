@@ -6,11 +6,13 @@ import { DomainEvents } from '@domain/constants/DomainEvents';
 import { Student } from '@domain/types/Student';
 import useEvent from '@hooks/useEvents';
 import useStudentService from '@hooks/useStudentService';
+import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import { DomainEvent } from '@services/eventDispatcher';
 import Footer from '@components/Footer';
 import ImportStudentsModal from '@components/ImportStudentsModal';
 import Navbar from '@components/Navbar';
 import RemoveStudentModal from '@components/RemoveStudentModal';
+import Toast from '@components/Toast';
 
 type State = {
   loading: boolean;
@@ -20,6 +22,7 @@ type State = {
   selectedStudent?: Student;
   showRemoveStudentModal: boolean;
   removingStudent: boolean;
+  errorMessage: string;
 };
 
 const initialState: State = {
@@ -28,7 +31,8 @@ const initialState: State = {
   showImportStudentsModal: false,
   importingStudents: false,
   showRemoveStudentModal: false,
-  removingStudent: false
+  removingStudent: false,
+  errorMessage: ''
 };
 
 const StudentsIndex = (): React.ReactElement => {
@@ -43,32 +47,30 @@ const StudentsIndex = (): React.ReactElement => {
   const [selectedStudent, setSelectedStudent] = useState(initialState.selectedStudent);
   const [showRemoveStudentModal, setShowRemoveStudentModal] = useState(initialState.showRemoveStudentModal);
   const [removingStudent, setRemovingStudent] = useState(initialState.removingStudent);
+  const [errorMessage, setErrorMessage] = useState(initialState.errorMessage);
 
   const studentsImportedEvent: DomainEvent | undefined = useEvent(DomainEvents.STUDENTS_IMPORTED);
   const studentRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.STUDENT_REMOVED);
 
-  const fetchStudents = async (): Promise<void> => {
-    setLoading(initialState.loading);
-
-    try {
-      const students = await studentService.getAll(schoolId ?? '');
-      setStudents(students);
-    } catch (error) {
-      console.error(error);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    setLoading(initialState.loading);
+    studentService
+      .getAll(schoolId ?? '')
+      .then((students: Student[]) => setStudents(students))
+      .catch(error => setErrorMessage(error))
+      .finally(() => setLoading(false));
+  }, [schoolId, studentService]);
 
   useEffect(() => {
     if (studentsImportedEvent?.id) {
-      fetchStudents();
+      setLoading(initialState.loading);
+      studentService
+        .getAll(schoolId ?? '')
+        .then((students: Student[]) => setStudents(students))
+        .catch(error => setErrorMessage(error))
+        .finally(() => setLoading(false));
     }
-  }, [studentsImportedEvent, studentRemovedEvent]);
+  }, [studentsImportedEvent, studentRemovedEvent, studentService, schoolId]);
 
   const handleShowImportStudentsModal = (): void => setShowImportStudentsModal(true);
   const handleHideImportStudentsModal = (): void => setShowImportStudentsModal(initialState.showImportStudentsModal);
@@ -83,6 +85,18 @@ const StudentsIndex = (): React.ReactElement => {
       setImportingStudents(initialState.importingStudents);
       handleHideImportStudentsModal();
     } catch (error) {
+      // 400 fail, 422 error, 500 error
+      if ((error as FailApiResponse)?.statusCode === 400) {
+        setErrorMessage('Validation error');
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 422) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
+
+      if ((error as ErrorApiResponse)?.statusCode === 500) {
+        setErrorMessage((error as ErrorApiResponse).body.message);
+      }
       handleHideImportStudentsModal();
       setImportingStudents(initialState.importingStudents);
     }
@@ -113,6 +127,9 @@ const StudentsIndex = (): React.ReactElement => {
 
   return (
     <div id="students-page" className="students-page d-flex flex-column vh-100">
+      <div className="toast-container top-0 end-0 p-3">
+        {errorMessage && <Toast className="text-bg-danger">{errorMessage}</Toast>}
+      </div>
       <Helmet>
         <title>CarLine - Students</title>
       </Helmet>
