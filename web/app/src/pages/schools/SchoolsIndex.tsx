@@ -58,7 +58,7 @@ const SchoolsIndex = (): React.ReactElement => {
       .then((schools: School[]) => setSchools(schools))
       .catch(error => setErrorMessage(error))
       .finally(() => setLoading(false));
-  }, [schoolService]);
+  }, []);
 
   useEffect(() => {
     if (schoolAddedEvent?.id) {
@@ -69,7 +69,7 @@ const SchoolsIndex = (): React.ReactElement => {
         .catch(error => setErrorMessage(error))
         .finally(() => setLoading(false));
     }
-  }, [schoolAddedEvent, schoolRemovedEvent, schoolService]);
+  }, [schoolAddedEvent, schoolRemovedEvent]);
 
   const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
   const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);

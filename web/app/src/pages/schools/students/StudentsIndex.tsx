@@ -59,7 +59,7 @@ const StudentsIndex = (): React.ReactElement => {
       .then((students: Student[]) => setStudents(students))
       .catch(error => setErrorMessage(error))
       .finally(() => setLoading(false));
-  }, [schoolId, studentService]);
+  }, [schoolId]);
 
   useEffect(() => {
     if (studentsImportedEvent?.id) {
@@ -70,7 +70,7 @@ const StudentsIndex = (): React.ReactElement => {
         .catch(error => setErrorMessage(error))
         .finally(() => setLoading(false));
     }
-  }, [studentsImportedEvent, studentRemovedEvent, studentService, schoolId]);
+  }, [studentsImportedEvent, studentRemovedEvent, schoolId]);
 
   const handleShowImportStudentsModal = (): void => setShowImportStudentsModal(true);
   const handleHideImportStudentsModal = (): void => setShowImportStudentsModal(initialState.showImportStudentsModal);
