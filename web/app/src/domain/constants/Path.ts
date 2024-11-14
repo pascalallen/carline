@@ -6,6 +6,7 @@ const SCHOOLS = '/schools';
 const SCHOOL = '/schools/:schoolId';
 const MARSHAL = '/schools/:schoolId/marshal';
 const STUDENTS = '/schools/:schoolId/students';
+const USERS = '/schools/:schoolId/users';
 const WALKER = '/schools/:schoolId/walker';
 const TEMP = '/temp';
 
@@ -19,5 +20,6 @@ export default Object.freeze({
   SCHOOL,
   MARSHAL,
   STUDENTS,
+  USERS,
   WALKER
 });

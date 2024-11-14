@@ -10,6 +10,7 @@ import MarshalIndex from '@pages/schools/marshal/MarshalIndex';
 import SchoolsDetail from '@pages/schools/SchoolsDetail';
 import SchoolsIndex from '@pages/schools/SchoolsIndex';
 import StudentsIndex from '@pages/schools/students/StudentsIndex';
+import UsersIndex from '@pages/schools/users/UsersIndex';
 import WalkerIndex from '@pages/schools/walker/WalkerIndex';
 import Temp from '@pages/Temp';
 
@@ -68,6 +69,16 @@ const routes: RouteObject[] = [
               <RouteElementWrapper>
                 <RequiresAuthentication>
                   <StudentsIndex />
+                </RequiresAuthentication>
+              </RouteElementWrapper>
+            )
+          },
+          {
+            path: Path.USERS,
+            element: (
+              <RouteElementWrapper>
+                <RequiresAuthentication>
+                  <UsersIndex />
                 </RequiresAuthentication>
               </RouteElementWrapper>
             )
