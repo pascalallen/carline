@@ -18,6 +18,33 @@ func NewPostgresSchoolRepository(session *sql.DB) school.Repository {
 	}
 }
 
+func (r *PostgresSchoolRepository) GetByIdAndUserId(userId ulid.ULID, id ulid.ULID) (*school.School, error) {
+	var s school.School
+	var i string
+	q := `SELECT 
+			id,
+			name,
+			created_at,
+			modified_at
+		FROM schools 
+		JOIN user_schools ON user_schools.school_id = schools.id
+		WHERE user_schools.user_id = $1
+		AND id = $2;`
+
+	row := r.session.QueryRow(q, userId.String(), id.String())
+	if err := row.Scan(&i, &s.Name, &s.CreatedAt, &s.ModifiedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("error scanning School by ID: %s", err)
+	}
+
+	s.Id = ulid.MustParse(i)
+
+	return &s, nil
+}
+
 func (r *PostgresSchoolRepository) GetById(id ulid.ULID) (*school.School, error) {
 	var s school.School
 	var i string

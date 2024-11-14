@@ -42,3 +42,21 @@ func (h ListSchoolsHandler) Handle(qry messaging.Query) (any, error) {
 
 	return s, nil
 }
+
+type GetSchoolByIdAndUserIdHandler struct {
+	SchoolRepository school.Repository
+}
+
+func (h GetSchoolByIdAndUserIdHandler) Handle(qry messaging.Query) (any, error) {
+	q, ok := qry.(query.GetSchoolByIdAndUserId)
+	if !ok {
+		return nil, fmt.Errorf("invalid query type passed to GetSchoolByIdAndUserIdHandler: %v", qry)
+	}
+
+	s, err := h.SchoolRepository.GetByIdAndUserId(q.UserId, q.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error attempting to fetch School from database: %s", err)
+	}
+
+	return s, nil
+}

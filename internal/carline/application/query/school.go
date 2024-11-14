@@ -17,3 +17,12 @@ type ListSchools struct {
 func (q ListSchools) QueryName() string {
 	return "ListSchools"
 }
+
+type GetSchoolByIdAndUserId struct {
+	UserId ulid.ULID `json:"user_id"`
+	Id     ulid.ULID `json:"id"`
+}
+
+func (q GetSchoolByIdAndUserId) QueryName() string {
+	return "GetSchoolByIdAndUserId"
+}
