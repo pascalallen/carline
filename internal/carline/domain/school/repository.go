@@ -5,6 +5,7 @@ import (
 )
 
 type Repository interface {
+	GetByIdAndUserId(userId ulid.ULID, id ulid.ULID) (*School, error)
 	GetById(id ulid.ULID) (*School, error)
 	GetByName(name string) (*School, error)
 	GetAll(userId ulid.ULID) (*[]School, error)

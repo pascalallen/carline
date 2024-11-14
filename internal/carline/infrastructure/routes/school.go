@@ -16,6 +16,19 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			school.HandleCreate(queryBus, commandBus),
 		)
 
+		v.GET(
+			"/schools",
+			middleware.AuthRequired(queryBus),
+			school.HandleList(queryBus),
+		)
+
+		v.GET(
+			"/schools/:schoolId",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			school.HandleDetail(queryBus),
+		)
+
 		v.DELETE(
 			"/schools/:schoolId",
 			middleware.AuthRequired(queryBus),
@@ -24,9 +37,10 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 		)
 
 		v.GET(
-			"/schools",
+			"/schools/:schoolId/students",
 			middleware.AuthRequired(queryBus),
-			school.HandleList(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			student.HandleList(queryBus),
 		)
 
 		v.POST(
@@ -41,13 +55,6 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			middleware.AuthRequired(queryBus),
 			middleware.SchoolAssociationRequired(queryBus),
 			student.HandleDelete(queryBus, commandBus),
-		)
-
-		v.GET(
-			"/schools/:schoolId/students",
-			middleware.AuthRequired(queryBus),
-			middleware.SchoolAssociationRequired(queryBus),
-			student.HandleList(queryBus),
 		)
 	}
 }

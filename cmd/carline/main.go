@@ -48,6 +48,7 @@ func runConsumers(container Container) {
 	queryBus.RegisterHandler(query.GetUserByEmailAddress{}.QueryName(), query_handler.GetUserByEmailAddressHandler{UserRepository: userRepository})
 	queryBus.RegisterHandler(query.GetSchoolByName{}.QueryName(), query_handler.GetSchoolByNameHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.ListSchools{}.QueryName(), query_handler.ListSchoolsHandler{SchoolRepository: schoolRepository})
+	queryBus.RegisterHandler(query.GetSchoolByIdAndUserId{}.QueryName(), query_handler.GetSchoolByIdAndUserIdHandler{SchoolRepository: schoolRepository})
 	queryBus.RegisterHandler(query.ListStudents{}.QueryName(), query_handler.ListStudentsHandler{StudentRepository: studentRepository})
 	queryBus.RegisterHandler(query.GetStudentById{}.QueryName(), query_handler.GetStudentByIdHandler{StudentRepository: studentRepository})
 
