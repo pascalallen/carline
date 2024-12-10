@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school"
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school/student"
+	"github.com/pascalallen/carline/internal/carline/application/http/action/school/user"
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
@@ -55,6 +56,41 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			middleware.AuthRequired(queryBus),
 			middleware.SchoolAssociationRequired(queryBus),
 			student.HandleDelete(queryBus, commandBus),
+		)
+
+		v.POST(
+			"/schools/:schoolId/users",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			user.HandleCreate(queryBus, commandBus),
+		)
+
+		v.GET(
+			"/schools/:schoolId/users",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			// TODO user.HandleList(queryBus),
+		)
+
+		v.GET(
+			"/schools/:schoolId/users/:userId",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			// TODO user.HandleDetail(queryBus),
+		)
+
+		v.PUT(
+			"/schools/:schoolId/users/:userId",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			// TODO user.HandleUpdate(commandBus),
+		)
+
+		v.DELETE(
+			"/schools/:schoolId/users/:userId",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			// TODO user.HandleDelete(commandBus),
 		)
 	}
 }

@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
+	"github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
 type SendWelcomeEmailHandler struct {
 	EventDispatcher messaging.EventDispatcher
+	MailService     mail.Service
 }
 
 func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
@@ -17,7 +19,11 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("invalid command type passed to SendWelcomeEmailHandler: %v", cmd)
 	}
 
-	// TODO: send welcome email
+	// TODO: refactor
+	err := h.MailService.Send(c.EmailAddress, "Welcome to Carline", string(c.Token))
+	if err != nil {
+		return err
+	}
 
 	evt := event.WelcomeEmailSent{
 		Id:           c.Id,

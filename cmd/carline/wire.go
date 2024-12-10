@@ -8,6 +8,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 )
 
 func InitializeContainer() Container {
@@ -23,6 +24,7 @@ func InitializeContainer() Container {
 		messaging.NewRabbitMqCommandBus,
 		messaging.NewSynchronousQueryBus,
 		messaging.NewRabbitMqEventDispatcher,
+		service.NewSendGridMailService,
 	)
 	return Container{}
 }

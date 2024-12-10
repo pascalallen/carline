@@ -8,7 +8,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func AuthRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 		}
 
 		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userClaims := service.ParseAccessToken(accessToken)
 
 		q := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
 		result, err := queryBus.Fetch(q)

@@ -7,7 +7,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 	"strings"
 )
 
@@ -27,7 +27,7 @@ func HandleDelete(commandBus messaging.CommandBus) gin.HandlerFunc {
 
 		authHeader := c.GetHeader("Authorization")
 		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userClaims := service.ParseAccessToken(accessToken)
 		userId := ulid.MustParse(userClaims.Id)
 
 		cmd := command.DeleteSchool{

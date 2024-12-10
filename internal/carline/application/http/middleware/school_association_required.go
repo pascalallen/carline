@@ -8,7 +8,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 	"strings"
 )
 
@@ -23,7 +23,7 @@ func SchoolAssociationRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 		}
 
 		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userClaims := service.ParseAccessToken(accessToken)
 		userId, err := ulid.Parse(userClaims.Id)
 		if err != nil {
 			responder.UnauthorizedResponse(c, errors.New("invalid user ID in token"))
