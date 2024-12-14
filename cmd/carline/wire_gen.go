@@ -10,7 +10,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service/mail"
 )
 
 import (
@@ -30,7 +30,8 @@ func InitializeContainer() Container {
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	mailService := service.NewSendGridMailService()
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, mailService)
+	client := mail.NewSendGridMailClient()
+	service := mail.NewSendGridMailService(client)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service)
 	return container
 }

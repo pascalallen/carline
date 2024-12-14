@@ -19,8 +19,19 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("invalid command type passed to SendWelcomeEmailHandler: %v", cmd)
 	}
 
-	// TODO: refactor
-	err := h.MailService.Send(c.EmailAddress, "Welcome to Carline", string(c.Token))
+	from := mail.Sender{
+		Name:         "Pascal Allen",
+		EmailAddress: "pascal.allen88@gmail.com",
+	}
+	to := mail.Recipient{
+		Name:         c.FirstName + " " + c.LastName,
+		EmailAddress: c.EmailAddress,
+	}
+	msg := mail.Message{
+		Subject: "Welcome to Carline!",
+		Body:    "Please follow this link to activate your account",
+	}
+	err := h.MailService.Send(from, to, msg)
 	if err != nil {
 		return err
 	}
