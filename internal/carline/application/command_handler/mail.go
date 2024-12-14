@@ -28,8 +28,8 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		EmailAddress: c.EmailAddress,
 	}
 	msg := mail.Message{
-		Subject: "Welcome to Carline!",
-		Body:    "Please follow this link to activate your account",
+		Subject:       "Welcome to Carline!",
+		PlainTextBody: "Please follow this link to activate your account",
 	}
 	err := h.MailService.Send(from, to, msg)
 	if err != nil {
