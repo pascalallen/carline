@@ -7,5 +7,5 @@ func (r Router) Config() {
 		log.Fatal(err)
 	}
 
-	r.engine.LoadHTMLGlob("web/template/*")
+	r.engine.LoadHTMLGlob("web/template/**/*")
 }

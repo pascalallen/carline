@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"> <!-- utf-8 works for most clients -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0;">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{.Subject}}</title> <!-- Title may show in some email previews -->
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .container {
+            width: 100%;
+            padding: 20px 0;
+        }
+
+        .main {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .header,
+        .footer {
+            background: #f7f7f7;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1,
+        .footer p {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        /* Make images fluid */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Responsive adjustments */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+
+</head>
+<body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="container">
+    <tr>
+        <td align="center">
+            <table width="600" class="main" border="0" cellspacing="0" cellpadding="0">
+                <!-- Header -->
+                <tr>
+                    <td class="header">
+                        <h1>{{.BrandName}}</h1>
+                    </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                    <td class="content">
+                        <!-- Add your main email content here -->
+                        <h2>Hello, {{.Name}}!</h2>
+                        <p>{{.MessageBody}}</p>
+
+                        <!-- Example image or logo (optional) -->
+                        <!-- <p><img src="https://example.com/logo.png" alt="Logo"></p> -->
+
+                        <!-- Add more paragraphs or sections as needed -->
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td class="footer">
+                        <p>&copy; {{.Year}} {{.BrandName}} | <a href="{{.UnsubscribeURL}}" style="color: #333; text-decoration: underline;">Unsubscribe</a></p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
