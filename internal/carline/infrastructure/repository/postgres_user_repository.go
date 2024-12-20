@@ -12,7 +12,7 @@ type PostgresUserRepository struct {
 	session *sql.DB
 }
 
-func NewGormUserRepository(session *sql.DB) user.Repository {
+func NewPostgresUserRepository(session *sql.DB) user.Repository {
 	return &PostgresUserRepository{
 		session: session,
 	}

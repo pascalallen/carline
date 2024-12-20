@@ -6,6 +6,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/domain/student"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
@@ -14,18 +15,19 @@ import (
 )
 
 type Container struct {
-	DatabaseSession        *sql.DB
-	PermissionRepository   permission.Repository
-	RoleRepository         role.Repository
-	UserRepository         user.Repository
-	SchoolRepository       school.Repository
-	StudentRepository      student.Repository
-	MessageQueueConnection *amqp091.Connection
-	CommandBus             messaging.CommandBus
-	QueryBus               messaging.QueryBus
-	EventDispatcher        messaging.EventDispatcher
-	MailClient             *sendgrid.Client
-	MailService            mail.Service
+	DatabaseSession         *sql.DB
+	PermissionRepository    permission.Repository
+	RoleRepository          role.Repository
+	UserRepository          user.Repository
+	SecurityTokenRepository security_token.Repository
+	SchoolRepository        school.Repository
+	StudentRepository       student.Repository
+	MessageQueueConnection  *amqp091.Connection
+	CommandBus              messaging.CommandBus
+	QueryBus                messaging.QueryBus
+	EventDispatcher         messaging.EventDispatcher
+	MailClient              *sendgrid.Client
+	MailService             mail.Service
 }
 
 func NewContainer(
@@ -33,6 +35,7 @@ func NewContainer(
 	permissionRepo permission.Repository,
 	roleRepo role.Repository,
 	userRepo user.Repository,
+	securityTokenRepo security_token.Repository,
 	schoolRepo school.Repository,
 	studentRepo student.Repository,
 	mqConn *amqp091.Connection,
@@ -43,17 +46,18 @@ func NewContainer(
 	mailService mail.Service,
 ) Container {
 	return Container{
-		DatabaseSession:        dbSession,
-		PermissionRepository:   permissionRepo,
-		RoleRepository:         roleRepo,
-		UserRepository:         userRepo,
-		SchoolRepository:       schoolRepo,
-		StudentRepository:      studentRepo,
-		MessageQueueConnection: mqConn,
-		CommandBus:             commandBus,
-		QueryBus:               queryBus,
-		EventDispatcher:        eventDispatcher,
-		MailClient:             mailClient,
-		MailService:            mailService,
+		DatabaseSession:         dbSession,
+		PermissionRepository:    permissionRepo,
+		RoleRepository:          roleRepo,
+		UserRepository:          userRepo,
+		SecurityTokenRepository: securityTokenRepo,
+		SchoolRepository:        schoolRepo,
+		StudentRepository:       studentRepo,
+		MessageQueueConnection:  mqConn,
+		CommandBus:              commandBus,
+		QueryBus:                queryBus,
+		EventDispatcher:         eventDispatcher,
+		MailClient:              mailClient,
+		MailService:             mailService,
 	}
 }
