@@ -2,7 +2,6 @@ import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
 import { Form, InputControl } from '@pascalallen/react-form-components';
 import { FormGroup } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
@@ -15,8 +14,6 @@ export type RegisterFormValues = {
   last_name: string;
   email_address: string;
 };
-
-type LocationState = { from?: Location };
 
 type State = {
   firstName: string;
