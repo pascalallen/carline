@@ -10,11 +10,11 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service/mail"
 )
 
 import (
 	_ "github.com/joho/godotenv/autoload"
-	_ "github.com/lib/pq"
 )
 
 // Injectors from wire.go:
@@ -30,6 +30,8 @@ func InitializeContainer() Container {
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher)
+	client := mail.NewSendGridMailClient()
+	service := mail.NewSendGridMailService(client)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service)
 	return container
 }

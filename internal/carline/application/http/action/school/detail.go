@@ -9,7 +9,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 	"strings"
 )
 
@@ -23,7 +23,7 @@ func HandleDetail(queryBus messaging.QueryBus) gin.HandlerFunc {
 
 		authHeader := c.GetHeader("Authorization")
 		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := tokenservice.ParseAccessToken(accessToken)
+		userClaims := service.ParseAccessToken(accessToken)
 		userId := ulid.MustParse(userClaims.Id)
 
 		q := query.GetSchoolByIdAndUserId{UserId: userId, Id: ulid.MustParse(schoolId)}

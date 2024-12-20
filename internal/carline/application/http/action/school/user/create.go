@@ -1,4 +1,4 @@
-package school
+package user
 
 import (
 	"errors"
@@ -8,14 +8,14 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
 	"github.com/pascalallen/carline/internal/carline/application/query"
-	"github.com/pascalallen/carline/internal/carline/domain/school"
+	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
-	"strings"
 )
 
 type CreateRequestPayload struct {
-	Name string `form:"name" json:"name" binding:"required,max=100"`
+	FirstName    string `form:"first_name" json:"first_name" binding:"required,max=100"`
+	LastName     string `form:"last_name" json:"last_name" binding:"required,max=100"`
+	EmailAddress string `form:"email_address" json:"email_address" binding:"required,max=100"`
 }
 
 type CreatedResponsePayload struct {
@@ -33,25 +33,21 @@ func HandleCreate(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 			return
 		}
 
-		q := query.GetSchoolByName{Name: request.Name}
+		q := query.GetUserByEmailAddress{EmailAddress: request.EmailAddress}
 		result, err := queryBus.Fetch(q)
-		s, ok := result.(*school.School)
+		s, ok := result.(*user.User)
 		if s != nil || err != nil || !ok {
-			errorMessage := fmt.Sprint("School already exists.")
+			errorMessage := fmt.Sprint("User already exists.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
 
 			return
 		}
 
-		authHeader := c.GetHeader("Authorization")
-		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := service.ParseAccessToken(accessToken)
-		userId := ulid.MustParse(userClaims.Id)
-
-		cmd := command.CreateSchool{
-			Id:     ulid.Make(),
-			Name:   request.Name,
-			UserId: userId,
+		cmd := command.RegisterUser{
+			Id:           ulid.Make(),
+			FirstName:    request.FirstName,
+			LastName:     request.LastName,
+			EmailAddress: request.EmailAddress,
 		}
 		err = commandBus.Execute(cmd)
 		if err != nil {

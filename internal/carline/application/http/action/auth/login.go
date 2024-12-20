@@ -9,7 +9,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 	"time"
 )
 
@@ -46,7 +46,7 @@ func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 			return
 		}
 
-		userClaims := tokenservice.UserClaims{
+		userClaims := service.UserClaims{
 			Id:    u.Id.String(),
 			First: u.FirstName,
 			Last:  u.LastName,
@@ -56,7 +56,7 @@ func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 			},
 		}
 
-		signedAccessToken, err := tokenservice.NewAccessToken(userClaims)
+		signedAccessToken, err := service.NewAccessToken(userClaims)
 		if err != nil {
 			errorMessage := "error creating access token"
 			responder.InternalServerErrorResponse(c, errors.New(errorMessage))
@@ -91,7 +91,7 @@ func HandleLoginUser(queryBus messaging.QueryBus) gin.HandlerFunc {
 			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),
 		}
 
-		signedRefreshToken, err := tokenservice.NewRefreshToken(refreshClaims)
+		signedRefreshToken, err := service.NewRefreshToken(refreshClaims)
 		if err != nil {
 			errorMessage := "error creating refresh token"
 			responder.InternalServerErrorResponse(c, errors.New(errorMessage))

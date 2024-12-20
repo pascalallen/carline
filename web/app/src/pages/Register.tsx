@@ -2,7 +2,6 @@ import React, { FormEvent, ReactElement, useEffect, useState } from 'react';
 import { Form, InputControl } from '@pascalallen/react-form-components';
 import { FormGroup } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
-import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import useAuth from '@hooks/useAuth';
@@ -14,24 +13,16 @@ export type RegisterFormValues = {
   first_name: string;
   last_name: string;
   email_address: string;
-  password: string;
-  confirm_password: string;
 };
-
-type LocationState = { from?: Location };
 
 type State = {
   firstName: string;
   lastName: string;
   emailAddress: string;
-  password: string;
-  confirmPassword: string;
   touched: {
     firstName: boolean;
     lastName: boolean;
     emailAddress: boolean;
-    password: boolean;
-    confirmPassword: boolean;
   };
   errorMessage: string;
 };
@@ -40,14 +31,10 @@ const initialState: State = {
   firstName: '',
   lastName: '',
   emailAddress: '',
-  password: '',
-  confirmPassword: '',
   touched: {
     firstName: false,
     lastName: false,
-    emailAddress: false,
-    password: false,
-    confirmPassword: false
+    emailAddress: false
   },
   errorMessage: ''
 };
@@ -55,14 +42,10 @@ const initialState: State = {
 const Register = (): ReactElement => {
   const authService = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const state: LocationState = location.state as LocationState;
 
   const [firstName, setFirstName] = useState(initialState.firstName);
   const [lastName, setLastName] = useState(initialState.lastName);
   const [emailAddress, setEmailAddress] = useState(initialState.emailAddress);
-  const [password, setPassword] = useState(initialState.password);
-  const [confirmPassword, setConfirmPassword] = useState(initialState.confirmPassword);
   const [touched, setTouched] = useState(initialState.touched);
   const [errorMessage, setErrorMessage] = useState(initialState.errorMessage);
 
@@ -79,15 +62,9 @@ const Register = (): ReactElement => {
       await authService.register({
         first_name: firstName,
         last_name: lastName,
-        email_address: emailAddress,
-        password,
-        confirm_password: confirmPassword
+        email_address: emailAddress
       });
-      setTimeout(async () => {
-        await authService.login({ email_address: emailAddress, password });
-        const from = state?.from?.pathname || Path.SCHOOLS;
-        navigate(from, { replace: true });
-      }, 100);
+      // TODO: Redirect to "check your email" success page
     } catch (error) {
       if ((error as FailApiResponse)?.statusCode === 400) {
         setErrorMessage('Validation error');
@@ -166,38 +143,6 @@ const Register = (): ReactElement => {
                   error={touched.emailAddress && emailAddress.length < 1 ? 'Email address is required' : undefined}
                   onChange={e => setEmailAddress(e.target.value)}
                   onBlur={() => handleBlur('emailAddress')}
-                />
-                <InputControl
-                  inputId="password"
-                  className="password mb-3"
-                  name="password"
-                  type="password"
-                  label="Password"
-                  tabIndex={4}
-                  value={password}
-                  isValid={touched.password ? password.length > 0 : true}
-                  required
-                  error={touched.password && password.length < 1 ? 'Password is required' : undefined}
-                  onChange={e => setPassword(e.target.value)}
-                  onBlur={() => handleBlur('password')}
-                />
-                <InputControl
-                  inputId="confirm-password"
-                  className="confirm-password mb-3"
-                  name="confirm_password"
-                  type="password"
-                  label="Confirm password"
-                  tabIndex={5}
-                  value={confirmPassword}
-                  isValid={touched.confirmPassword ? confirmPassword.length > 0 : true}
-                  required
-                  error={
-                    touched.confirmPassword && confirmPassword.length < 1
-                      ? 'Password confirmation is required'
-                      : undefined
-                  }
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  onBlur={() => handleBlur('confirmPassword')}
                 />
                 <FormGroup className="mb-3">
                   <button id="register-button" className="register-button btn btn-primary" type="submit" tabIndex={6}>

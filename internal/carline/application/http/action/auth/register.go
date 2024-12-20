@@ -8,17 +8,14 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/http/responder"
 	"github.com/pascalallen/carline/internal/carline/application/query"
-	"github.com/pascalallen/carline/internal/carline/domain/password"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
 type RegisterRequestPayload struct {
-	FirstName       string `form:"first_name" json:"first_name" binding:"required,max=100"`
-	LastName        string `form:"last_name" json:"last_name" binding:"required,max=100"`
-	EmailAddress    string `form:"email_address" json:"email_address" binding:"required,max=100,email"`
-	Password        string `form:"password" json:"password" binding:"required"`
-	ConfirmPassword string `form:"confirm_password" json:"confirm_password" binding:"required,eqfield=Password"`
+	FirstName    string `form:"first_name" json:"first_name" binding:"required,max=100"`
+	LastName     string `form:"last_name" json:"last_name" binding:"required,max=100"`
+	EmailAddress string `form:"email_address" json:"email_address" binding:"required,max=100,email"`
 }
 
 type RegisteredResponsePayload struct {
@@ -51,7 +48,6 @@ func HandleRegisterUser(queryBus messaging.QueryBus, commandBus messaging.Comman
 			FirstName:    request.FirstName,
 			LastName:     request.LastName,
 			EmailAddress: request.EmailAddress,
-			PasswordHash: password.Create(request.Password),
 		}
 		err = commandBus.Execute(cmd)
 		if err != nil {

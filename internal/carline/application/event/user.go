@@ -5,10 +5,11 @@ import (
 )
 
 type UserRegistered struct {
-	Id           ulid.ULID `json:"id"`
-	FirstName    string    `json:"first_name"`
-	LastName     string    `json:"last_name"`
-	EmailAddress string    `json:"email_address"`
+	Id              ulid.ULID `json:"id"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	EmailAddress    string    `json:"email_address"`
+	SecurityTokenId ulid.ULID `json:"security_token_id"`
 }
 
 func (e UserRegistered) EventName() string {

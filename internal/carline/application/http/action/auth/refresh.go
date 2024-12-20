@@ -9,7 +9,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/tokenservice"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
 )
 
 type RefreshRequestPayload struct {
@@ -28,8 +28,8 @@ func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 			return
 		}
 
-		userClaims := tokenservice.ParseAccessToken(request.AccessToken)
-		refreshClaims := tokenservice.ParseRefreshToken(request.RefreshToken)
+		userClaims := service.ParseAccessToken(request.AccessToken)
+		refreshClaims := service.ParseRefreshToken(request.RefreshToken)
 
 		q := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
 		result, err := queryBus.Fetch(q)
@@ -43,7 +43,7 @@ func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 
 		// refresh token is expired
 		if refreshClaims.Valid() != nil {
-			request.RefreshToken, err = tokenservice.NewRefreshToken(*refreshClaims)
+			request.RefreshToken, err = service.NewRefreshToken(*refreshClaims)
 			if err != nil {
 				errorMessage := "error creating refresh token"
 				responder.InternalServerErrorResponse(c, errors.New(errorMessage))
@@ -54,7 +54,7 @@ func HandleRefreshTokens(queryBus messaging.QueryBus) gin.HandlerFunc {
 
 		// access token is expired
 		if userClaims.StandardClaims.Valid() != nil && refreshClaims.Valid() == nil {
-			request.AccessToken, err = tokenservice.NewAccessToken(*userClaims)
+			request.AccessToken, err = service.NewAccessToken(*userClaims)
 			if err != nil {
 				errorMessage := "error creating access token"
 				responder.InternalServerErrorResponse(c, errors.New(errorMessage))

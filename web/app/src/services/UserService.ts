@@ -9,6 +9,16 @@ export type GetAllUsersResponse = {
   users: User[];
 };
 
+export type AddUserRequest = {
+  first_name: string;
+  last_name: string;
+  email_address: string;
+};
+
+export type UserAddedResponse = {
+  id: string;
+};
+
 export type UserRemovedResponse = {
   id: string;
 };
@@ -30,22 +40,19 @@ class UserService {
     return response.body.data?.users || [];
   }
 
-  // TODO
-  public async add(schoolId: string, formData: FormData): Promise<void> {
-    await request.send({
+  public async add(schoolId: string, params: AddUserRequest): Promise<void> {
+    const response = await request.send<UserAddedResponse>({
       method: HttpMethod.POST,
       uri: `/api/v1/schools/${schoolId}/users`,
-      body: formData,
-      options: {
-        auth: true,
-        authStore: this.authStore,
-        contentType: 'multipart/form-data'
-      }
+      body: params,
+      options: { auth: true, authStore: this.authStore }
     });
 
     eventDispatcher.dispatch({
       name: DomainEvents.USER_ADDED,
-      data: {}
+      data: {
+        id: response.body.data?.id
+      }
     });
   }
 

@@ -77,11 +77,19 @@ const UsersIndex = (): React.ReactElement => {
 
   const handleAddUser = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setErrorMessage(initialState.errorMessage);
 
     try {
       setAddingUser(true);
       const formData = new FormData(event.currentTarget);
-      await userService.add(schoolId ?? '', formData);
+      const firstName = formData.get('first_name')?.toString() ?? '';
+      const lastName = formData.get('last_name')?.toString() ?? '';
+      const emailAddress = formData.get('email_address')?.toString() ?? '';
+      await userService.add(schoolId ?? '', {
+        first_name: firstName,
+        last_name: lastName,
+        email_address: emailAddress
+      });
       setAddingUser(initialState.addingUser);
       handleHideAddUserModal();
     } catch (error) {
