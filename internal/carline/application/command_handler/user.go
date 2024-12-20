@@ -2,16 +2,20 @@ package command_handler
 
 import (
 	"fmt"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
+	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"log"
+	"time"
 )
 
 type RegisterUserHandler struct {
-	UserRepository  user.Repository
-	EventDispatcher messaging.EventDispatcher
+	UserRepository          user.Repository
+	SecurityTokenRepository security_token.Repository
+	EventDispatcher         messaging.EventDispatcher
 }
 
 func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
@@ -27,11 +31,20 @@ func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("user registration failed: %s", err)
 	}
 
+	now := time.Now()
+	expiresAt := now.Add(security_token.ActivationDuration)
+	token := security_token.GenerateActivation(ulid.Make(), u.Id, expiresAt)
+	err = h.SecurityTokenRepository.Add(token)
+	if err != nil {
+		return fmt.Errorf("error persisting security token: %s", err)
+	}
+
 	evt := event.UserRegistered{
-		Id:           c.Id,
-		FirstName:    c.FirstName,
-		LastName:     c.LastName,
-		EmailAddress: c.EmailAddress,
+		Id:              c.Id,
+		FirstName:       c.FirstName,
+		LastName:        c.LastName,
+		EmailAddress:    c.EmailAddress,
+		SecurityTokenId: token.Id,
 	}
 	h.EventDispatcher.Dispatch(evt)
 

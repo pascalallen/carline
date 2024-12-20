@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
-	"github.com/pascalallen/carline/internal/carline/domain/crypto"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
@@ -18,13 +17,12 @@ func (l UserRegistration) Handle(evt messaging.Event) error {
 		return fmt.Errorf("invalid event type passed to UserRegistration listener: %v", evt)
 	}
 
-	token := crypto.Generate()
 	cmd := command.SendWelcomeEmail{
-		Id:           e.Id,
-		FirstName:    e.FirstName,
-		LastName:     e.LastName,
-		EmailAddress: e.EmailAddress,
-		Token:        token,
+		Id:              e.Id,
+		FirstName:       e.FirstName,
+		LastName:        e.LastName,
+		EmailAddress:    e.EmailAddress,
+		SecurityTokenId: e.SecurityTokenId,
 	}
 	err := l.CommandBus.Execute(cmd)
 	if err != nil {

@@ -51,6 +51,17 @@
             padding: 20px;
         }
 
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
         /* Make images fluid */
         img {
             max-width: 100%;
@@ -74,21 +85,20 @@
                 <!-- Header -->
                 <tr>
                     <td class="header">
-                        <h1>{{.BrandName}}</h1>
+                        <h1>Welcome to Carline!</h1>
                     </td>
                 </tr>
 
                 <!-- Content -->
                 <tr>
                     <td class="content">
-                        <!-- Add your main email content here -->
-                        <h2>Hello, {{.Name}}!</h2>
-                        <p>{{.MessageBody}}</p>
+                        <h2>Hiya, {{.FirstName}}!</h2>
+                        <p>Click the button below to set your password and complete your registration.</p>
 
-                        <!-- Example image or logo (optional) -->
-                        <!-- <p><img src="https://example.com/logo.png" alt="Logo"></p> -->
-
-                        <!-- Add more paragraphs or sections as needed -->
+                        <!-- Activation Button -->
+                        <p>
+                            <a href="{{.BaseURL}}/activate/{{.Token}}" class="btn">Activate Your Account</a>
+                        </p>
                     </td>
                 </tr>
 

@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
-	"github.com/pascalallen/carline/internal/carline/domain/crypto"
 	"github.com/pascalallen/carline/internal/carline/domain/mail"
+	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"html/template"
 	"os"
 )
 
 type SendWelcomeEmailHandler struct {
-	EventDispatcher messaging.EventDispatcher
-	MailService     mail.Service
+	SecurityTokenRepository security_token.Repository
+	EventDispatcher         messaging.EventDispatcher
+	MailService             mail.Service
 }
 
 func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
@@ -23,23 +24,19 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("invalid command type passed to SendWelcomeEmailHandler: %v", cmd)
 	}
 
-	from := mail.Sender{
-		Name:         "Pascal Allen",
-		EmailAddress: "pascal.allen88@gmail.com",
-	}
-	to := mail.Recipient{
-		Name:         c.FirstName + " " + c.LastName,
-		EmailAddress: c.EmailAddress,
+	activationToken, err := h.SecurityTokenRepository.GetById(c.SecurityTokenId)
+	if err != nil {
+		return fmt.Errorf("error retrieving activation token: %s", err)
 	}
 
 	data := struct {
 		FirstName string
 		BaseUrl   string
-		Token     crypto.Crypto
+		Token     string
 	}{
 		FirstName: c.FirstName,
 		BaseUrl:   os.Getenv("APP_BASE_URL"),
-		Token:     c.Token,
+		Token:     string(activationToken.Crypto),
 	}
 
 	tmpl, err := template.ParseFiles("activation.tmpl")
@@ -54,9 +51,17 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 
 	htmlContent := tplBuffer.String()
 
+	from := mail.Sender{
+		Name:         "Pascal Allen",
+		EmailAddress: "pascal.allen88@gmail.com",
+	}
+	to := mail.Recipient{
+		Name:         c.FirstName + " " + c.LastName,
+		EmailAddress: c.EmailAddress,
+	}
 	msg := mail.Message{
 		Subject:       "Welcome to Carline!",
-		PlainTextBody: "Please follow this link to activate your account",
+		PlainTextBody: "", // TODO
 		HtmlBody:      htmlContent,
 	}
 
@@ -66,11 +71,11 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 	}
 
 	evt := event.WelcomeEmailSent{
-		Id:           c.Id,
-		FirstName:    c.FirstName,
-		LastName:     c.LastName,
-		EmailAddress: c.EmailAddress,
-		Token:        c.Token,
+		Id:              c.Id,
+		FirstName:       c.FirstName,
+		LastName:        c.LastName,
+		EmailAddress:    c.EmailAddress,
+		SecurityTokenId: c.SecurityTokenId,
 	}
 	h.EventDispatcher.Dispatch(evt)
 
