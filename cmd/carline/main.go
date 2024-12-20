@@ -27,15 +27,16 @@ func runConsumers(container Container) {
 	queryBus := container.QueryBus
 	eventDispatcher := container.EventDispatcher
 	userRepository := container.UserRepository
+	securityTokenRepository := container.SecurityTokenRepository
 	schoolRepository := container.SchoolRepository
 	studentRepository := container.StudentRepository
 	databaseSession := container.DatabaseSession
 	mailService := container.MailService
 
 	// command registry
-	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, EventDispatcher: eventDispatcher})
+	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, SecurityTokenRepository: securityTokenRepository, EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.UpdateUser{}.CommandName(), command_handler.UpdateUserHandler{})
-	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{EventDispatcher: eventDispatcher, MailService: mailService})
+	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{SecurityTokenRepository: securityTokenRepository, EventDispatcher: eventDispatcher, MailService: mailService})
 	commandBus.RegisterHandler(command.CreateSchool{}.CommandName(), command_handler.CreateSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.DeleteSchool{}.CommandName(), command_handler.DeleteSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.ImportStudents{}.CommandName(), command_handler.ImportStudentsHandler{SchoolRepository: schoolRepository, StudentRepository: studentRepository, DatabaseSession: databaseSession})

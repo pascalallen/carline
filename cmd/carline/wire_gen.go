@@ -23,7 +23,8 @@ func InitializeContainer() Container {
 	db := database.NewPostgresSession()
 	permissionRepository := repository.NewPostgresPermissionRepository(db)
 	roleRepository := repository.NewPostgresRoleRepository(db)
-	userRepository := repository.NewGormUserRepository(db)
+	userRepository := repository.NewPostgresUserRepository(db)
+	security_tokenRepository := repository.NewPostgresSecurityTokenRepository(db)
 	schoolRepository := repository.NewPostgresSchoolRepository(db)
 	studentRepository := repository.NewPostgresStudentRepository(db)
 	connection := messaging.NewRabbitMQConnection()
@@ -32,6 +33,6 @@ func InitializeContainer() Container {
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
 	client := mail.NewSendGridMailClient()
 	service := mail.NewSendGridMailService(client)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service)
 	return container
 }
