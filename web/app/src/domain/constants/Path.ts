@@ -1,5 +1,6 @@
 const INDEX = '/';
 const REGISTER = '/register';
+const ACTIVATE = '/activate';
 const LOGIN = '/login';
 const FORBIDDEN = '/forbidden';
 const SCHOOLS = '/schools';
@@ -13,6 +14,7 @@ const TEMP = '/temp';
 export default Object.freeze({
   INDEX,
   REGISTER,
+  ACTIVATE,
   LOGIN,
   FORBIDDEN,
   TEMP,

@@ -10,6 +10,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"html/template"
 	"os"
+	"time"
 )
 
 type SendWelcomeEmailHandler struct {
@@ -30,13 +31,17 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 	}
 
 	data := struct {
+		Subject   string
 		FirstName string
 		BaseUrl   string
 		Token     string
+		Year      int
 	}{
+		Subject:   "Welcome to Carline!",
 		FirstName: c.FirstName,
 		BaseUrl:   os.Getenv("APP_BASE_URL"),
 		Token:     string(activationToken.Crypto),
+		Year:      time.Now().Year(),
 	}
 
 	tmpl, err := template.ParseFiles("activation.tmpl")
