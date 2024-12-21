@@ -3,6 +3,7 @@ import { RouteObject } from 'react-router-dom';
 import Path from '@domain/constants/Path';
 import RequiresAuthentication from '@routes/middleware/RequiresAuthentication';
 import RouteElementWrapper from '@routes/middleware/RouteElementWrapper';
+import Activate from '@pages/Activate';
 import Index from '@pages/Index';
 import Login from '@pages/Login';
 import Register from '@pages/Register';
@@ -22,6 +23,10 @@ const routes: RouteObject[] = [
   {
     path: Path.REGISTER,
     element: <Register />
+  },
+  {
+    path: Path.ACTIVATE,
+    element: <Activate />
   },
   {
     path: Path.LOGIN,

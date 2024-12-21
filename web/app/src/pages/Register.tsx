@@ -145,7 +145,7 @@ const Register = (): ReactElement => {
                   onBlur={() => handleBlur('emailAddress')}
                 />
                 <FormGroup className="mb-3">
-                  <button id="register-button" className="register-button btn btn-primary" type="submit" tabIndex={6}>
+                  <button id="register-button" className="register-button btn btn-primary" type="submit" tabIndex={4}>
                     Register
                   </button>
                 </FormGroup>

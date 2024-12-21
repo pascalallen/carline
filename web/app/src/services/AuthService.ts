@@ -5,6 +5,7 @@ import request from '@utilities/request';
 import HttpMethod from '@domain/constants/HttpMethod';
 import { User } from '@domain/types/User';
 import AuthStore from '@stores/AuthStore';
+import { ActivateFormValues } from '@pages/Activate';
 import { LoginFormValues } from '@pages/Login';
 import { RegisterFormValues } from '@pages/Register';
 
@@ -36,6 +37,23 @@ class AuthService {
       uri: '/api/v1/auth/register',
       body: params,
       options: { auth: false }
+    });
+  }
+
+  public async activate(params: ActivateFormValues): Promise<void> {
+    const response = await request.send<AuthenticatedResponsePayload>({
+      method: HttpMethod.POST,
+      uri: '/api/v1/auth/activate',
+      body: params,
+      options: { auth: false }
+    });
+    this.authStore.setData({
+      access_token: response.body.data?.access_token ?? '',
+      refresh_token: response.body.data?.refresh_token ?? '',
+      access_token_claims: jwtDecode(response.body.data?.access_token ?? ''),
+      client_iat: moment().unix(),
+      roles: listToMap(response.body.data?.roles ?? []),
+      permissions: listToMap(response.body.data?.permissions ?? [])
     });
   }
 
