@@ -28,6 +28,7 @@ type Container struct {
 	EventDispatcher         messaging.EventDispatcher
 	MailClient              *sendgrid.Client
 	MailService             mail.Service
+	SecurityTokenService    security_token.Service
 }
 
 func NewContainer(
@@ -44,6 +45,7 @@ func NewContainer(
 	eventDispatcher messaging.EventDispatcher,
 	mailClient *sendgrid.Client,
 	mailService mail.Service,
+	securityTokenService security_token.Service,
 ) Container {
 	return Container{
 		DatabaseSession:         dbSession,
@@ -59,5 +61,6 @@ func NewContainer(
 		EventDispatcher:         eventDispatcher,
 		MailClient:              mailClient,
 		MailService:             mailService,
+		SecurityTokenService:    securityTokenService,
 	}
 }

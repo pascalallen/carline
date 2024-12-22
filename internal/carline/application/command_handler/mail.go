@@ -14,9 +14,9 @@ import (
 )
 
 type SendWelcomeEmailHandler struct {
-	SecurityTokenRepository security_token.Repository
-	EventDispatcher         messaging.EventDispatcher
-	MailService             mail.Service
+	SecurityTokenService security_token.Service
+	EventDispatcher      messaging.EventDispatcher
+	MailService          mail.Service
 }
 
 func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
@@ -25,7 +25,7 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("invalid command type passed to SendWelcomeEmailHandler: %v", cmd)
 	}
 
-	activationToken, err := h.SecurityTokenRepository.GetById(c.SecurityTokenId)
+	activationToken, err := h.SecurityTokenService.FetchById(c.SecurityTokenId)
 	if err != nil {
 		return fmt.Errorf("error retrieving activation token: %s", err)
 	}

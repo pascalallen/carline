@@ -8,4 +8,5 @@ type Repository interface {
 	GetAll() (*[]User, error)
 	Add(user *User) error
 	Remove(user *User) error
+	Save(user *User) error
 }

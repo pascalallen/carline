@@ -2,7 +2,6 @@ package command_handler
 
 import (
 	"fmt"
-	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
 	"github.com/pascalallen/carline/internal/carline/domain/security_token"
@@ -13,9 +12,9 @@ import (
 )
 
 type RegisterUserHandler struct {
-	UserRepository          user.Repository
-	SecurityTokenRepository security_token.Repository
-	EventDispatcher         messaging.EventDispatcher
+	UserRepository       user.Repository
+	SecurityTokenService security_token.Service
+	EventDispatcher      messaging.EventDispatcher
 }
 
 func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
@@ -33,11 +32,7 @@ func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 
 	now := time.Now()
 	expiresAt := now.Add(security_token.ActivationDuration)
-	token := security_token.GenerateActivation(ulid.Make(), u.Id, expiresAt)
-	err = h.SecurityTokenRepository.Add(token)
-	if err != nil {
-		return fmt.Errorf("error persisting security token: %s", err)
-	}
+	token := h.SecurityTokenService.GenerateActivationToken(*u, expiresAt)
 
 	evt := event.UserRegistered{
 		Id:              c.Id,

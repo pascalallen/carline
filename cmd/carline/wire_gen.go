@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
@@ -33,6 +34,7 @@ func InitializeContainer() Container {
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
 	client := mail.NewSendGridMailClient()
 	service := mail.NewSendGridMailService(client)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service)
+	security_tokenService := security_token.NewService(security_tokenRepository)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
 	return container
 }

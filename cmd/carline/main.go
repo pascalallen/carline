@@ -27,16 +27,16 @@ func runConsumers(container Container) {
 	queryBus := container.QueryBus
 	eventDispatcher := container.EventDispatcher
 	userRepository := container.UserRepository
-	securityTokenRepository := container.SecurityTokenRepository
 	schoolRepository := container.SchoolRepository
 	studentRepository := container.StudentRepository
 	databaseSession := container.DatabaseSession
 	mailService := container.MailService
+	securityTokenService := container.SecurityTokenService
 
 	// command registry
-	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, SecurityTokenRepository: securityTokenRepository, EventDispatcher: eventDispatcher})
+	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{UserRepository: userRepository, SecurityTokenService: securityTokenService, EventDispatcher: eventDispatcher})
 	commandBus.RegisterHandler(command.UpdateUser{}.CommandName(), command_handler.UpdateUserHandler{})
-	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{SecurityTokenRepository: securityTokenRepository, EventDispatcher: eventDispatcher, MailService: mailService})
+	commandBus.RegisterHandler(command.SendWelcomeEmail{}.CommandName(), command_handler.SendWelcomeEmailHandler{SecurityTokenService: securityTokenService, EventDispatcher: eventDispatcher, MailService: mailService})
 	commandBus.RegisterHandler(command.CreateSchool{}.CommandName(), command_handler.CreateSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.DeleteSchool{}.CommandName(), command_handler.DeleteSchoolHandler{SchoolRepository: schoolRepository})
 	commandBus.RegisterHandler(command.ImportStudents{}.CommandName(), command_handler.ImportStudentsHandler{SchoolRepository: schoolRepository, StudentRepository: studentRepository, DatabaseSession: databaseSession})
@@ -61,6 +61,8 @@ func runConsumers(container Container) {
 func configureServer(container Container) {
 	queryBus := container.QueryBus
 	commandBus := container.CommandBus
+	securityTokenService := container.SecurityTokenService
+	userRepository := container.UserRepository
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
@@ -69,7 +71,7 @@ func configureServer(container Container) {
 	router.Config()
 	router.Fileserver()
 	router.Default()
-	router.Auth(queryBus, commandBus)
+	router.Auth(queryBus, commandBus, securityTokenService, userRepository)
 	router.Schools(queryBus, commandBus)
 	router.Temp(queryBus)
 	router.Serve(":9990")
