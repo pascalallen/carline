@@ -64,7 +64,7 @@ const Register = (): ReactElement => {
         last_name: lastName,
         email_address: emailAddress
       });
-      // TODO: Redirect to "check your email" success page
+      navigate(Path.CHECK_EMAIL, { state: { emailAddress } });
     } catch (error) {
       if ((error as FailApiResponse)?.statusCode === 400) {
         setErrorMessage('Validation error');
