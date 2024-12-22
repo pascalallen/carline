@@ -5,6 +5,7 @@ package main
 
 import (
 	"github.com/google/wire"
+	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
@@ -27,6 +28,7 @@ func InitializeContainer() Container {
 		messaging.NewRabbitMqEventDispatcher,
 		mail.NewSendGridMailClient,
 		mail.NewSendGridMailService,
+		security_token.NewService,
 	)
 	return Container{}
 }

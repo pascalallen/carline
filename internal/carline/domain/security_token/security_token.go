@@ -76,3 +76,7 @@ func GenerateReset(id ulid.ULID, userId ulid.ULID, expiresAt time.Time) *Securit
 		ExpiresAt:   expiresAt,
 	}
 }
+
+func (s *SecurityToken) IsExpired() bool {
+	return time.Now().After(s.ExpiresAt)
+}

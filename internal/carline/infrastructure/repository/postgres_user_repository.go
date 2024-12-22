@@ -129,3 +129,38 @@ func (r *PostgresUserRepository) Remove(user *user.User) error {
 
 	return nil
 }
+
+func (r *PostgresUserRepository) Save(user *user.User) error {
+	q := `UPDATE users
+		  SET first_name = $1,
+			  last_name = $2,
+			  email_address = $3,
+			  password_hash = $4,
+			  modified_at = $5
+		  WHERE id = $6`
+
+	res, err := r.session.Exec(
+		q,
+		user.FirstName,
+		user.LastName,
+		user.EmailAddress,
+		user.PasswordHash,
+		user.ModifiedAt,
+		user.Id.String(),
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to update User in database: %v", err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to verify update operation: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no User found with id: %s", user.Id.String())
+	}
+
+	return nil
+}
