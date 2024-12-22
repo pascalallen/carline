@@ -4,6 +4,7 @@ import Path from '@domain/constants/Path';
 import RequiresAuthentication from '@routes/middleware/RequiresAuthentication';
 import RouteElementWrapper from '@routes/middleware/RouteElementWrapper';
 import Activate from '@pages/Activate';
+import CheckEmail from '@pages/CheckEmail';
 import Index from '@pages/Index';
 import Login from '@pages/Login';
 import Register from '@pages/Register';
@@ -27,6 +28,10 @@ const routes: RouteObject[] = [
   {
     path: Path.ACTIVATE,
     element: <Activate />
+  },
+  {
+    path: Path.CHECK_EMAIL,
+    element: <CheckEmail />
   },
   {
     path: Path.LOGIN,
