@@ -44,12 +44,13 @@ const Activate = (): ReactElement => {
   const [confirmPassword, setConfirmPassword] = useState(initialState.confirmPassword);
   const [touched, setTouched] = useState(initialState.touched);
   const [errorMessage, setErrorMessage] = useState(initialState.errorMessage);
+  const [isLoggedIn, setIsLoggedIn] = useState(authService.isLoggedIn());
 
   useEffect(() => {
-    if (authService.isLoggedIn()) {
+    if (isLoggedIn) {
       navigate(Path.SCHOOLS, { replace: true });
     }
-  }, [authService, navigate]);
+  }, [isLoggedIn, navigate]);
 
   const handleActivate = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -60,6 +61,7 @@ const Activate = (): ReactElement => {
         password: password,
         confirm_password: confirmPassword
       });
+      setIsLoggedIn(true);
     } catch (error) {
       if ((error as FailApiResponse)?.statusCode === 400) {
         setErrorMessage('Validation error');

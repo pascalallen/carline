@@ -1,6 +1,6 @@
 const INDEX = '/';
 const REGISTER = '/register';
-const ACTIVATE = '/activate';
+const ACTIVATE = '/activate/:token';
 const CHECK_EMAIL = '/check-email';
 const LOGIN = '/login';
 const FORBIDDEN = '/forbidden';

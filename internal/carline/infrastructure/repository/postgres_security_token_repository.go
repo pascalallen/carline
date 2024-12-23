@@ -30,14 +30,23 @@ func (r *PostgresSecurityTokenRepository) GetById(id ulid.ULID) (*security_token
 		WHERE id = $1;`
 
 	row := r.session.QueryRow(q, id.String())
-	if err := row.Scan(&i, &s.UserId, &s.Crypto, &s.Type, &uid, &s.GeneratedAt, &s.ExpiresAt, &s.ModifiedAt); err != nil {
+	// Fixed the Scan mapping
+	if err := row.Scan(
+		&i,
+		&uid,
+		&s.Crypto,
+		&s.Type,
+		&s.GeneratedAt,
+		&s.ExpiresAt,
+		&s.ModifiedAt,
+	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, nil // No token found
 		}
-
 		return nil, fmt.Errorf("error scanning SecurityToken by ID: %s", err)
 	}
 
+	// Parse ULIDs correctly
 	s.Id = ulid.MustParse(i)
 	s.UserId = ulid.MustParse(uid)
 
@@ -60,7 +69,15 @@ func (r *PostgresSecurityTokenRepository) GetByCrypto(crypto crypto.Crypto) (*se
 		WHERE crypto = $1;`
 
 	row := r.session.QueryRow(q, crypto)
-	if err := row.Scan(&i, &s.UserId, &s.Crypto, &s.Type, &uid, &s.GeneratedAt, &s.ExpiresAt, &s.ModifiedAt); err != nil {
+	if err := row.Scan(
+		&i,
+		&uid,
+		&s.Crypto,
+		&s.Type,
+		&s.GeneratedAt,
+		&s.ExpiresAt,
+		&s.ModifiedAt,
+	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -94,11 +111,11 @@ func (r *PostgresSecurityTokenRepository) GetAllForUser(user user.User) (*[]secu
 	defer rows.Close()
 
 	for rows.Next() {
-		var uid string
-		var id string
 		var s security_token.SecurityToken
+		var i string
+		var uid string
 
-		if err := rows.Scan(&id, &uid, &s.Crypto, &s.Type, &s.GeneratedAt, &s.ExpiresAt, &s.ModifiedAt); err != nil {
+		if err := rows.Scan(&i, &uid, &s.Crypto, &s.Type, &s.GeneratedAt, &s.ExpiresAt, &s.ModifiedAt); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
 			}
@@ -106,7 +123,7 @@ func (r *PostgresSecurityTokenRepository) GetAllForUser(user user.User) (*[]secu
 			return nil, fmt.Errorf("error scanning all SecurityTokens for User: %s", err)
 		}
 
-		s.Id = ulid.MustParse(id)
+		s.Id = ulid.MustParse(i)
 		s.UserId = ulid.MustParse(uid)
 		securityTokens = append(securityTokens, s)
 	}

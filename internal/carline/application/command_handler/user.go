@@ -32,7 +32,10 @@ func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 
 	now := time.Now()
 	expiresAt := now.Add(security_token.ActivationDuration)
-	token := h.SecurityTokenService.GenerateActivationToken(*u, expiresAt)
+	token, err := h.SecurityTokenService.GenerateActivationToken(*u, expiresAt)
+	if err != nil {
+		return fmt.Errorf("error generating activation token: %s", err)
+	}
 
 	evt := event.UserRegistered{
 		Id:              c.Id,
