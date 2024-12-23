@@ -44,7 +44,7 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 		Year:      time.Now().Year(),
 	}
 
-	tmpl, err := template.ParseFiles("activation.tmpl")
+	tmpl, err := template.ParseFiles("web/template/auth/activation.tmpl")
 	if err != nil {
 		return fmt.Errorf("error parsing activation template: %s", err)
 	}

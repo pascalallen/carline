@@ -31,16 +31,34 @@ func (s *Service) AddToken(token *SecurityToken) error {
 	return s.SecurityTokenRepository.Add(token)
 }
 
-func (s *Service) GenerateActivationToken(user user.User, expiresAt time.Time) *SecurityToken {
-	return GenerateActivation(ulid.Make(), user.Id, expiresAt)
+func (s *Service) GenerateActivationToken(user user.User, expiresAt time.Time) (*SecurityToken, error) {
+	securityToken := GenerateActivation(ulid.Make(), user.Id, expiresAt)
+	err := s.SecurityTokenRepository.Add(securityToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return securityToken, nil
 }
 
-func (s *Service) GenerateRefreshToken(user user.User, expiresAt time.Time) *SecurityToken {
-	return GenerateRefresh(ulid.Make(), user.Id, expiresAt)
+func (s *Service) GenerateRefreshToken(user user.User, expiresAt time.Time) (*SecurityToken, error) {
+	securityToken := GenerateRefresh(ulid.Make(), user.Id, expiresAt)
+	err := s.SecurityTokenRepository.Add(securityToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return securityToken, nil
 }
 
-func (s *Service) GenerateResetToken(user user.User, expiresAt time.Time) *SecurityToken {
-	return GenerateReset(ulid.Make(), user.Id, expiresAt)
+func (s *Service) GenerateResetToken(user user.User, expiresAt time.Time) (*SecurityToken, error) {
+	securityToken := GenerateReset(ulid.Make(), user.Id, expiresAt)
+	err := s.SecurityTokenRepository.Add(securityToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return securityToken, nil
 }
 
 func (s *Service) ClearTokensForUser(user user.User) error {

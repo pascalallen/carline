@@ -7,11 +7,14 @@
 package main
 
 import (
+	mail2 "github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service/mail"
+	"github.com/sendgrid/sendgrid-go"
+	"os"
 )
 
 import (
@@ -33,8 +36,24 @@ func InitializeContainer() Container {
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
 	client := mail.NewSendGridMailClient()
-	service := mail.NewSendGridMailService(client)
+	service := ProvideMailService(client)
 	security_tokenService := security_token.NewService(security_tokenRepository)
 	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
 	return container
+}
+
+// wire.go:
+
+func ProvideMailService(sendGridClient *sendgrid.Client) mail2.Service {
+	env := os.Getenv("APP_ENV")
+	if env == "production" {
+		return mail.NewSendGridMailService(sendGridClient)
+	}
+
+	host := os.Getenv("MAILTRAP_HOST")
+	port := os.Getenv("MAILTRAP_PORT")
+	username := os.Getenv("MAILTRAP_USERNAME")
+	password := os.Getenv("MAILTRAP_PASSWORD")
+
+	return mail.NewMailtrapMailService(host, port, username, password)
 }
