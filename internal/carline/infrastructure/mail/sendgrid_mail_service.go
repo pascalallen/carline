@@ -5,7 +5,6 @@ import (
 	mail2 "github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	"log"
 )
 
 type SendGridMailService struct {
@@ -20,13 +19,10 @@ func (s *SendGridMailService) Send(from mail2.Sender, to mail2.Recipient, messag
 	f := mail.NewEmail(from.Name, from.EmailAddress)
 	t := mail.NewEmail(to.Name, to.EmailAddress)
 	msg := mail.NewSingleEmail(f, message.Subject, t, message.PlainTextBody, message.HtmlBody)
-	response, err := s.client.Send(msg)
+	_, err := s.client.Send(msg)
 	if err != nil {
-		log.Println(err)
-	} else {
-		fmt.Println(response.StatusCode)
-		fmt.Println(response.Body)
-		fmt.Println(response.Headers)
+		return fmt.Errorf("error sending mail message via SendGrid: %v", err)
 	}
+
 	return nil
 }

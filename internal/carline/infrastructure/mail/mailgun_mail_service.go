@@ -6,22 +6,22 @@ import (
 	"net/smtp"
 )
 
-type MailtrapMailService struct {
+type MailgunMailService struct {
 	Address string
 	Auth    smtp.Auth
 }
 
-func NewMailtrapMailService(host string, port string, username string, password string) mail.Service {
+func NewMailgunMailService(host string, port string, username string, password string) mail.Service {
 	addr := fmt.Sprintf("%s:%s", host, port)
 	auth := smtp.PlainAuth("", username, password, host)
 
-	return &MailtrapMailService{
+	return &MailgunMailService{
 		Address: addr,
 		Auth:    auth,
 	}
 }
 
-func (m *MailtrapMailService) Send(from mail.Sender, to mail.Recipient, message mail.Message) error {
+func (m *MailgunMailService) Send(from mail.Sender, to mail.Recipient, message mail.Message) error {
 	msg := []byte(fmt.Sprintf(
 		"From: %s\r\n"+
 			"To: %s\r\n"+
