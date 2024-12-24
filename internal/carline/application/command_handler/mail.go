@@ -72,7 +72,7 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 
 	err = h.MailService.Send(from, to, msg)
 	if err != nil {
-		return err
+		return fmt.Errorf("error sending welcome email: %s", err)
 	}
 
 	evt := event.WelcomeEmailSent{

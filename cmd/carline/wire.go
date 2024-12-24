@@ -21,12 +21,12 @@ func ProvideMailService(sendGridClient *sendgrid.Client) mail2.Service {
 		return mail.NewSendGridMailService(sendGridClient)
 	}
 
-	host := os.Getenv("MAILTRAP_HOST")
-	port := os.Getenv("MAILTRAP_PORT")
-	username := os.Getenv("MAILTRAP_USERNAME")
-	password := os.Getenv("MAILTRAP_PASSWORD")
+	host := os.Getenv("MAILGUN_HOST")
+	port := os.Getenv("MAILGUN_PORT")
+	username := os.Getenv("MAILGUN_USERNAME")
+	password := os.Getenv("MAILGUN_PASSWORD")
 
-	return mail.NewMailtrapMailService(host, port, username, password)
+	return mail.NewMailgunMailService(host, port, username, password)
 }
 
 func InitializeContainer() Container {
