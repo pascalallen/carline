@@ -7,13 +7,12 @@
 package main
 
 import (
-	mail2 "github.com/pascalallen/carline/internal/carline/domain/mail"
+	"github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
+	mail2 "github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
-	"github.com/sendgrid/sendgrid-go"
 	"os"
 )
 
@@ -35,25 +34,19 @@ func InitializeContainer() Container {
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	client := mail.NewSendGridMailClient()
-	service := ProvideMailService(client)
+	service := provideMailService()
 	security_tokenService := security_token.NewService(security_tokenRepository)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, service, security_tokenService)
 	return container
 }
 
 // wire.go:
 
-func ProvideMailService(sendGridClient *sendgrid.Client) mail2.Service {
-	env := os.Getenv("APP_ENV")
-	if env == "production" {
-		return mail.NewSendGridMailService(sendGridClient)
-	}
-
+func provideMailService() mail.Service {
 	host := os.Getenv("MAILGUN_HOST")
 	port := os.Getenv("MAILGUN_PORT")
 	username := os.Getenv("MAILGUN_USERNAME")
 	password := os.Getenv("MAILGUN_PASSWORD")
 
-	return mail.NewMailgunMailService(host, port, username, password)
+	return mail2.NewMailgunMailService(host, port, username, password)
 }
