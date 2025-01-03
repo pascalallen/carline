@@ -57,8 +57,8 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 	htmlContent := tplBuffer.String()
 
 	from := mail.Sender{
-		Name:         "Pascal Allen",
-		EmailAddress: "pascal.allen88@gmail.com",
+		Name:         "Carline Team",
+		EmailAddress: "no-reply@mg.pascalallen.com",
 	}
 	to := mail.Recipient{
 		Name:         c.FirstName + " " + c.LastName,
