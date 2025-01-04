@@ -11,6 +11,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/rabbitmq/amqp091-go"
+	"github.com/sendgrid/sendgrid-go"
 )
 
 type Container struct {
@@ -25,6 +26,7 @@ type Container struct {
 	CommandBus              messaging.CommandBus
 	QueryBus                messaging.QueryBus
 	EventDispatcher         messaging.EventDispatcher
+	MailClient              *sendgrid.Client
 	MailService             mail.Service
 	SecurityTokenService    security_token.Service
 }
@@ -41,6 +43,7 @@ func NewContainer(
 	commandBus messaging.CommandBus,
 	queryBus messaging.QueryBus,
 	eventDispatcher messaging.EventDispatcher,
+	mailClient *sendgrid.Client,
 	mailService mail.Service,
 	securityTokenService security_token.Service,
 ) Container {
@@ -56,6 +59,7 @@ func NewContainer(
 		CommandBus:              commandBus,
 		QueryBus:                queryBus,
 		EventDispatcher:         eventDispatcher,
+		MailClient:              mailClient,
 		MailService:             mailService,
 		SecurityTokenService:    securityTokenService,
 	}

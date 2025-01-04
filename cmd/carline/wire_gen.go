@@ -7,13 +7,11 @@
 package main
 
 import (
-	"github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/database"
-	mail2 "github.com/pascalallen/carline/internal/carline/infrastructure/mail"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
-	"os"
 )
 
 import (
@@ -34,19 +32,9 @@ func InitializeContainer() Container {
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	service := provideMailService()
+	client := mail.NewSendGridMailClient()
+	service := mail.NewSendGridMailService(client)
 	security_tokenService := security_token.NewService(security_tokenRepository)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, service, security_tokenService)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
 	return container
-}
-
-// wire.go:
-
-func provideMailService() mail.Service {
-	host := os.Getenv("MAILGUN_HOST")
-	port := os.Getenv("MAILGUN_PORT")
-	username := os.Getenv("MAILGUN_USERNAME")
-	password := os.Getenv("MAILGUN_PASSWORD")
-
-	return mail2.NewMailgunMailService(host, port, username, password)
 }
