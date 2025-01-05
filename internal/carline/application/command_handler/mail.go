@@ -58,7 +58,7 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 
 	from := mail.Sender{
 		Name:         "Carline Team",
-		EmailAddress: "no-reply@app.pascalallen.com",
+		EmailAddress: "postmaster@mg.pascalallen.com",
 	}
 	to := mail.Recipient{
 		Name:         c.FirstName + " " + c.LastName,
