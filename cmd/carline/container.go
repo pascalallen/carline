@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"github.com/mailgun/mailgun-go/v4"
 	"github.com/pascalallen/carline/internal/carline/domain/mail"
 	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
@@ -11,7 +12,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/rabbitmq/amqp091-go"
-	"github.com/sendgrid/sendgrid-go"
 )
 
 type Container struct {
@@ -26,7 +26,7 @@ type Container struct {
 	CommandBus              messaging.CommandBus
 	QueryBus                messaging.QueryBus
 	EventDispatcher         messaging.EventDispatcher
-	MailClient              *sendgrid.Client
+	MailClient              *mailgun.MailgunImpl
 	MailService             mail.Service
 	SecurityTokenService    security_token.Service
 }
@@ -43,7 +43,7 @@ func NewContainer(
 	commandBus messaging.CommandBus,
 	queryBus messaging.QueryBus,
 	eventDispatcher messaging.EventDispatcher,
-	mailClient *sendgrid.Client,
+	mailClient *mailgun.MailgunImpl,
 	mailService mail.Service,
 	securityTokenService security_token.Service,
 ) Container {

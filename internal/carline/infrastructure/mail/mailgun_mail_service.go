@@ -1,40 +1,32 @@
 package mail
 
 import (
+	"context"
 	"fmt"
+	"github.com/mailgun/mailgun-go/v4"
 	"github.com/pascalallen/carline/internal/carline/domain/mail"
-	"net/smtp"
+	"time"
 )
 
 type MailgunMailService struct {
-	Address string
-	Auth    smtp.Auth
+	client *mailgun.MailgunImpl
 }
 
-func NewMailgunMailService(host string, port string, username string, password string) mail.Service {
-	addr := fmt.Sprintf("%s:%s", host, port)
-	auth := smtp.PlainAuth("", username, password, host)
-
-	return &MailgunMailService{
-		Address: addr,
-		Auth:    auth,
-	}
+func NewMailgunMailService(client *mailgun.MailgunImpl) mail.Service {
+	return &MailgunMailService{client: client}
 }
 
 func (m *MailgunMailService) Send(from mail.Sender, to mail.Recipient, message mail.Message) error {
-	msg := []byte(fmt.Sprintf(
-		"From: %s\r\n"+
-			"To: %s\r\n"+
-			"Subject: %s\r\n"+
-			"MIME-Version: 1.0\r\n"+
-			"Content-Type: text/html; charset=\"UTF-8\"\r\n"+
-			"\r\n"+
-			"%s",
-		from.EmailAddress,
-		to.EmailAddress,
-		message.Subject,
-		message.HtmlBody,
-	))
+	msg := mailgun.NewMessage(from.EmailAddress, message.Subject, "", to.EmailAddress)
+	msg.SetHTML(message.HtmlBody)
 
-	return smtp.SendMail(m.Address, m.Auth, from.EmailAddress, []string{to.EmailAddress}, msg)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	_, _, err := m.client.Send(ctx, msg)
+	if err != nil {
+		return fmt.Errorf("error sending mail message via Mailgun: %v", err)
+	}
+
+	return nil
 }
