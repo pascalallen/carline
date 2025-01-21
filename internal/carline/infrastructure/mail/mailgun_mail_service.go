@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/mailgun/mailgun-go/v4"
 	"github.com/pascalallen/carline/internal/carline/domain/mail"
-	"log"
 	"time"
 )
 
@@ -25,9 +24,8 @@ func (m *MailgunMailService) Send(from mail.Sender, to mail.Recipient, message m
 	defer cancel()
 
 	res, id, err := m.client.Send(ctx, msg)
-	log.Printf("mailgun response: %v, id: %s", res, id)
 	if err != nil {
-		return fmt.Errorf("error sending mail message via Mailgun: %v", err)
+		return fmt.Errorf("error sending mail message via Mailgun. error: %v, response: %v, id: %v", err, res, id)
 	}
 
 	return nil
