@@ -14,8 +14,8 @@ import (
 )
 
 func provideMailService() mail2.Service {
-	mailgunClient := mail.NewMailgunMailClient()
-	return mail.NewMailgunMailService(mailgunClient)
+	sendgridClient := mail.NewSendGridMailClient()
+	return mail.NewSendGridMailService(sendgridClient)
 }
 
 func InitializeContainer() Container {
@@ -32,7 +32,7 @@ func InitializeContainer() Container {
 		messaging.NewRabbitMqCommandBus,
 		messaging.NewSynchronousQueryBus,
 		messaging.NewRabbitMqEventDispatcher,
-		mail.NewMailgunMailClient,
+		mail.NewSendGridMailClient,
 		provideMailService,
 		security_token.NewService,
 	)

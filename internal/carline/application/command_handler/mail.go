@@ -56,10 +56,9 @@ func (h SendWelcomeEmailHandler) Handle(cmd messaging.Command) error {
 
 	htmlContent := tplBuffer.String()
 
-	fromEmailAddress := fmt.Sprintf("no-reply@%s", os.Getenv("MAILGUN_DOMAIN"))
 	from := mail.Sender{
 		Name:         "Carline Team",
-		EmailAddress: fromEmailAddress,
+		EmailAddress: os.Getenv("EMAIL_SENDER_ADDRESS"),
 	}
 	to := mail.Recipient{
 		Name:         c.FirstName + " " + c.LastName,
