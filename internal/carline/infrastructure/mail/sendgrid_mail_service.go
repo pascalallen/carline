@@ -19,9 +19,9 @@ func (s *SendGridMailService) Send(from mail2.Sender, to mail2.Recipient, messag
 	t := mail.NewEmail(to.Name, to.EmailAddress)
 	msg := mail.NewSingleEmail(f, message.Subject, t, message.PlainTextBody, message.HtmlBody)
 
-	_, err := s.client.Send(msg)
+	res, err := s.client.Send(msg)
 	if err != nil {
-		return fmt.Errorf("error sending mail message via SendGrid: %v", err)
+		return fmt.Errorf("error sending mail message via SendGrid. error: %v, response: %v", err, res)
 	}
 
 	return nil

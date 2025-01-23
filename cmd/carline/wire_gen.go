@@ -33,16 +33,16 @@ func InitializeContainer() Container {
 	commandBus := messaging.NewRabbitMqCommandBus(connection)
 	queryBus := messaging.NewSynchronousQueryBus()
 	eventDispatcher := messaging.NewRabbitMqEventDispatcher(connection)
-	mailgunImpl := mail.NewMailgunMailClient()
+	client := mail.NewSendGridMailClient()
 	service := provideMailService()
 	security_tokenService := security_token.NewService(security_tokenRepository)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, mailgunImpl, service, security_tokenService)
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
 	return container
 }
 
 // wire.go:
 
 func provideMailService() mail2.Service {
-	mailgunClient := mail.NewMailgunMailClient()
-	return mail.NewMailgunMailService(mailgunClient)
+	sendgridClient := mail.NewSendGridMailClient()
+	return mail.NewSendGridMailService(sendgridClient)
 }
