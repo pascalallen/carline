@@ -25,12 +25,13 @@ const RemoveSchoolModal = (props: Props): React.ReactElement => {
   return (
     <Modal
       className="remove-school-modal d-flex justify-content-center align-items-center"
+      dialogClassName="w-75 h-auto"
       show={show}
       onHide={onClose}>
       <Modal.Header className="border-0">
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} />
       </Modal.Header>
-      <Modal.Body className="text-center d-flex flex-column align-items-center pt-0">
+      <Modal.Body className="d-flex flex-column pt-0">
         <h5 className="remove-school-header">Remove School</h5>
         <p className="remove-school-modal-caption">
           Are you sure you want to remove <strong>{school.name}</strong>? Students associated with this school will be

@@ -14,12 +14,13 @@ const ImportStudentsModal = (props: Props): React.ReactElement => {
   return (
     <Modal
       className="import-students-modal d-flex justify-content-center align-items-center"
+      dialogClassName="w-75 h-auto"
       show={show}
       onHide={onClose}>
       <Modal.Header className="border-0">
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} />
       </Modal.Header>
-      <Modal.Body className="d-flex flex-column align-items-center pt-0">
+      <Modal.Body className="d-flex flex-column pt-0">
         <h5 className="import-students-header">Import Students</h5>
         <form id="import-students-form" className="import-students-form" onSubmit={onImport}>
           <div className="mb-3">
