@@ -14,6 +14,7 @@ type SendGridMailService struct {
 func NewSendGridMailService(client *sendgrid.Client) mail2.Service {
 	return &SendGridMailService{client: client}
 }
+
 func (s *SendGridMailService) Send(from mail2.Sender, to mail2.Recipient, message mail2.Message) error {
 	f := mail.NewEmail(from.Name, from.EmailAddress)
 	t := mail.NewEmail(to.Name, to.EmailAddress)

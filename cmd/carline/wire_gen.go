@@ -13,6 +13,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"os"
 )
 
 import (
@@ -43,6 +44,15 @@ func InitializeContainer() Container {
 // wire.go:
 
 func provideMailService() mail2.Service {
-	sendgridClient := mail.NewSendGridMailClient()
-	return mail.NewSendGridMailService(sendgridClient)
+	if os.Getenv("APP_ENV") == "production" {
+		sendgridClient := mail.NewSendGridMailClient()
+		return mail.NewSendGridMailService(sendgridClient)
+	}
+
+	host := os.Getenv("MAILTRAP_HOST")
+	port := os.Getenv("MAILTRAP_PORT")
+	username := os.Getenv("MAILTRAP_USERNAME")
+	password := os.Getenv("MAILTRAP_PASSWORD")
+
+	return mail.NewMailtrapMailService(host, port, username, password)
 }
