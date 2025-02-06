@@ -12,11 +12,15 @@ const AddUserModal = (props: Props): React.ReactElement => {
   const { show, onClose, onAdd, isAdding } = props;
 
   return (
-    <Modal className="add-user-modal d-flex justify-content-center align-items-center" show={show} onHide={onClose}>
+    <Modal
+      className="add-user-modal d-flex justify-content-center align-items-center"
+      dialogClassName="w-75 h-auto"
+      show={show}
+      onHide={onClose}>
       <Modal.Header className="border-0">
         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={onClose} />
       </Modal.Header>
-      <Modal.Body className="text-center d-flex flex-column align-items-center pt-0">
+      <Modal.Body className="d-flex flex-column pt-0">
         <h5 className="add-user-header">Add User</h5>
         <form id="add-user-form" className="add-user-form" onSubmit={onAdd}>
           <div className="mb-3">
