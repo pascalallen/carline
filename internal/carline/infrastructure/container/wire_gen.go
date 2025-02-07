@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package container
 
 import (
 	mail2 "github.com/pascalallen/carline/internal/carline/domain/mail"
@@ -14,10 +14,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
 	"os"
-)
-
-import (
-	_ "github.com/joho/godotenv/autoload"
 )
 
 // Injectors from wire.go:

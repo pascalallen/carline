@@ -40,6 +40,5 @@ func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 		responder.OkResponse[ListResponsePayload](c, &response)
 
 		return
-
 	}
 }

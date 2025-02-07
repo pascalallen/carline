@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/oklog/ulid/v2"
+	"github.com/pascalallen/carline/internal/carline/domain/permission"
 	"github.com/pascalallen/carline/internal/carline/domain/role"
 )
 
@@ -64,6 +65,29 @@ func (r *PostgresRoleRepository) GetByName(name string) (*role.Role, error) {
 	}
 
 	ro.Id = ulid.MustParse(id)
+
+	permissionsQuery := `SELECT p.id, p.name, p.description, p.created_at, p.modified_at FROM permissions p
+						 INNER JOIN role_permissions rp ON p.id = rp.permission_id
+						 WHERE rp.role_id = $1;`
+
+	rows, err := r.session.Query(permissionsQuery, ro.Id.String())
+	if err != nil {
+		return nil, fmt.Errorf("error fetching permissions for Role: %s", err)
+	}
+	defer rows.Close()
+
+	var permissions []permission.Permission
+	for rows.Next() {
+		var p permission.Permission
+		var pid string
+		if err := rows.Scan(&pid, &p.Name, &p.Description, &p.CreatedAt, &p.ModifiedAt); err != nil {
+			return nil, fmt.Errorf("error scanning permission: %s", err)
+		}
+		p.Id = ulid.MustParse(pid)
+		permissions = append(permissions, p)
+	}
+
+	ro.Permissions = permissions
 
 	return &ro, nil
 }
