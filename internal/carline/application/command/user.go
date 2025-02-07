@@ -9,6 +9,7 @@ type RegisterUser struct {
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	EmailAddress string    `json:"email_address"`
+	Admin        bool      `json:"admin"`
 }
 
 func (c RegisterUser) CommandName() string {

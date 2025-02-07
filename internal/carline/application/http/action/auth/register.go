@@ -48,6 +48,7 @@ func HandleRegisterUser(queryBus messaging.QueryBus, commandBus messaging.Comman
 			FirstName:    request.FirstName,
 			LastName:     request.LastName,
 			EmailAddress: request.EmailAddress,
+			Admin:        true,
 		}
 		err = commandBus.Execute(cmd)
 		if err != nil {

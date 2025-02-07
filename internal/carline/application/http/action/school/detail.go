@@ -42,6 +42,5 @@ func HandleDetail(queryBus messaging.QueryBus) gin.HandlerFunc {
 		responder.OkResponse[DetailResponsePayload](c, &response)
 
 		return
-
 	}
 }

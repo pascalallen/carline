@@ -3,7 +3,9 @@ CREATE TABLE roles
     id          CHAR(26) PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     created_at  TIMESTAMP    NOT NULL,
-    modified_at TIMESTAMP
+    modified_at TIMESTAMP,
+    CONSTRAINT unique_role_name UNIQUE (name)
+
 );
 
 CREATE TABLE role_permissions

@@ -117,6 +117,15 @@ func (r *PostgresUserRepository) Add(user *user.User) error {
 		return fmt.Errorf("failed to persist User to database: %v", err)
 	}
 
+	if len(user.Roles) > 0 {
+		q := `INSERT INTO user_roles(user_id, role_id) VALUES($1, $2)`
+		for _, role := range user.Roles {
+			if _, err := r.session.Exec(q, user.Id.String(), role.Id.String()); err != nil {
+				return fmt.Errorf("failed to persist User Role to database: %v", err)
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pascalallen/carline/internal/carline/application/command"
 	"github.com/pascalallen/carline/internal/carline/application/event"
+	"github.com/pascalallen/carline/internal/carline/domain/role"
 	"github.com/pascalallen/carline/internal/carline/domain/security_token"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
@@ -13,9 +14,12 @@ import (
 
 type RegisterUserHandler struct {
 	UserRepository       user.Repository
+	RoleRepository       role.Repository
 	SecurityTokenService security_token.Service
 	EventDispatcher      messaging.EventDispatcher
 }
+
+var adminRoles = []string{"ROLE_USER", "ROLE_ADMIN"}
 
 func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 	c, ok := cmd.(*command.RegisterUser)
@@ -24,6 +28,19 @@ func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 	}
 
 	u := user.Register(c.Id, c.FirstName, c.LastName, c.EmailAddress)
+	if c.Admin {
+		for _, roleName := range adminRoles {
+			r, err := h.RoleRepository.GetByName(roleName)
+			if err != nil {
+				return fmt.Errorf("error admin role by name: %s", err)
+			}
+
+			if r != nil {
+				u.AddRole(*r)
+			}
+		}
+
+	}
 
 	err := h.UserRepository.Add(u)
 	if err != nil {

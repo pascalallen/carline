@@ -66,6 +66,12 @@ You will find the site running at [http://localhost:9991/](http://localhost:9991
 bin/migrate -database "postgres://pascalallen:password@postgres:5432/carline?sslmode=disable" -path . up
 ```
 
+### Seed database
+
+```bash
+bin/exec go run cmd/seed/seed.go
+```
+
 ### Install JavaScript Dependencies
 
 ```bash
