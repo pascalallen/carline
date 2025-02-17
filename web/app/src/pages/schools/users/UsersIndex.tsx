@@ -26,7 +26,7 @@ type State = {
 };
 
 const initialState: State = {
-  loading: true,
+  loading: false,
   users: [],
   showAddUserModal: false,
   addingUser: false,
@@ -53,24 +53,27 @@ const UsersIndex = (): React.ReactElement => {
   const userRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.USER_REMOVED);
 
   useEffect(() => {
-    setLoading(initialState.loading);
+    setLoading(true);
     userService
       .getAll(schoolId ?? '')
       .then((users: User[]) => setUsers(users))
       .catch(error => setErrorMessage(error))
-      .finally(() => setLoading(false));
-  }, [schoolId]);
+      .finally(() => setLoading(initialState.loading));
+  }, [schoolId, userService]);
 
   useEffect(() => {
-    if (userAddedEvent?.id) {
-      setLoading(initialState.loading);
+    if (
+      (userAddedEvent !== undefined && userAddedEvent.id !== undefined) ||
+      (userRemovedEvent !== undefined && userRemovedEvent.id !== undefined)
+    ) {
+      setLoading(true);
       userService
         .getAll(schoolId ?? '')
         .then((users: User[]) => setUsers(users))
         .catch(error => setErrorMessage(error))
-        .finally(() => setLoading(false));
+        .finally(() => setLoading(initialState.loading));
     }
-  }, [userAddedEvent, userRemovedEvent, schoolId]);
+  }, []);
 
   const handleShowAddUserModal = (): void => setShowAddUserModal(true);
   const handleHideAddUserModal = (): void => setShowAddUserModal(initialState.showAddUserModal);
@@ -90,8 +93,6 @@ const UsersIndex = (): React.ReactElement => {
         last_name: lastName,
         email_address: emailAddress
       });
-      setAddingUser(initialState.addingUser);
-      handleHideAddUserModal();
     } catch (error) {
       // 400 fail, 422 error, 500 error
       if ((error as FailApiResponse)?.statusCode === 400) {
@@ -105,8 +106,9 @@ const UsersIndex = (): React.ReactElement => {
       if ((error as ErrorApiResponse)?.statusCode === 500) {
         setErrorMessage((error as ErrorApiResponse).body.message);
       }
-      handleHideAddUserModal();
+    } finally {
       setAddingUser(initialState.addingUser);
+      handleHideAddUserModal();
     }
   };
 
@@ -125,11 +127,11 @@ const UsersIndex = (): React.ReactElement => {
       setRemovingUser(true);
       await userService.remove(schoolId ?? '', selectedUser?.id ?? '');
       setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser?.id));
-      setRemovingUser(initialState.removingUser);
-      handleHideRemoveUserModal();
     } catch (error) {
-      handleHideRemoveUserModal();
+      console.error('Error removing user: ', error);
+    } finally {
       setRemovingUser(initialState.removingUser);
+      handleHideRemoveUserModal();
     }
   };
 

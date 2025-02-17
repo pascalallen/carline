@@ -26,7 +26,7 @@ type State = {
 };
 
 const initialState: State = {
-  loading: true,
+  loading: false,
   schools: [],
   showAddSchoolModal: false,
   addingSchool: false,
@@ -52,24 +52,27 @@ const SchoolsIndex = (): React.ReactElement => {
   const schoolRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.SCHOOL_REMOVED);
 
   useEffect(() => {
-    setLoading(initialState.loading);
+    setLoading(true);
     schoolService
       .getAll()
       .then((schools: School[]) => setSchools(schools))
       .catch(error => setErrorMessage(error))
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(initialState.loading));
+  }, [schoolService]);
 
   useEffect(() => {
-    if (schoolAddedEvent?.id) {
-      setLoading(initialState.loading);
+    if (
+      (schoolAddedEvent !== undefined && schoolAddedEvent.id !== undefined) ||
+      (schoolRemovedEvent !== undefined && schoolRemovedEvent.id !== undefined)
+    ) {
+      setLoading(true);
       schoolService
         .getAll()
         .then((schools: School[]) => setSchools(schools))
         .catch(error => setErrorMessage(error))
-        .finally(() => setLoading(false));
+        .finally(() => setLoading(initialState.loading));
     }
-  }, [schoolAddedEvent, schoolRemovedEvent]);
+  }, []);
 
   const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
   const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);
@@ -83,8 +86,6 @@ const SchoolsIndex = (): React.ReactElement => {
       const formData = new FormData(event.currentTarget);
       const name = formData.get('name')?.toString() ?? '';
       await schoolService.add({ name });
-      setAddingSchool(initialState.addingSchool);
-      handleHideAddSchoolModal();
     } catch (error) {
       // 400 fail, 422 error, 500 error
       if ((error as FailApiResponse)?.statusCode === 400) {
@@ -98,8 +99,9 @@ const SchoolsIndex = (): React.ReactElement => {
       if ((error as ErrorApiResponse)?.statusCode === 500) {
         setErrorMessage((error as ErrorApiResponse).body.message);
       }
-      handleHideAddSchoolModal();
+    } finally {
       setAddingSchool(initialState.addingSchool);
+      handleHideAddSchoolModal();
     }
   };
 
@@ -118,11 +120,11 @@ const SchoolsIndex = (): React.ReactElement => {
       setRemovingSchool(true);
       await schoolService.remove(selectedSchool?.id ?? '');
       setSchools(prevSchools => prevSchools.filter(school => school.id !== selectedSchool?.id));
-      setRemovingSchool(initialState.removingSchool);
-      handleHideRemoveSchoolModal();
     } catch (error) {
-      handleHideRemoveSchoolModal();
+      console.error('Error removing school: ', error);
+    } finally {
       setRemovingSchool(initialState.removingSchool);
+      handleHideRemoveSchoolModal();
     }
   };
 

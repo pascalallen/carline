@@ -21,6 +21,8 @@ type RegisterUserHandler struct {
 
 var adminRoles = []string{"ROLE_USER", "ROLE_ADMIN"}
 
+const userRole = "ROLE_USER"
+
 func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 	c, ok := cmd.(*command.RegisterUser)
 	if !ok {
@@ -32,14 +34,22 @@ func (h RegisterUserHandler) Handle(cmd messaging.Command) error {
 		for _, roleName := range adminRoles {
 			r, err := h.RoleRepository.GetByName(roleName)
 			if err != nil {
-				return fmt.Errorf("error admin role by name: %s", err)
+				return fmt.Errorf("error fetching admin role by name: %s", err)
 			}
 
 			if r != nil {
 				u.AddRole(*r)
 			}
 		}
+	} else {
+		r, err := h.RoleRepository.GetByName(userRole)
+		if err != nil {
+			return fmt.Errorf("error fetching user role by name: %s", err)
+		}
 
+		if r != nil {
+			u.AddRole(*r)
+		}
 	}
 
 	err := h.UserRepository.Add(u)

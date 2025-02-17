@@ -26,7 +26,7 @@ type State = {
 };
 
 const initialState: State = {
-  loading: true,
+  loading: false,
   students: [],
   showImportStudentsModal: false,
   importingStudents: false,
@@ -53,37 +53,39 @@ const StudentsIndex = (): React.ReactElement => {
   const studentRemovedEvent: DomainEvent | undefined = useEvent(DomainEvents.STUDENT_REMOVED);
 
   useEffect(() => {
-    setLoading(initialState.loading);
+    setLoading(true);
     studentService
       .getAll(schoolId ?? '')
       .then((students: Student[]) => setStudents(students))
       .catch(error => setErrorMessage(error))
-      .finally(() => setLoading(false));
-  }, [schoolId]);
+      .finally(() => setLoading(initialState.loading));
+  }, [schoolId, studentService]);
 
   useEffect(() => {
-    if (studentsImportedEvent?.id) {
-      setLoading(initialState.loading);
+    if (
+      (studentsImportedEvent !== undefined && studentsImportedEvent.id !== undefined) ||
+      (studentRemovedEvent !== undefined && studentRemovedEvent.id !== undefined)
+    ) {
+      setLoading(true);
       studentService
         .getAll(schoolId ?? '')
         .then((students: Student[]) => setStudents(students))
         .catch(error => setErrorMessage(error))
-        .finally(() => setLoading(false));
+        .finally(() => setLoading(initialState.loading));
     }
-  }, [studentsImportedEvent, studentRemovedEvent, schoolId]);
+  }, []);
 
   const handleShowImportStudentsModal = (): void => setShowImportStudentsModal(true);
   const handleHideImportStudentsModal = (): void => setShowImportStudentsModal(initialState.showImportStudentsModal);
 
   const handleImportStudents = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setErrorMessage(initialState.errorMessage);
 
     try {
       setImportingStudents(true);
       const formData = new FormData(event.currentTarget);
       await studentService.import(schoolId ?? '', formData);
-      setImportingStudents(initialState.importingStudents);
-      handleHideImportStudentsModal();
     } catch (error) {
       // 400 fail, 422 error, 500 error
       if ((error as FailApiResponse)?.statusCode === 400) {
@@ -97,8 +99,9 @@ const StudentsIndex = (): React.ReactElement => {
       if ((error as ErrorApiResponse)?.statusCode === 500) {
         setErrorMessage((error as ErrorApiResponse).body.message);
       }
-      handleHideImportStudentsModal();
+    } finally {
       setImportingStudents(initialState.importingStudents);
+      handleHideImportStudentsModal();
     }
   };
 
@@ -117,11 +120,11 @@ const StudentsIndex = (): React.ReactElement => {
       setRemovingStudent(true);
       await studentService.remove(schoolId ?? '', selectedStudent?.id ?? '');
       setStudents(prevStudents => prevStudents.filter(student => student.id !== selectedStudent?.id));
-      setRemovingStudent(initialState.removingStudent);
-      handleHideRemoveStudentModal();
     } catch (error) {
-      handleHideRemoveStudentModal();
+      console.error('Error removing student: ', error);
+    } finally {
       setRemovingStudent(initialState.removingStudent);
+      handleHideRemoveStudentModal();
     }
   };
 
