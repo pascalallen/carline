@@ -2,6 +2,14 @@ package query
 
 import "github.com/oklog/ulid/v2"
 
+type ListUsers struct {
+	SchoolId ulid.ULID `json:"school_id"`
+}
+
+func (q ListUsers) QueryName() string {
+	return "ListUsers"
+}
+
 type GetUserById struct {
 	Id ulid.ULID `json:"id"`
 }

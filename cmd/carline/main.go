@@ -79,6 +79,9 @@ func setupEventListeners(eventDispatcher messaging.EventDispatcher, container co
 }
 
 func setupQueryHandlers(queryBus messaging.QueryBus, container container.Container) {
+	queryBus.RegisterHandler(query.ListUsers{}.QueryName(), query_handler.ListUsersHandler{
+		UserRepository: container.UserRepository,
+	})
 	queryBus.RegisterHandler(query.GetUserById{}.QueryName(), query_handler.GetUserByIdHandler{
 		UserRepository: container.UserRepository,
 	})

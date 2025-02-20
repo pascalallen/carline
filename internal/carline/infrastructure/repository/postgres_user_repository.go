@@ -74,7 +74,7 @@ func (r *PostgresUserRepository) GetByEmailAddress(emailAddress string) (*user.U
 	return &u, nil
 }
 
-func (r *PostgresUserRepository) GetAll() (*[]user.User, error) {
+func (r *PostgresUserRepository) GetAll(schoolId ulid.ULID) (*[]user.User, error) {
 	var users []user.User
 	q := `SELECT 
 			id,
@@ -84,9 +84,11 @@ func (r *PostgresUserRepository) GetAll() (*[]user.User, error) {
 			password_hash,
 			created_at,
 			modified_at
-		FROM users`
+		FROM users u
+		JOIN user_schools us ON us.user_id = u.id
+		WHERE us.school_id = $1`
 
-	rows, err := r.session.Query(q)
+	rows, err := r.session.Query(q, schoolId.String())
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Users: %s", err)
 	}
