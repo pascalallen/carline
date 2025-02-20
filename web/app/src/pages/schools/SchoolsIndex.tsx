@@ -5,9 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import { School } from '@domain/types/School';
 import useEvent from '@hooks/useEvents';
-import useSchoolService from '@hooks/useSchoolService';
+import useStore from '@hooks/useStore';
 import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import { DomainEvent } from '@services/eventDispatcher';
+import SchoolService from '@services/SchoolService';
 import AddSchoolModal from '@components/AddSchoolModal';
 import Footer from '@components/Footer';
 import Navbar from '@components/Navbar';
@@ -36,7 +37,7 @@ const initialState: State = {
 };
 
 const SchoolsIndex = (): React.ReactElement => {
-  const schoolService = useSchoolService();
+  const authStore = useStore('authStore');
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(initialState.loading);
@@ -53,12 +54,13 @@ const SchoolsIndex = (): React.ReactElement => {
 
   useEffect(() => {
     setLoading(true);
+    const schoolService = new SchoolService(authStore);
     schoolService
       .getAll()
       .then((schools: School[]) => setSchools(schools))
       .catch(error => setErrorMessage(error))
       .finally(() => setLoading(initialState.loading));
-  }, [schoolService]);
+  }, [authStore]);
 
   useEffect(() => {
     if (
@@ -66,13 +68,14 @@ const SchoolsIndex = (): React.ReactElement => {
       (schoolRemovedEvent !== undefined && schoolRemovedEvent.id !== undefined)
     ) {
       setLoading(true);
+      const schoolService = new SchoolService(authStore);
       schoolService
         .getAll()
         .then((schools: School[]) => setSchools(schools))
         .catch(error => setErrorMessage(error))
         .finally(() => setLoading(initialState.loading));
     }
-  }, []);
+  }, [authStore, schoolAddedEvent, schoolRemovedEvent]);
 
   const handleShowAddSchoolModal = (): void => setShowAddSchoolModal(true);
   const handleHideAddSchoolModal = (): void => setShowAddSchoolModal(initialState.showAddSchoolModal);
@@ -85,6 +88,7 @@ const SchoolsIndex = (): React.ReactElement => {
       setAddingSchool(true);
       const formData = new FormData(event.currentTarget);
       const name = formData.get('name')?.toString() ?? '';
+      const schoolService = new SchoolService(authStore);
       await schoolService.add({ name });
     } catch (error) {
       // 400 fail, 422 error, 500 error
@@ -118,6 +122,7 @@ const SchoolsIndex = (): React.ReactElement => {
   const handleRemoveSchool = async (): Promise<void> => {
     try {
       setRemovingSchool(true);
+      const schoolService = new SchoolService(authStore);
       await schoolService.remove(selectedSchool?.id ?? '');
       setSchools(prevSchools => prevSchools.filter(school => school.id !== selectedSchool?.id));
     } catch (error) {

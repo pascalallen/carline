@@ -5,9 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import { User } from '@domain/types/User';
 import useEvent from '@hooks/useEvents';
-import useUserService from '@hooks/useUserService';
+import useStore from '@hooks/useStore';
 import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import { DomainEvent } from '@services/eventDispatcher';
+import UserService from '@services/UserService';
 import AddUserModal from '@components/AddUserModal';
 import Footer from '@components/Footer';
 import Navbar from '@components/Navbar';
@@ -36,7 +37,7 @@ const initialState: State = {
 };
 
 const UsersIndex = (): React.ReactElement => {
-  const userService = useUserService();
+  const authStore = useStore('authStore');
   const { schoolId } = useParams();
   const navigate = useNavigate();
 
@@ -54,12 +55,13 @@ const UsersIndex = (): React.ReactElement => {
 
   useEffect(() => {
     setLoading(true);
+    const userService = new UserService(authStore);
     userService
       .getAll(schoolId ?? '')
       .then((users: User[]) => setUsers(users))
       .catch(error => setErrorMessage(error))
       .finally(() => setLoading(initialState.loading));
-  }, [schoolId, userService]);
+  }, [authStore, schoolId]);
 
   useEffect(() => {
     if (
@@ -67,13 +69,14 @@ const UsersIndex = (): React.ReactElement => {
       (userRemovedEvent !== undefined && userRemovedEvent.id !== undefined)
     ) {
       setLoading(true);
+      const userService = new UserService(authStore);
       userService
         .getAll(schoolId ?? '')
         .then((users: User[]) => setUsers(users))
         .catch(error => setErrorMessage(error))
         .finally(() => setLoading(initialState.loading));
     }
-  }, []);
+  }, [authStore, schoolId, userAddedEvent, userRemovedEvent]);
 
   const handleShowAddUserModal = (): void => setShowAddUserModal(true);
   const handleHideAddUserModal = (): void => setShowAddUserModal(initialState.showAddUserModal);
@@ -88,6 +91,7 @@ const UsersIndex = (): React.ReactElement => {
       const firstName = formData.get('first_name')?.toString() ?? '';
       const lastName = formData.get('last_name')?.toString() ?? '';
       const emailAddress = formData.get('email_address')?.toString() ?? '';
+      const userService = new UserService(authStore);
       await userService.add(schoolId ?? '', {
         first_name: firstName,
         last_name: lastName,
@@ -125,6 +129,7 @@ const UsersIndex = (): React.ReactElement => {
   const handleRemoveUser = async (): Promise<void> => {
     try {
       setRemovingUser(true);
+      const userService = new UserService(authStore);
       await userService.remove(schoolId ?? '', selectedUser?.id ?? '');
       setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedUser?.id));
     } catch (error) {

@@ -5,9 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import { Student } from '@domain/types/Student';
 import useEvent from '@hooks/useEvents';
-import useStudentService from '@hooks/useStudentService';
+import useStore from '@hooks/useStore';
 import { ErrorApiResponse, FailApiResponse } from '@services/ApiService';
 import { DomainEvent } from '@services/eventDispatcher';
+import StudentService from '@services/StudentService';
 import Footer from '@components/Footer';
 import ImportStudentsModal from '@components/ImportStudentsModal';
 import Navbar from '@components/Navbar';
@@ -36,7 +37,7 @@ const initialState: State = {
 };
 
 const StudentsIndex = (): React.ReactElement => {
-  const studentService = useStudentService();
+  const authStore = useStore('authStore');
   const { schoolId } = useParams();
   const navigate = useNavigate();
 
@@ -54,12 +55,13 @@ const StudentsIndex = (): React.ReactElement => {
 
   useEffect(() => {
     setLoading(true);
+    const studentService = new StudentService(authStore);
     studentService
       .getAll(schoolId ?? '')
       .then((students: Student[]) => setStudents(students))
       .catch(error => setErrorMessage(error))
       .finally(() => setLoading(initialState.loading));
-  }, [schoolId, studentService]);
+  }, [authStore, schoolId]);
 
   useEffect(() => {
     if (
@@ -67,13 +69,14 @@ const StudentsIndex = (): React.ReactElement => {
       (studentRemovedEvent !== undefined && studentRemovedEvent.id !== undefined)
     ) {
       setLoading(true);
+      const studentService = new StudentService(authStore);
       studentService
         .getAll(schoolId ?? '')
         .then((students: Student[]) => setStudents(students))
         .catch(error => setErrorMessage(error))
         .finally(() => setLoading(initialState.loading));
     }
-  }, []);
+  }, [authStore, schoolId, studentRemovedEvent, studentsImportedEvent]);
 
   const handleShowImportStudentsModal = (): void => setShowImportStudentsModal(true);
   const handleHideImportStudentsModal = (): void => setShowImportStudentsModal(initialState.showImportStudentsModal);
@@ -85,6 +88,7 @@ const StudentsIndex = (): React.ReactElement => {
     try {
       setImportingStudents(true);
       const formData = new FormData(event.currentTarget);
+      const studentService = new StudentService(authStore);
       await studentService.import(schoolId ?? '', formData);
     } catch (error) {
       // 400 fail, 422 error, 500 error
@@ -118,6 +122,7 @@ const StudentsIndex = (): React.ReactElement => {
   const handleRemoveStudent = async (): Promise<void> => {
     try {
       setRemovingStudent(true);
+      const studentService = new StudentService(authStore);
       await studentService.remove(schoolId ?? '', selectedStudent?.id ?? '');
       setStudents(prevStudents => prevStudents.filter(student => student.id !== selectedStudent?.id));
     } catch (error) {
