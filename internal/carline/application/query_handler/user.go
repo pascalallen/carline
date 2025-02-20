@@ -7,6 +7,24 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 )
 
+type ListUsersHandler struct {
+	UserRepository user.Repository
+}
+
+func (h ListUsersHandler) Handle(qry messaging.Query) (any, error) {
+	q, ok := qry.(query.ListUsers)
+	if !ok {
+		return nil, fmt.Errorf("invalid query type passed to ListUsersHandler: %v", qry)
+	}
+
+	u, err := h.UserRepository.GetAll(q.SchoolId)
+	if err != nil {
+		return nil, fmt.Errorf("error attempting to list Users from database: %s", err)
+	}
+
+	return u, nil
+}
+
 type GetUserByIdHandler struct {
 	UserRepository user.Repository
 }
