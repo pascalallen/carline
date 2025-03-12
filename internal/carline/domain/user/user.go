@@ -57,6 +57,40 @@ func (u *User) SetPasswordHash(passwordHash password.PasswordHash) {
 	u.ModifiedAt = &now
 }
 
+func (u *User) AddSchool(school school.School) {
+	for _, s := range u.Schools {
+		if s.Id == school.Id {
+			return
+		}
+	}
+
+	u.Schools = append(u.Schools, school)
+	now := time.Now()
+	u.ModifiedAt = &now
+}
+
+func (u *User) RemoveSchool(school school.School) {
+	for i, s := range u.Schools {
+		if s.Id == school.Id {
+			u.Schools[i] = u.Schools[len(u.Schools)-1]
+			u.Schools = u.Schools[:len(u.Schools)-1]
+			now := time.Now()
+			u.ModifiedAt = &now
+			return
+		}
+	}
+}
+
+func (u *User) HasSchool(schoolId ulid.ULID) bool {
+	for _, s := range u.Schools {
+		if s.Id == schoolId {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (u *User) AddRole(role role.Role) {
 	for _, r := range u.Roles {
 		if r.Id == role.Id {

@@ -43,8 +43,10 @@ func HandleCreate(queryBus messaging.QueryBus, commandBus messaging.CommandBus) 
 			return
 		}
 
+		schoolId := ulid.MustParse(c.Param("schoolId"))
 		cmd := command.RegisterUser{
 			Id:           ulid.Make(),
+			SchoolId:     &schoolId,
 			FirstName:    request.FirstName,
 			LastName:     request.LastName,
 			EmailAddress: request.EmailAddress,

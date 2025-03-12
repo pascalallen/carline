@@ -128,6 +128,15 @@ func (r *PostgresUserRepository) Add(user *user.User) error {
 		}
 	}
 
+	if len(user.Schools) > 0 {
+		q := `INSERT INTO user_schools(user_id, school_id) VALUES($1, $2)`
+		for _, school := range user.Schools {
+			if _, err := r.session.Exec(q, user.Id.String(), school.Id.String()); err != nil {
+				return fmt.Errorf("failed to persist User-School association to database: %v", err)
+			}
+		}
+	}
+
 	return nil
 }
 

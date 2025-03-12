@@ -19,15 +19,15 @@ import (
 )
 
 func main() {
-	container := container.InitializeContainer()
-	defer container.MessageQueueConnection.Close()
+	serviceContainer := container.InitializeContainer()
+	defer serviceContainer.MessageQueueConnection.Close()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		runConsumers(container)
-		configureServer(container)
+		runConsumers(serviceContainer)
+		configureServer(serviceContainer)
 	}()
 
 	<-stop
@@ -46,6 +46,7 @@ func runConsumers(container container.Container) {
 func setupCommandHandlers(commandBus messaging.CommandBus, container container.Container) {
 	commandBus.RegisterHandler(command.RegisterUser{}.CommandName(), command_handler.RegisterUserHandler{
 		UserRepository:       container.UserRepository,
+		SchoolRepository:     container.SchoolRepository,
 		RoleRepository:       container.RoleRepository,
 		SecurityTokenService: container.SecurityTokenService,
 		EventDispatcher:      container.EventDispatcher,
