@@ -21,3 +21,12 @@ type DeleteStudent struct {
 func (c DeleteStudent) CommandName() string {
 	return "DeleteStudent"
 }
+
+type DismissStudents struct {
+	SchoolId  ulid.ULID `json:"school_id"`
+	TagNumber string    `json:"tag_number"`
+}
+
+func (c DismissStudents) CommandName() string {
+	return "DismissStudents"
+}

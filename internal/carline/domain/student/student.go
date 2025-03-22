@@ -10,6 +10,7 @@ type Student struct {
 	TagNumber  string     `json:"tag_number"`
 	FirstName  string     `json:"first_name"`
 	LastName   string     `json:"last_name"`
+	Dismissed  bool       `json:"dismissed"`
 	SchoolId   ulid.ULID  `json:"school_id"`
 	CreatedAt  time.Time  `json:"created_at"`
 	ModifiedAt *time.Time `json:"modified_at,omitempty"`
@@ -23,6 +24,7 @@ func Register(id ulid.ULID, tagNumber string, firstName string, lastName string,
 		TagNumber: tagNumber,
 		FirstName: firstName,
 		LastName:  lastName,
+		Dismissed: false,
 		SchoolId:  schoolId,
 		CreatedAt: createdAt,
 	}

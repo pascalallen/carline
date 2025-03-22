@@ -13,6 +13,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/websocket"
 	"os"
 )
 
@@ -33,7 +34,8 @@ func InitializeContainer() Container {
 	client := mail.NewSendGridMailClient()
 	service := provideMailService()
 	security_tokenService := security_token.NewService(security_tokenRepository)
-	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService)
+	hub := websocket.NewHub()
+	container := NewContainer(db, permissionRepository, roleRepository, userRepository, security_tokenRepository, schoolRepository, studentRepository, connection, commandBus, queryBus, eventDispatcher, client, service, security_tokenService, hub)
 	return container
 }
 

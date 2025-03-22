@@ -10,6 +10,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/student"
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/websocket"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sendgrid/sendgrid-go"
 )
@@ -29,6 +30,7 @@ type Container struct {
 	MailClient              *sendgrid.Client
 	MailService             mail.Service
 	SecurityTokenService    security_token.Service
+	WebsocketHub            *websocket.Hub
 }
 
 func NewContainer(
@@ -46,6 +48,7 @@ func NewContainer(
 	mailClient *sendgrid.Client,
 	mailService mail.Service,
 	securityTokenService security_token.Service,
+	websocketHub *websocket.Hub,
 ) Container {
 	return Container{
 		DatabaseSession:         dbSession,
@@ -62,5 +65,6 @@ func NewContainer(
 		MailClient:              mailClient,
 		MailService:             mailService,
 		SecurityTokenService:    securityTokenService,
+		WebsocketHub:            websocketHub,
 	}
 }

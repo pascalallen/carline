@@ -71,6 +71,9 @@ func setupCommandHandlers(commandBus messaging.CommandBus, container container.C
 	commandBus.RegisterHandler(command.DeleteStudent{}.CommandName(), command_handler.DeleteStudentHandler{
 		StudentRepository: container.StudentRepository,
 	})
+	commandBus.RegisterHandler(command.DismissStudents{}.CommandName(), command_handler.DismissStudentsHandler{
+		StudentRepository: container.StudentRepository,
+	})
 }
 
 func setupEventListeners(eventDispatcher messaging.EventDispatcher, container container.Container) {
@@ -111,6 +114,8 @@ func configureServer(container container.Container) {
 	commandBus := container.CommandBus
 	securityTokenService := container.SecurityTokenService
 	userRepository := container.UserRepository
+	websocketHub := container.WebsocketHub
+	go websocketHub.Run()
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
@@ -120,7 +125,7 @@ func configureServer(container container.Container) {
 	router.Fileserver()
 	router.Default()
 	router.Auth(queryBus, commandBus, securityTokenService, userRepository)
-	router.Schools(queryBus, commandBus)
+	router.Schools(queryBus, commandBus, websocketHub)
 	router.Temp(queryBus)
 	router.Serve(":9990")
 }

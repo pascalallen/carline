@@ -148,3 +148,27 @@ func (h DeleteStudentHandler) Handle(cmd messaging.Command) error {
 
 	return nil
 }
+
+type DismissStudentsHandler struct {
+	StudentRepository student.Repository
+}
+
+func (h DismissStudentsHandler) Handle(cmd messaging.Command) error {
+	c, ok := cmd.(*command.DismissStudents)
+	if !ok {
+		return fmt.Errorf("invalid command type passed to DismissStudents: %v", cmd)
+	}
+
+	s, err := h.StudentRepository.GetAllBySchoolIdAndTagNumber(c.SchoolId, c.TagNumber)
+	if err != nil {
+		return fmt.Errorf("no Students found for School ID: %s and Tag Number: %s", c.SchoolId.String(), c.TagNumber)
+	}
+
+	for _, st := range *s {
+		if err = h.StudentRepository.Dismiss(&st); err != nil {
+			return fmt.Errorf("failed to dismiss Student: %s", err)
+		}
+	}
+
+	return nil
+}

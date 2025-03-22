@@ -11,6 +11,7 @@ import (
 	"github.com/pascalallen/carline/internal/carline/infrastructure/mail"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/repository"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/websocket"
 	"os"
 )
 
@@ -45,6 +46,7 @@ func InitializeContainer() Container {
 		mail.NewSendGridMailClient,
 		provideMailService,
 		security_token.NewService,
+		websocket.NewHub,
 	)
 	return Container{}
 }
