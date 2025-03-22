@@ -6,9 +6,10 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school/user"
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
+	"github.com/pascalallen/carline/internal/carline/infrastructure/websocket"
 )
 
-func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.CommandBus) {
+func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.CommandBus, websocketHub *websocket.Hub) {
 	v := r.engine.Group(v1)
 	{
 		v.POST(
@@ -42,6 +43,20 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			middleware.AuthRequired(queryBus),
 			middleware.SchoolAssociationRequired(queryBus),
 			student.HandleList(queryBus),
+		)
+
+		v.POST(
+			"/schools/:schoolId/students/dismissals",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			student.HandleDismissal(commandBus, websocketHub),
+		)
+
+		v.GET(
+			"/schools/:schoolId/students/dismissals/ws",
+			middleware.AuthRequired(queryBus),
+			middleware.SchoolAssociationRequired(queryBus),
+			// TODO
 		)
 
 		v.POST(
