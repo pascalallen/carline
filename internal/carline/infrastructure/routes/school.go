@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/oklog/ulid/v2"
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school"
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school/student"
 	"github.com/pascalallen/carline/internal/carline/application/http/action/school/user"
@@ -56,7 +58,11 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 			"/schools/:schoolId/students/dismissals/ws",
 			middleware.AuthRequired(queryBus),
 			middleware.SchoolAssociationRequired(queryBus),
-			// TODO
+			func(c *gin.Context) {
+				schoolId := c.Param("schoolId")
+				groupId := ulid.MustParse(schoolId)
+				websocket.ServeWs(websocketHub, groupId, c)
+			},
 		)
 
 		v.POST(
