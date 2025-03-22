@@ -182,11 +182,12 @@ func (r *PostgresStudentRepository) Remove(student *student.Student) error {
 }
 
 func (r *PostgresStudentRepository) Dismiss(student *student.Student) error {
-	q := `UPDATE students SET dismissed = $1 WHERE id = $2 AND school_id = $3 AND tag_number = $4`
+	q := `UPDATE students SET dismissed = $1, modified_at = $2 WHERE id = $3 AND school_id = $4 AND tag_number = $5`
 
 	_, err := r.session.Exec(
 		q,
 		true,
+		student.ModifiedAt,
 		student.Id.String(),
 		student.SchoolId.String(),
 		student.TagNumber,
