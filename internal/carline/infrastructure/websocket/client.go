@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/oklog/ulid/v2"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -24,6 +25,9 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all origins for testing purposes.
+	},
 }
 
 // Client represents a middleman between the websocket connection and the hub.

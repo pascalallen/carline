@@ -13,11 +13,35 @@ export type StudentRemovedResponse = {
   id: string;
 };
 
+export type DismissStudentRequest = {
+  tag_number: string;
+};
+
+export type StudentDismissalResponse = {
+  tag_number: string;
+};
+
 class StudentService {
   private readonly authStore: AuthStore;
 
   constructor(authStore: AuthStore) {
     this.authStore = authStore;
+  }
+
+  public async dismiss(schoolId: string, params: DismissStudentRequest) {
+    const response = await request.send<StudentDismissalResponse>({
+      method: HttpMethod.POST,
+      uri: `/api/v1/schools/${schoolId}/students/dismissals`,
+      body: params,
+      options: { auth: true, authStore: this.authStore }
+    });
+
+    eventDispatcher.dispatch({
+      name: DomainEvents.STUDENT_DISMISSED,
+      data: {
+        tag_number: response.body.data?.tag_number
+      }
+    });
   }
 
   public async getAll(schoolId: string): Promise<Student[]> {

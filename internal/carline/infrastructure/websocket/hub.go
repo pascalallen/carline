@@ -96,3 +96,8 @@ func (h *Hub) Run() {
 		}
 	}
 }
+
+// Broadcast sends a message to the given ULID group.
+func (h *Hub) Broadcast(message *Message) {
+	h.broadcast <- message
+}

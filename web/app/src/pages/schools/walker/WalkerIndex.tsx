@@ -1,5 +1,8 @@
 import React, { ReactElement, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useParams } from 'react-router-dom';
+import useStore from '@hooks/useStore';
+import StudentService from '@services/StudentService';
 import Footer from '@components/Footer';
 import Navbar from '@components/Navbar';
 
@@ -14,13 +17,23 @@ const initialState: State = {
 };
 
 const WalkerIndex = (): ReactElement => {
+  const authStore = useStore('authStore');
+  const { schoolId } = useParams();
+
   const [studentNumber, setStudentNumber] = useState(initialState.studentNumber);
   const [studentNumbers, setStudentNumbers] = useState(initialState.studentNumbers);
 
   const handleNumberClick = (value: string) => setStudentNumber(prevInput => prevInput + value);
-  const submitStudentNumber = () => {
-    setStudentNumbers(prevInput => [...prevInput, studentNumber]);
-    setStudentNumber(initialState.studentNumber);
+  const submitStudentNumber = async (): Promise<void> => {
+    try {
+      setStudentNumbers(prevInput => [...prevInput, studentNumber]);
+      const studentService = new StudentService(authStore);
+      await studentService.dismiss(schoolId ?? '', { tag_number: studentNumber });
+    } catch (error) {
+      // TODO
+    } finally {
+      setStudentNumber(initialState.studentNumber);
+    }
   };
 
   return (

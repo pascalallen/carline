@@ -9,11 +9,19 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/user"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
+	"log"
 	"strings"
 )
 
 func AuthRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Bypass WebSocket requests:
+		if c.Request.Header.Get("Upgrade") == "websocket" {
+			log.Println("Bypassing AuthRequired for WebSocket request")
+			c.Next()
+			return
+		}
+
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			responder.BadRequestResponse(c, errors.New("authorization header is required"))

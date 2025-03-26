@@ -161,6 +161,8 @@ func (bus *RabbitMqCommandBus) processCommand(msg amqp091.Delivery) error {
 		cmd = &command.ImportStudents{}
 	case command.DeleteStudent{}.CommandName():
 		cmd = &command.DeleteStudent{}
+	case command.DismissStudents{}.CommandName():
+		cmd = &command.DismissStudents{}
 	default:
 		return fmt.Errorf("unknown command received: %s", msg.Type)
 	}

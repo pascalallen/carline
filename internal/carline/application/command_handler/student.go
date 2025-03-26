@@ -86,7 +86,7 @@ func (h ImportStudentsHandler) Handle(cmd messaging.Command) error {
 		return fmt.Errorf("failed to begin transaction: %s", err)
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO students(id, tag_number, first_name, last_name, school_id, created_at) VALUES($1, $2, $3, $4, $5, $6)")
+	stmt, err := tx.Prepare("INSERT INTO students(id, tag_number, first_name, last_name, dismissed, school_id, created_at) VALUES($1, $2, $3, $4, $5, $6, $7)")
 	if err != nil {
 		_ = tx.Rollback()
 		return fmt.Errorf("failed to prepare statement: %w", err)
@@ -95,7 +95,15 @@ func (h ImportStudentsHandler) Handle(cmd messaging.Command) error {
 
 	for _, row := range rows {
 		id := ulid.Make()
-		_, err := stmt.Exec(id.String(), row[headerMap["tag_number"]], row[headerMap["first_name"]], row[headerMap["last_name"]], s.Id.String(), time.Now())
+		_, err := stmt.Exec(
+			id.String(),
+			row[headerMap["tag_number"]],
+			row[headerMap["first_name"]],
+			row[headerMap["last_name"]],
+			false,
+			s.Id.String(),
+			time.Now(),
+		)
 		if err != nil {
 			_ = tx.Rollback()
 			return fmt.Errorf("failed to execute statement: %s", err)

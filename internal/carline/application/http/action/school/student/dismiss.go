@@ -19,7 +19,7 @@ type DismissalResponsePayload struct {
 	TagNumber string `json:"tag_number"`
 }
 
-func HandleDismissal(commandBus messaging.CommandBus, websocketHub *websocket.Hub) gin.HandlerFunc {
+func HandleDismissal(commandBus messaging.CommandBus, hub *websocket.Hub) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request DismissalRequestPayload
 
@@ -43,7 +43,15 @@ func HandleDismissal(commandBus messaging.CommandBus, websocketHub *websocket.Hu
 			return
 		}
 
-		websocket.ServeWs(websocketHub, ulid.MustParse(schoolId), c)
+		message := &websocket.Message{
+			GroupID: ulid.MustParse(schoolId),
+			Content: []byte(fmt.Sprintf(`{
+                "tag_number": "%s",
+                "status": "dismissed"
+            }`, request.TagNumber)),
+		}
+
+		hub.Broadcast(message)
 
 		response := DismissalResponsePayload{
 			TagNumber: request.TagNumber,

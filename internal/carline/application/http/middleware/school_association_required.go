@@ -9,11 +9,19 @@ import (
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
+	"log"
 	"strings"
 )
 
 func SchoolAssociationRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Bypass WebSocket requests:
+		if c.Request.Header.Get("Upgrade") == "websocket" {
+			log.Println("Bypassing SchoolAssociationRequired for WebSocket request")
+			c.Next()
+			return
+		}
+
 		schoolId := c.Param("schoolId")
 
 		authHeader := c.GetHeader("Authorization")
