@@ -24,8 +24,14 @@ func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 			return
 		}
 
+		dismissed := false
+		if c.Query("dismissed") == "true" {
+			dismissed = true
+		}
+
 		q := query.ListStudents{
-			SchoolId: ulid.MustParse(id),
+			SchoolId:  ulid.MustParse(id),
+			Dismissed: dismissed,
 		}
 		result, err := queryBus.Fetch(q)
 		s, ok := result.(*[]student.Student)

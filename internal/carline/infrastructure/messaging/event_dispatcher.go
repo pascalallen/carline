@@ -125,8 +125,8 @@ func (e *RabbitMqEventDispatcher) messages() <-chan amqp091.Delivery {
 	}
 
 	q, err := e.channel.QueueDeclare(
-		"",
-		false,
+		exchangeName,
+		true,
 		false,
 		true,
 		false,

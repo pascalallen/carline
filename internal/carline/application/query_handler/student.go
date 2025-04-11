@@ -17,7 +17,7 @@ func (h ListStudentsHandler) Handle(qry messaging.Query) (any, error) {
 		return nil, fmt.Errorf("invalid query type passed to ListStudentsHandler: %v", qry)
 	}
 
-	s, err := h.StudentRepository.GetAll(q.SchoolId)
+	s, err := h.StudentRepository.GetAll(q.SchoolId, q.Dismissed)
 	if err != nil {
 		return nil, fmt.Errorf("error attempting to list Schools from database: %s", err)
 	}

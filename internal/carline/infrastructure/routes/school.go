@@ -9,7 +9,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/http/middleware"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/websocket"
-	"log"
 )
 
 func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.CommandBus, websocketHub *websocket.Hub) {
@@ -57,10 +56,9 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 
 		v.GET(
 			"/schools/:schoolId/students/dismissals/ws",
-			middleware.AuthRequired(queryBus),
-			middleware.SchoolAssociationRequired(queryBus),
 			func(c *gin.Context) {
-				log.Println("WebSocket route triggered")
+				middleware.AuthRequired(queryBus)
+				middleware.SchoolAssociationRequired(queryBus)
 				schoolId := c.Param("schoolId")
 				groupId := ulid.MustParse(schoolId)
 				websocket.ServeWs(websocketHub, groupId, c)

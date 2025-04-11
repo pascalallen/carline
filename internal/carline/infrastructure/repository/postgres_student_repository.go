@@ -120,7 +120,7 @@ func (r *PostgresStudentRepository) GetAllBySchoolIdAndTagNumber(schoolId ulid.U
 	return &students, nil
 }
 
-func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID) (*[]student.Student, error) {
+func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID, dismissed bool) (*[]student.Student, error) {
 	var students []student.Student
 	q := `SELECT 
 			id, 
@@ -132,9 +132,10 @@ func (r *PostgresStudentRepository) GetAll(schoolId ulid.ULID) (*[]student.Stude
 			created_at, 
 			modified_at
 		FROM students 
-		WHERE school_id = $1`
+		WHERE school_id = $1
+		AND dismissed = $2`
 
-	rows, err := r.session.Query(q, schoolId.String())
+	rows, err := r.session.Query(q, schoolId.String(), dismissed)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching all Students: %s", err)
 	}

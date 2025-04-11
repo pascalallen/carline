@@ -46,8 +46,7 @@ func HandleDismissal(commandBus messaging.CommandBus, hub *websocket.Hub) gin.Ha
 		message := &websocket.Message{
 			GroupID: ulid.MustParse(schoolId),
 			Content: []byte(fmt.Sprintf(`{
-                "tag_number": "%s",
-                "status": "dismissed"
+                "tag_number": "%s"
             }`, request.TagNumber)),
 		}
 

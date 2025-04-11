@@ -1,3 +1,4 @@
+import { queryStringify, removeEmptyKeys } from '@utilities/collections';
 import request from '@utilities/request';
 import { DomainEvents } from '@domain/constants/DomainEvents';
 import HttpMethod from '@domain/constants/HttpMethod';
@@ -44,10 +45,13 @@ class StudentService {
     });
   }
 
-  public async getAll(schoolId: string): Promise<Student[]> {
+  public async getAll(schoolId: string, params?: { dismissed?: boolean }): Promise<Student[]> {
+    if (!params) {
+      params = {};
+    }
     const response = await request.send<GetAllStudentsResponse>({
       method: HttpMethod.GET,
-      uri: `/api/v1/schools/${schoolId}/students`,
+      uri: `/api/v1/schools/${schoolId}/students${queryStringify(removeEmptyKeys(params))}`,
       options: { auth: true, authStore: this.authStore }
     });
 

@@ -25,28 +25,17 @@ type CommandBus interface {
 }
 
 type RabbitMqCommandBus struct {
-	channel  *amqp091.Channel
-	handlers map[string]CommandHandler
+	connection *amqp091.Connection
+	channel    *amqp091.Channel
+	handlers   map[string]CommandHandler
 }
 
 const queueName = "commands"
 
 func NewRabbitMqCommandBus(conn *amqp091.Connection) CommandBus {
-	var ch *amqp091.Channel
-	var err error
-
-	for i := range 5 {
-		ch, err = conn.Channel()
-		if err != nil {
-			log.Printf("failed to open server channel for command queue (attempt: %d): %s", i+1, err)
-			time.Sleep(time.Second * 2)
-		} else {
-			break
-		}
-	}
-
-	if ch == nil {
-		log.Fatalln("failed to open server channel for command queue after 5 attempts")
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("failed to open server channel for event dispatcher: %s", err)
 	}
 
 	_, err = ch.QueueDeclare(
@@ -62,8 +51,9 @@ func NewRabbitMqCommandBus(conn *amqp091.Connection) CommandBus {
 	}
 
 	return &RabbitMqCommandBus{
-		channel:  ch,
-		handlers: make(map[string]CommandHandler),
+		connection: conn,
+		channel:    ch,
+		handlers:   make(map[string]CommandHandler),
 	}
 }
 
@@ -95,6 +85,15 @@ func (bus *RabbitMqCommandBus) Execute(cmd Command) error {
 	b, err := json.Marshal(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to JSON encode command: %s", err)
+	}
+
+	if bus.channel.IsClosed() {
+		ch, err := bus.connection.Channel()
+		if err != nil {
+			log.Fatalf("failed to recreate server channel for event dispatcher: %s", err)
+		}
+
+		bus.channel = ch
 	}
 
 	err = bus.channel.PublishWithContext(
