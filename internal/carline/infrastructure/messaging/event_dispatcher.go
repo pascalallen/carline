@@ -62,7 +62,8 @@ func (e *RabbitMqEventDispatcher) RegisterListener(eventType string, listener Li
 }
 
 func (e *RabbitMqEventDispatcher) StartConsuming() {
-	msgs := e.messages()
+	queueName := e.setupQueue()
+	msgs := e.messages(queueName)
 
 	var forever chan struct{}
 
@@ -110,26 +111,13 @@ func (e *RabbitMqEventDispatcher) Dispatch(evt Event) {
 	}
 }
 
-func (e *RabbitMqEventDispatcher) messages() <-chan amqp091.Delivery {
-	err := e.channel.ExchangeDeclare(
-		exchangeName,
-		"fanout",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		log.Fatalf("failed to declare exchange: %s", err)
-	}
-
+func (e *RabbitMqEventDispatcher) setupQueue() string {
 	q, err := e.channel.QueueDeclare(
 		exchangeName,
-		true,
-		false,
-		true,
-		false,
+		true,  // durable
+		false, // auto-delete
+		false, // not exclusive
+		false, // no-wait
 		nil,
 	)
 	if err != nil {
@@ -147,10 +135,15 @@ func (e *RabbitMqEventDispatcher) messages() <-chan amqp091.Delivery {
 		log.Fatalf("failed to bind to queue: %s", err)
 	}
 
+	return q.Name
+}
+
+func (e *RabbitMqEventDispatcher) messages(queueName string) <-chan amqp091.Delivery {
+	// No need to declare the exchange again here
 	d, err := e.channel.Consume(
-		q.Name,
+		queueName,
 		"",
-		true,
+		false, // auto-ack disabled
 		false,
 		false,
 		false,
@@ -164,39 +157,59 @@ func (e *RabbitMqEventDispatcher) messages() <-chan amqp091.Delivery {
 }
 
 func (e *RabbitMqEventDispatcher) processEvent(msg amqp091.Delivery) {
-	var evt Event
-
 	switch msg.Type {
-	case event.UserRegistered{}.EventName():
-		evt = &event.UserRegistered{}
-	case event.UserUpdated{}.EventName():
-		evt = &event.UserUpdated{}
-	case event.WelcomeEmailSent{}.EventName():
-		evt = &event.WelcomeEmailSent{}
+	case event.UserRegistered{}.EventName(): // Handle UserRegistered event
+		evt := &event.UserRegistered{}
+		err := json.Unmarshal(msg.Body, evt)
+		if err != nil {
+			log.Println("Failed to unmarshal event:", err)
+			_ = msg.Nack(false, true) // Requeue the message for retry
+			return
+		}
+		e.handleEvent(evt, msg)
+
+	case event.UserUpdated{}.EventName(): // Handle UserUpdated event
+		evt := &event.UserUpdated{}
+		err := json.Unmarshal(msg.Body, evt)
+		if err != nil {
+			log.Println("Failed to unmarshal event:", err)
+			_ = msg.Nack(false, true) // Requeue the message for retry
+			return
+		}
+		e.handleEvent(evt, msg)
+
+	case event.WelcomeEmailSent{}.EventName(): // Handle WelcomeEmailSent event
+		evt := &event.WelcomeEmailSent{}
+		err := json.Unmarshal(msg.Body, evt)
+		if err != nil {
+			log.Println("Failed to unmarshal event:", err)
+			_ = msg.Nack(false, true) // Requeue the message for retry
+			return
+		}
+		e.handleEvent(evt, msg)
+
 	default:
 		log.Printf("Unknown event received: %s", msg.Type)
-		return
+		_ = msg.Ack(false) // Acknowledge unknown events and drop them
 	}
+}
 
-	err := json.Unmarshal(msg.Body, &evt)
-	if err != nil {
-		log.Println("Failed to unmarshal event:", err)
-		return
-	}
-
+func (e *RabbitMqEventDispatcher) handleEvent(evt Event, msg amqp091.Delivery) {
 	listener, found := e.listeners[evt.EventName()]
 	if !found {
 		log.Printf("No listener registered for event type: %s", evt.EventName())
+		_ = msg.Ack(false) // Acknowledge the message to drop it
 		return
 	}
 
-	err = listener.Handle(evt)
+	err := listener.Handle(evt)
 	if err != nil {
-		log.Printf("Error calling listener: %s", err)
+		log.Printf("Error calling listener for event %s: %s", evt.EventName(), err)
+		_ = msg.Nack(false, true) // Requeue the message for retry
 		return
 	}
 
-	err = msg.Ack(false)
+	err = msg.Ack(false) // Acknowledge successful processing
 	if err != nil {
 		log.Printf("Error acknowledging event message: %s", err)
 		return
