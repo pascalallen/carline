@@ -58,7 +58,17 @@ const SchoolsIndex = (): React.ReactElement => {
     schoolService
       .getAll()
       .then((schools: School[]) => setSchools(schools))
-      .catch(error => setErrorMessage(error))
+      .catch(error => {
+        let errorMessage = 'An unexpected error occurred.';
+
+        if ((error as FailApiResponse)?.statusCode === 400) {
+          errorMessage = 'Validation error.';
+        } else if ((error as ErrorApiResponse)?.statusCode === 422) {
+          errorMessage = (error as ErrorApiResponse).body.message ?? errorMessage;
+        }
+
+        setErrorMessage(errorMessage);
+      })
       .finally(() => setLoading(initialState.loading));
   }, [authStore]);
 
@@ -72,7 +82,17 @@ const SchoolsIndex = (): React.ReactElement => {
       schoolService
         .getAll()
         .then((schools: School[]) => setSchools(schools))
-        .catch(error => setErrorMessage(error))
+        .catch(error => {
+          let errorMessage = 'An unexpected error occurred.';
+
+          if ((error as FailApiResponse)?.statusCode === 400) {
+            errorMessage = 'Validation error.';
+          } else if ((error as ErrorApiResponse)?.statusCode === 422) {
+            errorMessage = (error as ErrorApiResponse).body.message ?? errorMessage;
+          }
+
+          setErrorMessage(errorMessage);
+        })
         .finally(() => setLoading(initialState.loading));
     }
   }, [authStore, schoolAddedEvent, schoolRemovedEvent]);

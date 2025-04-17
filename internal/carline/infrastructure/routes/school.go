@@ -57,8 +57,8 @@ func (r Router) Schools(queryBus messaging.QueryBus, commandBus messaging.Comman
 		v.GET(
 			"/schools/:schoolId/students/dismissals/ws",
 			func(c *gin.Context) {
-				middleware.AuthRequired(queryBus)
-				middleware.SchoolAssociationRequired(queryBus)
+				//middleware.AuthRequired(queryBus) // TODO
+				//middleware.SchoolAssociationRequired(queryBus) // TODO
 				schoolId := c.Param("schoolId")
 				groupId := ulid.MustParse(schoolId)
 				websocket.ServeWs(websocketHub, groupId, c)

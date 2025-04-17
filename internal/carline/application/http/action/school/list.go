@@ -9,8 +9,6 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
-	"strings"
 )
 
 type ListResponsePayload struct {
@@ -19,10 +17,17 @@ type ListResponsePayload struct {
 
 func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := service.ParseAccessToken(accessToken)
-		userId := ulid.MustParse(userClaims.Id)
+		userIdRaw, exists := c.Get("userId")
+		if !exists {
+			responder.UnauthorizedResponse(c, errors.New("user not authenticated"))
+			return
+		}
+
+		userId, ok := userIdRaw.(ulid.ULID)
+		if !ok {
+			responder.InternalServerErrorResponse(c, errors.New("failed to retrieve user ID"))
+			return
+		}
 
 		q := query.ListSchools{UserId: userId}
 		result, err := queryBus.Fetch(q)
@@ -30,7 +35,6 @@ func HandleList(queryBus messaging.QueryBus) gin.HandlerFunc {
 		if err != nil || !ok {
 			errorMessage := fmt.Sprint("Something went wrong.")
 			responder.UnprocessableEntityResponse(c, errors.New(errorMessage))
-
 			return
 		}
 

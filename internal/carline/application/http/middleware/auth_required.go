@@ -15,24 +15,28 @@ import (
 func AuthRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			responder.BadRequestResponse(c, errors.New("authorization header is required"))
-
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			responder.BadRequestResponse(c, errors.New("invalid authorization header"))
 			return
 		}
 
-		accessToken := strings.Split(authHeader, " ")[1]
+		accessToken := parts[1]
 		userClaims := service.ParseAccessToken(accessToken)
+		if userClaims == nil {
+			responder.UnauthorizedResponse(c, errors.New("invalid or expired token"))
+			return
+		}
 
 		q := query.GetUserById{Id: ulid.MustParse(userClaims.Id)}
 		result, err := queryBus.Fetch(q)
 		u, ok := result.(*user.User)
 		if u == nil || err != nil || !ok {
-			errorMessage := "invalid credentials"
-			responder.UnauthorizedResponse(c, errors.New(errorMessage))
-
+			responder.UnauthorizedResponse(c, errors.New("invalid credentials"))
 			return
 		}
+
+		c.Set("userId", u.Id)
 
 		c.Next()
 	}

@@ -8,29 +8,30 @@ import (
 	"github.com/pascalallen/carline/internal/carline/application/query"
 	"github.com/pascalallen/carline/internal/carline/domain/school"
 	"github.com/pascalallen/carline/internal/carline/infrastructure/messaging"
-	"github.com/pascalallen/carline/internal/carline/infrastructure/service"
-	"strings"
 )
 
 func SchoolAssociationRequired(queryBus messaging.QueryBus) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		userIdRaw, exists := c.Get("userId")
+		if !exists {
+			responder.UnauthorizedResponse(c, errors.New("user not authenticated"))
+			return
+		}
+
+		userId, ok := userIdRaw.(ulid.ULID)
+		if !ok {
+			responder.InternalServerErrorResponse(c, errors.New("failed to retrieve user ID"))
+			return
+		}
+
 		schoolId := c.Param("schoolId")
-
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			responder.UnauthorizedResponse(c, errors.New("authorization header required"))
-			return
-		}
-
-		accessToken := strings.Split(authHeader, " ")[1]
-		userClaims := service.ParseAccessToken(accessToken)
-		userId, err := ulid.Parse(userClaims.Id)
+		schoolULID, err := ulid.Parse(schoolId)
 		if err != nil {
-			responder.UnauthorizedResponse(c, errors.New("invalid user ID in token"))
+			responder.BadRequestResponse(c, errors.New("invalid school ID"))
 			return
 		}
 
-		q := query.GetSchoolByIdAndUserId{UserId: userId, Id: ulid.MustParse(schoolId)}
+		q := query.GetSchoolByIdAndUserId{UserId: userId, Id: schoolULID}
 		result, err := queryBus.Fetch(q)
 		if err != nil {
 			responder.InternalServerErrorResponse(c, errors.New("something went wrong fetching school for user"))
